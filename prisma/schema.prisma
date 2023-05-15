@@ -15,7 +15,7 @@ model Meetings {
   type      String?
   title     String
   body      String
-  author    User     @relation(fields: [userId], references: [id])
+  author    User?    @relation(fields: [userId], references: [id])
   createdAt DateTime @default(now())
   userId    String
 }

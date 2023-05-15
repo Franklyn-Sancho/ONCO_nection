@@ -4,6 +4,7 @@ import jwt from "@fastify/jwt";
 import userRouter from "./router/user.router";
 import meetingRouter from "./router/meeting.router";
 
+
 require("dotenv").config();
 
 async function main() {
@@ -20,7 +21,7 @@ async function main() {
   });
 
   fastify.register(userRouter);
-  fastify.register(meetingRouter);
+  fastify.register(meetingRouter)
 
   await fastify.listen({ port: 3000, host: "0.0.0.0" });
 }

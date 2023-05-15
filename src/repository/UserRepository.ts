@@ -13,7 +13,7 @@ export default class UserRepository {
         return createUser
     }
 
-    //repository layer find user by email
+    //repository layer find user
     async findByEmail(email: string): Promise<User | null> {
         const dbUser = await prisma.user.findUnique({
             where: {

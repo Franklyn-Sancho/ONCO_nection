@@ -1,20 +1,43 @@
-import { FastifyReply, FastifyRequest } from "fastify";
-import MeetingService from "../service/MeetingService";
-import { Meetings, User } from "@prisma/client";
+import { FastifyRequest, FastifyReply } from "fastify";
 
-export default class MeetingsController {
+import { Meetings, User } from "@prisma/client";
+import { MeetingService } from "../service/MeetingService";
+import { MeetingRepository } from "../repository/MeetingRepository";
+
+/* interface Meeting {
+  title: string,
+  body: string
+} */
+
+export class MeetingController {
   private meetingService: MeetingService;
 
   constructor() {
     this.meetingService = new MeetingService();
   }
 
-  async create(
-    request: FastifyRequest<{ Body: Meetings}>,
+  async handle(
+    request: FastifyRequest,
     reply: FastifyReply
-  ): Promise<Meetings> {
-    const meeting = await this.meetingService.create(request.body);
+  ): Promise<Response> {
+    const { title, body } = request.body as Meetings;
 
-    return meeting;
+    const userId = request.user as User;
+
+    const meetingRepository = new MeetingRepository(title, body, userId);
+
+    try {
+      await this.meetingService.execute(meetingRepository);
+
+      return reply.status(201).send({
+        success: "Publicado com sucesso",
+        content: meetingRepository,
+      });
+    } catch (err) {
+      console.log(meetingRepository);
+      return reply.status(500).send({
+        failed: `erro ao publicar ${err}`,
+      });
+    }
   }
 }

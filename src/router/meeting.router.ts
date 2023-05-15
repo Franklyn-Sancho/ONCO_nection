@@ -1,12 +1,17 @@
 import { FastifyInstance } from "fastify";
-import MeetingsController from "../controller/MeetingsController";
 
-const meetingController = new MeetingsController();
+import { authenticate } from "../plugins/authenticate";
+import { MeetingController } from "../controller/MeetingsController";
+import { MeetingService } from "../service/MeetingService";
 
-//meeting router
-export default async function meetingRouter(fastify: FastifyInstance) {
+export default function meetingRouter (fastify: FastifyInstance, option: any, done: any) {
+  const meetingController = new MeetingController();
+
   fastify.post(
     "/meeting/create",
-    meetingController.create.bind(meetingController)
+    { preHandler: authenticate },
+    meetingController.handle
   );
+
+  done()
 }
