@@ -12,12 +12,12 @@ export default class UserService {
   }
 
   //service layer create new user 
-  async createUser(user: User): Promise<User> {
+  async execute(user: User): Promise<User> {
     const hashPassword = await hash(user.password, 10);
 
     user.password = hashPassword;
 
-    const createdUser = await this.userRepository.createUser(user);
+    const createdUser = await this.userRepository.create(user);
 
     return createdUser;
   }

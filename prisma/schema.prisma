@@ -20,6 +20,13 @@ model Meetings {
   userId    String
 }
 
+model Mural {
+  id        String   @id @default(cuid())
+  title     String
+  body      String
+  createdAt DateTime @default(now())
+}
+
 model Comments {
   id     String @id @default(cuid())
   author User   @relation(fields: [userId], references: [id])

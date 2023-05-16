@@ -3,7 +3,7 @@ import cors from "@fastify/cors";
 import jwt from "@fastify/jwt";
 import userRouter from "./router/user.router";
 import meetingRouter from "./router/meeting.router";
-
+import muralRouter from "./router/mural.router";
 
 require("dotenv").config();
 
@@ -21,7 +21,8 @@ async function main() {
   });
 
   fastify.register(userRouter);
-  fastify.register(meetingRouter)
+  fastify.register(meetingRouter);
+  fastify.register(muralRouter);
 
   await fastify.listen({ port: 3000, host: "0.0.0.0" });
 }

@@ -14,7 +14,7 @@ export default class UserController {
     reply: FastifyReply
   ): Promise<void> {
     try {
-      const createdUser = await this.userService.createUser(request.body);
+      const createdUser = await this.userService.execute(request.body);
       reply.status(201).send(createdUser);
     } catch {
       reply.status(500).send("Verifique seus Dados");

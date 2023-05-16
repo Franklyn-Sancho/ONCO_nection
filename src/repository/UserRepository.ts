@@ -6,7 +6,7 @@ const prisma = new PrismaClient()
 export default class UserRepository {
 
     //repository layer create new user
-    async createUser(user: User): Promise<User> {
+    async create(user: User): Promise<User> {
         const createUser = await prisma.user.create({
             data: user,
         })
