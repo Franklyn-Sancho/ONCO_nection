@@ -1,46 +1,24 @@
-import { PrismaClient, User} from "@prisma/client";
-
+import { PrismaClient, User } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-/* interface Meeting {
-  title: string;
-  body: string;
-  userId: User;
-}
-
-
 export class MeetingRepository {
-  async createMeeting(meeting: Meeting) {
-    const createMeeting = await prisma.meetings.create({
+  constructor(public title: string, public body: string, public userId: User) {}
+
+  async save(): Promise<void> {
+    console.log(
+      "Salvando dados no banco de dados:",
+      this.title,
+      this.body,
+      this.userId.id
+    );
+
+    await prisma.meetings.create({
       data: {
-        title: meeting.title,
-        body: meeting.body,
-        userId: meeting.userId.id
+        title: this.title,
+        body: this.body,
+        userId: this.userId.id,
       },
     });
-    return createMeeting;
   }
-}
-
-const prisma = new PrismaClient() */
-
-export class MeetingRepository {
-    constructor(
-        public title: string,
-        public body: string,
-        public userId: User,
-    ) {}
-
-    async create(): Promise<void> {
-      console.log('Salvando dados no banco de dados:', this.title, this.body, this.userId.id)
-
-        await prisma.meetings.create({
-            data: {
-                title: this.title,
-                body: this.body,
-                userId: this.userId.id
-            }
-        })
-    }
 }
