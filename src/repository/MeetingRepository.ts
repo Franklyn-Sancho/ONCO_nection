@@ -1,24 +1,21 @@
-import { PrismaClient, User } from "@prisma/client";
+import { Meetings, PrismaClient, User } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
 export class MeetingRepository {
-  constructor(public title: string, public body: string, public userId: User) {}
+  async createMeeting(title: string, body: string, userId: User): Promise<Meetings> {
+    console.log(`este é o ${userId} do repositório`);
 
-  async save(): Promise<void> {
-    console.log(
-      "Salvando dados no banco de dados:",
-      this.title,
-      this.body,
-      this.userId.id
-    );
-
-    await prisma.meetings.create({
-      data: {
-        title: this.title,
-        body: this.body,
-        userId: this.userId.id,
-      },
-    });
+    try {
+      return await prisma.meetings.create({
+        data: {
+          title,
+          body,
+          userId: userId.id
+        },
+      });
+    } catch (err) {
+      throw new Error(`Ocorre um erro no repositório ${err}`);
+    }
   }
 }

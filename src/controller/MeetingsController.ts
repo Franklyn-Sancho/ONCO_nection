@@ -1,12 +1,7 @@
-import { FastifyRequest, FastifyReply } from "fastify";
-import { Meetings, User } from "@prisma/client";
-import { MeetingRepository } from "../repository/MeetingRepository";
+import { FastifyReply, FastifyRequest } from "fastify";
 import { MeetingService } from "../service/MeetingService";
-
-interface Meeting {
-  title: string;
-  body: string;
-}
+import { z } from "zod";
+import { User } from "@prisma/client";
 
 export class MeetingController {
   private meetingService: MeetingService;
@@ -15,27 +10,28 @@ export class MeetingController {
     this.meetingService = new MeetingService();
   }
 
-  async handle(
-    request: FastifyRequest,
-    reply: FastifyReply
-  ): Promise<Response> {
-    const { title, body } = request.body as Meetings;
+  async createMeeting(request: FastifyRequest, reply: FastifyReply) {
+    const meetingValidation = z.object({
+      title: z.string({ required_error: "title is required" }),
+      body: z.string({ required_error: "body is required" }),
+    });
 
-    const userId = request.user as User;
-
-    const meetingRepository = new MeetingRepository(title, body, userId);
+    const { title, body } = meetingValidation.parse(request.body);
 
     try {
-      await this.meetingService?.execute(meetingRepository);
-      console.log("Meeting salvo com sucesso!");
-
-      return reply.status(201).send({
+      const createNewMeeting = await this.meetingService.createMeeting(
+        title,
+        body,
+        request.user as User
+      );
+      reply.status(200).send({
         success: "Publicado com sucesso",
-        content: meetingRepository,
+        content: createNewMeeting,
       });
     } catch (err) {
-      return reply.status(500).send({
-        failed: `erro ao publicar ${err}`,
+      console.log(title, body, request.user);
+      reply.status(500).send({
+        failed: `Erro ao publicar ${err}`,
       });
     }
   }

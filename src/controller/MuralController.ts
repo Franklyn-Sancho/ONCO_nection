@@ -1,6 +1,7 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import { MuralService } from "../service/MuralService";
 import { Mural } from "@prisma/client";
+import { z } from "zod";
 
 export class MuralController {
   private muralService: MuralService;
@@ -13,11 +14,13 @@ export class MuralController {
     request: FastifyRequest<{ Body: Mural }>,
     reply: FastifyReply
   ): Promise<void> {
-    try {
-      /* if (!mural.title && mural.body) {
-        throw new Error("Title and Body Are Required");
-      } */
+    const muralValidation = z.object({
+      title: z.string({ required_error: "title required" }),
+      body: z.string({ required_error: "body required" }),
+    });
 
+    muralValidation.parse(request.body);
+    try {
       const createdMural = await this.muralService.create(request.body);
 
       reply.status(201).send(createdMural);

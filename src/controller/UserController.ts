@@ -1,6 +1,7 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import UserService from "../service/UserService";
 import { User } from "@prisma/client";
+import { z } from "zod";
 
 export default class UserController {
   private userService: UserService;
@@ -13,6 +14,14 @@ export default class UserController {
     request: FastifyRequest<{ Body: User }>,
     reply: FastifyReply
   ): Promise<void> {
+    const userValidade = z.object({
+      name: z.string({ required_error: "nome requerido" }),
+      email: z.string({ required_error: "email requerido" }).email(),
+      password: z.string({ required_error: "senha requerida" }),
+    });
+
+    userValidade.parse(request.body);
+
     try {
       const createdUser = await this.userService.execute(request.body);
       reply.status(201).send(createdUser);
