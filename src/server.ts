@@ -5,7 +5,7 @@ import userRouter from "./router/user.router";
 import meetingRouter from "./router/meeting.router";
 import muralRouter from "./router/mural.router";
 
-require("dotenv").config();
+import("dotenv").then((dotenv) => dotenv.config());
 
 async function main() {
   const fastify = Fastify({
@@ -18,6 +18,7 @@ async function main() {
 
   await fastify.register(jwt, {
     secret: process.env.TOKEN_KEY,
+    decode: { complete: true },
   });
 
   fastify.register(userRouter);
@@ -25,6 +26,8 @@ async function main() {
   fastify.register(muralRouter);
 
   await fastify.listen({ port: 3000, host: "0.0.0.0" });
+
+  return fastify;
 }
 
-main();
+export default main();

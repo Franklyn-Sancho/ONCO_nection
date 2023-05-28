@@ -8,7 +8,7 @@ export class MeetingService {
     this.meetingRepository = new MeetingRepository();
   }
 
-  async createMeeting(title: string, body: string, userId: User) {
+  async createMeeting(title: string, body: string, userId: string) {
     console.log("service function is working");
     return await this.meetingRepository.createMeeting(title, body, userId);
   }

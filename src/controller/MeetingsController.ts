@@ -1,7 +1,6 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import { MeetingService } from "../service/MeetingService";
 import { z } from "zod";
-import { User } from "@prisma/client";
 
 export class MeetingController {
   private meetingService: MeetingService;
@@ -19,17 +18,18 @@ export class MeetingController {
     const { title, body } = meetingValidation.parse(request.body);
 
     try {
+
       const createNewMeeting = await this.meetingService.createMeeting(
         title,
         body,
-        request.user as User
+        request.user.id
       );
       reply.status(200).send({
         success: "Publicado com sucesso",
         content: createNewMeeting,
       });
     } catch (err) {
-      console.log(title, body, request.user);
+      console.log(title, body, request.user.id);
       reply.status(500).send({
         failed: `Erro ao publicar ${err}`,
       });
