@@ -5,7 +5,7 @@ import jwt from "jsonwebtoken";
 
 //service user classes
 export default class UserService {
-  private userRepository: UserRepository;
+  private userRepository: UserRepository; //object instance userRepository 
 
   constructor() {
     this.userRepository = new UserRepository();
@@ -13,10 +13,11 @@ export default class UserService {
 
   //service layer create new user
   async execute(user: User): Promise<User> {
-    const hashPassword = await bcrypt.hash(user.password, 10);
+    //*create a password hash 
+    const hashPassword = await bcrypt.hash(user.password, 10); 
 
     user.password = hashPassword;
-
+    //create fuction by object instance userRepository 
     const createdUser = await this.userRepository.create(user);
 
     return createdUser;
@@ -39,6 +40,7 @@ export default class UserService {
       throw new Error("Invalid Credentials");
     }
 
+    //return a token by jwt.sign
     const token = jwt.sign({ userId: findUser.id }, process.env.TOKEN_KEY, {
       expiresIn: "2h",
     });

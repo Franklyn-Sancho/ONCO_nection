@@ -1,5 +1,6 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 
+//plugin to authenticate 
 export async function authenticate(
   request: FastifyRequest,
   reply: FastifyReply

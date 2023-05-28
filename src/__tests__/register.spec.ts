@@ -18,8 +18,8 @@ describe("UserController", () => {
 
   it("Should create a user", async () => {
     const response = await request(server.server).post("/user/register").send({
-      name: "Test User",
-      email: "test@example.com",
+      name: "Test User Register",
+      email: "test-register@example.com",
       password: "password",
     });
 

@@ -2,8 +2,12 @@ import { FastifyReply, FastifyRequest } from "fastify";
 import UserService from "../service/UserService";
 import { User } from "@prisma/client";
 import { z } from "zod";
-import { userValidade } from "../utils/userValidations";
+import {
+  userRegisterValidade,
+  userAutenticateValidade,
+} from "../utils/userValidations";
 
+//class user controller
 export default class UserController {
   private userService: UserService;
 
@@ -11,15 +15,16 @@ export default class UserController {
     this.userService = new UserService();
   }
 
+  //createUser function
   async createUser(
     request: FastifyRequest<{ Body: User }>,
     reply: FastifyReply
   ): Promise<void> {
+    const { body } = request;
 
-    const {body} = request;
-
+    //This structure maps the Zod validation error and returns it
     try {
-      await userValidade.parseAsync(body);
+      await userRegisterValidade.parseAsync(body);
     } catch (error) {
       if (error instanceof z.ZodError) {
         const validationError = error.errors.map((e) => e.message).join(", ");
@@ -27,10 +32,11 @@ export default class UserController {
           message: `Ocorreu um erro: ${validationError}`,
         });
         return;
-      } 
+      }
       throw error;
     }
 
+    //this struct try to save new user on database
     try {
       await this.userService.execute(request.body);
       reply.status(201).send({
@@ -57,15 +63,29 @@ export default class UserController {
     }
   } */
 
+  //authenticationUser function
   async authenticateUser(
     request: FastifyRequest<{ Body: User }>,
     reply: FastifyReply
   ): Promise<void> {
+    const { body } = request;
     try {
+      await userAutenticateValidade.parseAsync(body)
       const token = await this.userService.authenticate(request.body);
       reply.send({ token });
-    } catch {
-      reply.status(401).send("Email ou Senha inválidos");
+    } catch (error) {
+      //This structure maps the Zod validation error and returns it
+      if(error instanceof z.ZodError) {
+        const validationError = error.errors.map((e) => e.message).join(", ");
+        reply.status(400).send({
+          message: `Ocorreu um erro: ${validationError}`,
+        });
+        return;
+      } 
+
+      reply.status(401).send({
+        message: "Email ou Senha inválidos"
+      })
     }
   }
 }

@@ -4,6 +4,7 @@ import { MuralController } from "../controller/MuralController";
 
 const muralController = new MuralController();
 
+//murals router to find and view 
 export default async function muralRouter(fastify: FastifyInstance) {
   fastify.get(
     "/mural",
@@ -15,7 +16,7 @@ export default async function muralRouter(fastify: FastifyInstance) {
     }
   );
 
-  fastify.get("/mural/:id", muralController.find.bind(muralController))
+  fastify.get("/mural/:id", muralController.find.bind(muralController)) //find mural by id 
 
-  fastify.post("/mural/create", muralController.create.bind(muralController));
+  fastify.post("/mural/create", muralController.create.bind(muralController)); //create a mural
 }

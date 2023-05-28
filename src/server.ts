@@ -7,6 +7,7 @@ import muralRouter from "./router/mural.router";
 
 import("dotenv").then((dotenv) => dotenv.config());
 
+//app function 
 async function main() {
   const fastify = Fastify({
     logger: true,
@@ -21,13 +22,13 @@ async function main() {
     decode: { complete: true },
   });
 
-  fastify.register(userRouter);
-  fastify.register(meetingRouter);
-  fastify.register(muralRouter);
+  fastify.register(userRouter); //register to userRouter
+  fastify.register(meetingRouter); //register to meetingRouter
+  fastify.register(muralRouter); //register to muralRouter
 
   await fastify.listen({ port: 3000, host: "0.0.0.0" });
 
-  return fastify;
+  return fastify; 
 }
 
 export default main();
