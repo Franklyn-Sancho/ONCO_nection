@@ -9,7 +9,7 @@
   },
   "scripts": {
     "dev": "tsx watch src/server.ts",
-    "test": "NODE_ENV=TEST jest"
+    "test": "jest --forceExit --detectOpenHandles  --watchAll --maxWorkers=1"
   },
   "keywords": [],
   "author": "",

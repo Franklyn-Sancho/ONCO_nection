@@ -30,20 +30,43 @@ describe("UserController", () => {
 
     await prisma.user.delete({
       where: {
-        email: "test@example.com",
+        email: "test-register@example.com",
       },
     });
   });
 
-  it("Should to return validation error", async () => {
+  it("Should to return validation error name required", async () => {
     const response = await request(server.server).post("/user/register").send({
-      email: "rachel@email.com",
+      email: "test@email.com",
       password: "password",
     });
 
     expect(response.status).toBe(400);
     expect(response.body).toStrictEqual({
       message: "Ocorreu um erro: nome requerido",
+    });
+  });
+
+  it("Should to return validation error name and email", async () => {
+    const response = await request(server.server).post("/user/register").send({
+      email: "clarinha@email.com",
+      password: "password",
+    });
+
+    expect(response.status).toBe(400);
+    expect(response.body).toStrictEqual({
+      message: "Ocorreu um erro: nome requerido, verifique seus dados",
+    });
+  });
+  it("Should to return validation password error", async () => {
+    const response = await request(server.server).post("/user/register").send({
+      name: "test",
+      email: "test@email.com",
+    });
+
+    expect(response.status).toBe(400);
+    expect(response.body).toStrictEqual({
+      message: "Ocorreu um erro: senha requerida",
     });
   });
 
