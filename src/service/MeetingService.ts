@@ -1,23 +1,27 @@
-import { User } from "@prisma/client";
-import { MeetingRepository } from "../repository/MeetingRepository";
+import { IMeetingRepository } from "../repository/MeetingRepository";
 
-/**
- * this resource is like a forum
- * the users can create a foruns for to talk, share.
- * The difference between the mural and the forum 
- * is that in the first one there are no comments, only sharing of ideas
- */
+export interface IMeetingService {
+  createMeeting(data: {
+    type: string;
+    title: string;
+    body: string;
+    userId: string;
+  }): Promise<any>;
+}
 
-//class Meeting Service
-export class MeetingService {
-  private meetingRepository: MeetingRepository;
+export class MeetingService implements IMeetingService {
+  constructor(private meetingRepository: IMeetingRepository) {}
 
-  constructor() {
-    this.meetingRepository = new MeetingRepository();
-  }
-
-  async createMeeting(title: string, body: string, userId: string) {
-    /* console.log("service function is working"); */
-    return await this.meetingRepository.createMeeting(title, body, userId);
+  async createMeeting(data: {
+    type: string;
+    title: string;
+    body: string;
+    userId: string;
+  }): Promise<any> {
+    try {
+      return await this.meetingRepository.createMeeting(data);
+    } catch (error) {
+      throw new Error(`Error creating meeting: ${error}`);
+    }
   }
 }

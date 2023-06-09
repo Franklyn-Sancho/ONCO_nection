@@ -1,15 +1,20 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 
-//plugin to authenticate 
+//plugin to authenticate
 export async function authenticate(
   request: FastifyRequest,
   reply: FastifyReply
 ) {
   try {
+    //verifica o token jwt do usuário
     await request.jwtVerify();
+    //atribui o token decodificado ao objeto request.user
     const decodedToken = request.user;
-    request.user = { id: decodedToken.id };
-  } catch (err) {
-    reply.send(err);
+    request.user = decodedToken;
+    console.log(decodedToken);
+  } catch (error) {
+    reply.status(401).send({
+      error: "Falha na autenticação",
+    });
   }
 }

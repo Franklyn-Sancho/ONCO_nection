@@ -2,7 +2,7 @@ import Fastify from "fastify";
 import cors from "@fastify/cors";
 import jwt from "@fastify/jwt";
 import userRouter from "./router/user.router";
-import meetingRouter from "./router/meeting.router";
+import { meetingRouter } from "./router/meeting.router";
 import muralRouter from "./router/mural.router";
 
 import("dotenv").then((dotenv) => dotenv.config());

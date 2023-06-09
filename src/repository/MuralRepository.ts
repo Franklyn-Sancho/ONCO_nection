@@ -2,7 +2,7 @@ import { Mural, PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-//class user repository
+//class mural repository
 export class MuralRepository {
 
   //repository layer create new mural

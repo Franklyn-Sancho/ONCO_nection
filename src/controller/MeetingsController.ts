@@ -1,37 +1,35 @@
 import { FastifyReply, FastifyRequest } from "fastify";
-import { MeetingService } from "../service/MeetingService";
-import { z } from "zod";
+import { IMeetingService } from "../service/MeetingService";
 
-export class MeetingController {
-  private meetingService: MeetingService;
+export interface IMeetingController {
+  createMeeting(request: FastifyRequest, reply: FastifyReply): Promise<void>;
+}
 
-  constructor() {
-    this.meetingService = new MeetingService();
-  }
+export class MeetingController implements IMeetingController {
+  constructor(private meetingService: IMeetingService) {}
 
-  async createMeeting(request: FastifyRequest, reply: FastifyReply) {
-    const meetingValidation = z.object({
-      title: z.string({ required_error: "title is required" }),
-      body: z.string({ required_error: "body is required" }),
-    });
-
-    const { title, body } = meetingValidation.parse(request.body);
-
+  async createMeeting(
+    request: FastifyRequest,
+    reply: FastifyReply
+  ): Promise<void> {
     try {
+      const { type, title, body } = request.body as any;
+      const { userId } = request.user as any;
 
-      const createNewMeeting = await this.meetingService.createMeeting(
+      
+
+      const meeting = await this.meetingService.createMeeting({
+        type,
         title,
         body,
-        request.user.id
-      );
-      reply.status(200).send({
-        success: "Publicado com sucesso",
-        content: createNewMeeting,
+        userId,
       });
-    } catch (err) {
-      console.log(title, body, request.user.id);
-      reply.status(500).send({
-        failed: `Erro ao publicar ${err}`,
+      reply.send(meeting);
+    } catch (error) {
+      console.log(request.user)
+      reply.code(500).send({
+        
+        error: error,
       });
     }
   }

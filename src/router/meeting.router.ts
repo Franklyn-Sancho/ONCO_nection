@@ -1,33 +1,25 @@
-import { FastifyInstance } from "fastify";
+import { FastifyInstance, preValidationHookHandler } from "fastify";
 import { MeetingController } from "../controller/MeetingsController";
+import { MeetingService } from "../service/MeetingService";
+import { MeetingRepository } from "../repository/MeetingRepository";
 import { authenticate } from "../plugins/authenticate";
+import { PrismaClient } from "@prisma/client";
 
-/* const meetingController = new MeetingController();
-
-export default async function (fastify: FastifyInstance) {
-  fastify.post("/meeting/new", {preHandler: authenticate}, meetingController.createMeeting);
-} */
-
-/**
- * 
- * meeting router to create for while
- * i need to repair this router because the requisition is not 
- * recognizing the foreign key
- */
-export default function meetingRouter(
+export function meetingRouter(
   fastify: FastifyInstance,
   options: any,
-  done: any
+  done: () => void
 ) {
-  const meetingController = new MeetingController();
+  const prisma = new PrismaClient
+  const meetingRepository = new MeetingRepository(prisma);
+  const meetingService = new MeetingService(meetingRepository);
+  const meetingController = new MeetingController(meetingService);
 
-
-  fastify.route({
-    method: "POST", //post method
-    url: "/meeting/create", //router url
-    preHandler: authenticate, //prehandler is required
-    handler: meetingController.createMeeting.bind(meetingController)
-  });
+  fastify.post(
+    "/meetings/create",
+    { preHandler: authenticate },
+    meetingController.createMeeting.bind(meetingController)
+  );
 
   done();
 }

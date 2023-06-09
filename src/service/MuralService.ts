@@ -3,7 +3,7 @@ import { MuralRepository } from "../repository/MuralRepository";
 
 //In this app everyone can create a wall to share their story
 
-//service mural classes
+
 export class MuralService {
   private muralRepository: MuralRepository; //object instance muralRepository
 

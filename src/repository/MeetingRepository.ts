@@ -1,32 +1,41 @@
 import { Meetings, PrismaClient } from "@prisma/client";
 
-const prisma = new PrismaClient();
+/* const prisma = new PrismaClient(); */
 
-//class meeting repository
-export class MeetingRepository {
+//interface repository meeting 
+export interface IMeetingRepository {
+  createMeeting(data: {
+    type: string;
+    title: string;
+    body: string;
+    userId: string;
+  }): Promise <Meetings>
+}
 
-  //repository layer create a new meeting
-  async createMeeting(title: string, body: string, userId: string) {
-    const findUser = await prisma.user.findUnique({
-      where: {
-        id: userId,
-      },
-    });
+//MeetingRepository class implement interface 
+export class MeetingRepository implements IMeetingRepository {
+  private prisma: PrismaClient
+
+  //instancia do Prisma Client no constructor 
+  constructor(prisma: PrismaClient) {
+    this.prisma = prisma
+  }
+
+  //função responsável por criar um novo meeting
+  async createMeeting(data: {
+    type: string, 
+    title: string,
+    body: string, 
+    userId: string
+  }) {
 
     try {
-      if (!findUser) {
-        throw new Error("Usuário não encontrado");
-      }
-
-      return await prisma.meetings.create({
-        data: {
-          title,
-          body,
-          userId: findUser.id,
-        },
-      });
-    } catch (err) {
-      throw new Error(`Ocorre um erro no repositório ${err}`);
+      return await this.prisma.meetings.create({
+        data, //a estrutura do data está no parâmetro 
+      })
+    }
+    catch (error) {
+      throw new Error(`Error creating meeting: ${error}`)
     }
   }
 }

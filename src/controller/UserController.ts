@@ -49,20 +49,6 @@ export default class UserController {
     }
   }
 
-  /* userValidade.parse(request.body);
-
-    try {
-      const createdUser = await this.userService.execute(request.body);
-      reply.status(201).send({
-        message: "Registro feito com sucesso",
-      });
-    } catch (error) {
-      reply.status(500).send({
-        message: "Verifique seus dados",
-      });
-    }
-  } */
-
   //authenticationUser function
   async authenticateUser(
     request: FastifyRequest<{ Body: User }>,
