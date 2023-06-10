@@ -10,7 +10,7 @@ export function meetingRouter(
   options: any,
   done: () => void
 ) {
-  const prisma = new PrismaClient
+  const prisma = new PrismaClient();
   const meetingRepository = new MeetingRepository(prisma);
   const meetingService = new MeetingService(meetingRepository);
   const meetingController = new MeetingController(meetingService);
@@ -19,6 +19,18 @@ export function meetingRouter(
     "/meetings/create",
     { preHandler: authenticate },
     meetingController.createMeeting.bind(meetingController)
+  );
+
+  fastify.post(
+    "/meeting/:id/likes",
+    { preHandler: authenticate },
+    meetingController.addLike.bind(meetingController)
+  );
+
+  fastify.post(
+    "/meeting/:id/comments",
+    { preHandler: authenticate },
+    meetingController.addComment.bind(meetingController)
   );
 
   done();

@@ -11,13 +11,34 @@ datasource db {
 }
 
 model Meetings {
-  id        String   @id @default(cuid())
+  id        String     @id @default(cuid())
   type      String?
   title     String
   body      String
-  author    User?    @relation(fields: [userId], references: [id])
-  createdAt DateTime @default(now())
+  author    User?      @relation(fields: [userId], references: [id])
+  createdAt DateTime   @default(now())
   userId    String
+  Comments  Comments[]
+  Likes     Likes[]
+}
+
+model Comments {
+  id         String   @id @default(cuid())
+  meetingId  Meetings @relation(fields: [meetingsId], references: [id])
+  author     User     @relation(fields: [userId], references: [id])
+  content    String
+  createdAt  DateTime @default(now())
+  meetingsId String
+  userId     String
+}
+
+model Likes {
+  id         String   @id @default(cuid())
+  meetingId  Meetings @relation(fields: [meetingsId], references: [id])
+  userId     User     @relation(fields: [author], references: [id])
+  createdAt  DateTime @default(now())
+  meetingsId String
+  author    String
 }
 
 model Mural {
@@ -25,12 +46,6 @@ model Mural {
   title     String
   body      String
   createdAt DateTime @default(now())
-}
-
-model Comments {
-  id     String @id @default(cuid())
-  author User   @relation(fields: [userId], references: [id])
-  userId String
 }
 
 model User {
@@ -41,6 +56,7 @@ model User {
   token    String?
   forum    Meetings[]
   Comments Comments[]
+  Likes    Likes[]
 }
 
 model Visitor {
