@@ -16,7 +16,7 @@ export function meetingRouter(
   const meetingController = new MeetingController(meetingService);
 
   fastify.post(
-    "/meetings/create",
+    "/meeting/create",
     { preHandler: authenticate },
     meetingController.createMeeting.bind(meetingController)
   );

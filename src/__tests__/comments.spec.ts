@@ -3,11 +3,9 @@ import serverPromise from "../server";
 import { FastifyInstance } from "fastify";
 import { PrismaClient } from "@prisma/client";
 
-const prisma = new PrismaClient();
-
 let server: FastifyInstance;
 
-describe("MeetingController", () => {
+describe("CommentsController", () => {
   let token = "";
 
   beforeAll(async () => {
@@ -23,64 +21,41 @@ describe("MeetingController", () => {
     server.close(done);
   });
 
-  it("Should create a new meeting", async () => {
+  it("Should a new comment on meeting", async () => {
     const response = await request(server.server)
-      .post("/meeting/create")
+      .post("/meeting/clip2ga270003c0xzs789g1ed/comments")
       .send({
-        type: "type",
-        title: "title",
-        body: "body",
+        content: "teste de comentário"
       })
       .set("Authorization", `Bearer ${token}`);
       console.log(token)
 
     expect(response.status).toBe(200);
     expect(response.body).toStrictEqual({
-      message: "Meeting criado com sucesso",
+      message: "Comentário adicionado com sucesso",
     });
   });
 
-  it("Should to return title error validation", async () => {
+  it("Should to return content error validation", async () => {
     const response = await request(server.server)
-      .post("/meeting/create")
+      .post("/meeting/clit2d2l60003c0u2jnp4fjxe/comments")
       .send({
-        type: "type",
-        /* title: "title", */
-        body: "body",
+        
       })
       .set("Authorization", `Bearer ${token}`);
       console.log(token)
 
     expect(response.status).toBe(400);
     expect(response.body).toStrictEqual({
-      message: "Ocorreu um erro: title is required",
+      message: "Ocorreu um erro: content is required",
     });
   });
 
-  it("Should to return body error validation", async () => {
+  it("Should not create a comment without an authenticated user", async () => {
     const response = await request(server.server)
-      .post("/meeting/create")
+      .post("/meeting/clit2d2l60003c0u2jnp4fjxe/comments")
       .send({
-        type: "type",
-        title: "title",
-        /* body: "body", */
-      })
-      .set("Authorization", `Bearer ${token}`);
-      console.log(token)
-
-    expect(response.status).toBe(400);
-    expect(response.body).toStrictEqual({
-      message: "Ocorreu um erro: body is required",
-    });
-  });
-
-  it("Should not create a meeting without an authenticated user", async () => {
-    const response = await request(server.server)
-      .post("/meeting/create")
-      .send({
-        type: "type",
-        title: "title",
-        /* body: "body", */
+        content: "texto de teste"
       })
       /* .set("Authorization", `Bearer ${token}`);
       console.log(token) */

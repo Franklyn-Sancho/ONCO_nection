@@ -72,9 +72,9 @@ describe("UserController", () => {
 
   it("Should to return email error", async () => {
     const response = await request(server.server).post("/user/register").send({
-      name: "clarinha",
-      email: "clarinha@email.com",
-      password: "password",
+      name: "test1",
+      email: "test1@email.com",
+      password: "12345",
     });
 
     expect(response.status).toBe(400);
