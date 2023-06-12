@@ -1,5 +1,6 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import { IMeetingService } from "../service/MeetingService";
+import { z } from "zod";
 
 export interface IMeetingController {
   createMeeting(request: FastifyRequest, reply: FastifyReply): Promise<void>;
@@ -14,6 +15,24 @@ export class MeetingController implements IMeetingController {
     request: FastifyRequest,
     reply: FastifyReply
   ): Promise<void> {
+    const meetingValidations = z.object({
+      title: z.string({ required_error: "title is required" }),
+      body: z.string({ required_error: "body is required" }),
+    });
+
+    try {
+      await meetingValidations.parseAsync(request.body);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        const validationError = error.errors.map((e) => e.message).join(", ");
+        reply.status(400).send({
+          message: `Ocorreu um erro: ${validationError}`,
+        });
+        return;
+      }
+      throw error;
+    }
+
     try {
       const { type, title, body } = request.body as any;
       const { userId } = request.user as any;
@@ -24,7 +43,9 @@ export class MeetingController implements IMeetingController {
         body,
         userId,
       });
-      reply.send(meeting);
+      reply.send({
+        message: "Meeting criado com sucesso"
+      });
     } catch (error) {
       console.log(request.user);
       reply.code(500).send({
@@ -58,7 +79,7 @@ export class MeetingController implements IMeetingController {
       console.log(userId);
       await this.meetingService.addComment(id, userId, content);
 
-      reply.code(201).send("Comentário adicionado com sucesso");
+      reply.code(200).send("Comentário adicionado com sucesso");
     } catch (error) {
       reply.code(500).send({
         error: `Ocorreu um erro na camada do controlador: ${error}`,

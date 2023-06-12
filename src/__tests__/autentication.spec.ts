@@ -1,4 +1,4 @@
-/* import request from "supertest";
+import request from "supertest";
 import serverPromise from "../server";
 import { FastifyInstance } from "fastify";
 import { PrismaClient } from "@prisma/client";
@@ -63,4 +63,4 @@ describe("UserController", () => {
       message: "Ocorreu um erro: verifique seus dados",
     });
   });
-}); */
+});
