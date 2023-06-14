@@ -3,7 +3,7 @@ import cors from "@fastify/cors";
 import jwt from "@fastify/jwt";
 import userRouter from "./router/user.router";
 import { meetingRouter } from "./router/meeting.router";
-import muralRouter from "./router/mural.router";
+import { muralRouter } from "./router/mural.router";
 import { registerFriendshipRoutes } from "./router/friendship.router";
 
 import("dotenv").then((dotenv) => dotenv.config());
@@ -25,8 +25,8 @@ async function main() {
 
   fastify.register(userRouter); //register to userRouter
   fastify.register(meetingRouter); //register to meetingRouter
-  fastify.register(muralRouter); //register to muralRouter
   fastify.register(registerFriendshipRoutes)
+  fastify.register(muralRouter)
 
   await fastify.listen({ port: 3000, host: "0.0.0.0" });
 

@@ -43,9 +43,10 @@ model Likes {
 
 model Mural {
   id        String   @id @default(cuid())
-  title     String
   body      String
+  author    User     @relation(fields: [userId], references: [id])
   createdAt DateTime @default(now())
+  userId    String
 }
 
 model User {
@@ -60,6 +61,7 @@ model User {
 
   sentRequests     Friendship[] @relation(name: "Requester")
   receivedRequests Friendship[] @relation(name: "Addressed")
+  mural            Mural[]
 }
 
 model Friendship {

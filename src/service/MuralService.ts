@@ -1,25 +1,30 @@
 import { Mural } from "@prisma/client";
-import { MuralRepository } from "../repository/MuralRepository";
-
-//In this app everyone can create a wall to share their story
+import { IMuralRepository } from "../repository/MuralRepository";
 
 
-export class MuralService {
-  private muralRepository: MuralRepository; //object instance muralRepository
+export interface IMuralService {
+  createMural(data: {
+    body: string;
+    userId: string;
+  }): Promise<any>;
+  getMurals(userId: string): Promise<Mural[]>
+}
 
-  constructor() {
-    this.muralRepository = new MuralRepository();
+export class MuralService implements IMuralService {
+  constructor(private muralRepository: IMuralRepository) {}
+
+  async createMural(data: {
+    body: string;
+    userId: string;
+  }): Promise<any> {
+    try {
+      return await this.muralRepository.createMural(data);
+    } catch (error) {
+      throw new Error(`Error creating mural: ${error}`);
+    }
   }
-
-  async create(mural: Mural): Promise<Mural> {
-    //create a new mural by muralRepository.create
-    const createMural = this.muralRepository.create(mural);
-
-    return createMural;
-  }
-
-  //find a mural by id
-  async find(mural: Mural): Promise<Mural | null> {
-    return await this.muralRepository.findById(mural.id);
+  
+  async getMurals(userId: string) {
+    return await this.muralRepository.getMurals(userId)
   }
 }

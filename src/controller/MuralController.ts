@@ -1,43 +1,55 @@
 import { FastifyReply, FastifyRequest } from "fastify";
-import { MuralService } from "../service/MuralService";
-import { Mural } from "@prisma/client";
+
 import { z } from "zod";
+import { validateRequest } from "../utils/validateRequest";
+import { IMuralService } from "../service/MuralService";
 
-export class MuralController {
-  private muralService: MuralService;
+export interface IMuralController {
+  createMural(request: FastifyRequest, reply: FastifyReply): Promise<void>;
+  getMurals(request: FastifyRequest, reply: FastifyReply): Promise<void>;
+}
 
-  constructor() {
-    this.muralService = new MuralService();
-  }
+export class MuralController implements IMuralController {
+  constructor(private muralService: IMuralService) {}
 
-  async create(
-    request: FastifyRequest<{ Body: Mural }>,
+  async createMural(
+    request: FastifyRequest,
     reply: FastifyReply
   ): Promise<void> {
-    const muralValidation = z.object({
-      title: z.string({ required_error: "title required" }),
-      body: z.string({ required_error: "body required" }),
+    const muralValidations = z.object({
+      body: z.string({ required_error: "body is required" }),
     });
 
-    muralValidation.parse(request.body);
     try {
-      const createdMural = await this.muralService.create(request.body);
+      await validateRequest(request, reply, muralValidations);
+      const { body } = request.body as any;
+      const { userId } = request.user as any;
 
-      reply.status(201).send(createdMural);
-    } catch {
-      reply.status(500).send("Verifique seus Dados");
+      await this.muralService.createMural({
+        body,
+        userId,
+      });
+      reply.send({
+        message: "Publicado com sucesso",
+      });
+    } catch (error) {
+      console.log(request.user);
+      reply.code(500).send({
+        error: error,
+      });
     }
   }
 
-  async find(
-    request: FastifyRequest<{ Params: Mural }>,
-    reply: FastifyReply
-  ): Promise<void> {
+  //função da camada controller para adicionar likes nas meetings
+  async getMurals(request: FastifyRequest, reply: FastifyReply): Promise<void> {
     try {
-      const findMural = await this.muralService.find(request.params);
-      reply.status(201).send(findMural);
-    } catch {
-      reply.status(500).send("verifique o id");
+      const { userId } = request.user as any;
+      const murals = await this.muralService.getMurals(userId);
+      reply.send(murals);
+    } catch (error) {
+      reply.code(500).send({
+        error,
+      });
     }
   }
 }

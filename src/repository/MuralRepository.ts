@@ -1,27 +1,60 @@
 import { Mural, PrismaClient } from "@prisma/client";
 
-const prisma = new PrismaClient();
+/* const prisma = new PrismaClient(); */
 
-//class mural repository
-export class MuralRepository {
+//Um mural será a publicação entre amigos na linha do tempo
 
-  //repository layer create new mural
-  async create(mural: Mural): Promise<Mural> {
-    const createMural = await prisma.mural.create({
-      data: mural,
-    });
+//interface repository mural
+export interface IMuralRepository {
+  createMural(data: { body: string; userId: string }): Promise<Mural>;
+  getMurals(userId: string): Promise<Mural[]>
+}
 
-    return createMural;
+//MeetingRepository class implement interface
+export class MuralRepository implements IMuralRepository {
+  private prisma: PrismaClient;
+
+  //instancia do Prisma Client no constructor
+  constructor(prisma: PrismaClient) {
+    this.prisma = prisma;
   }
 
-  //repository layer find mural by id
-  async findById(id: string): Promise<Mural | null> {
-    const dbMural = await prisma.mural.findUnique({
+  //função responsável por criar um novo mural
+  async createMural(data: { body: string; userId: string }) {
+    try {
+      return await this.prisma.mural.create({
+        data, //a estrutura do data está no parâmetro da função
+      });
+    } catch (error) {
+      throw new Error(`Error creating mural: ${error}`);
+    }
+  }
+
+  //repositório para retornar os murais entre amigos
+  async getMurals(userId: string) {
+    const friends = await this.prisma.friendship.findMany({
       where: {
-        id,
+        OR: [{ requesterId: userId }, { addressedId: userId }],
+        status: "ACCEPTED",
+      },
+      select: {
+        requesterId: true,
+        addressedId: true,
       },
     });
 
-    return dbMural;
+    const friendIds = friends.map((friendship) =>
+      friendship.requesterId === userId
+        ? friendship.addressedId
+        : friendship.requesterId
+    );
+
+    return this.prisma.mural.findMany({
+      where: {
+        userId: {
+          in: friendIds,
+        },
+      },
+    });
   }
 }
