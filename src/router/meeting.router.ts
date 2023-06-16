@@ -16,21 +16,37 @@ export function meetingRouter(
   const meetingController = new MeetingController(meetingService);
 
   fastify.post(
-    "/meeting/create",
+    "/meetings/create",
     { preHandler: authenticate },
     meetingController.createMeeting.bind(meetingController)
   );
 
   fastify.post(
-    "/meeting/:id/likes",
+    "/meetings/:id/likes",
     { preHandler: authenticate },
-    meetingController.addLike.bind(meetingController)
+    meetingController.addLikeMeeting.bind(meetingController)
   );
 
   fastify.post(
-    "/meeting/:id/comments",
+    "/meetings/:id/comments",
     { preHandler: authenticate },
     meetingController.addComment.bind(meetingController)
+  );
+
+  fastify.delete(
+    "/meetings/:id/likes",
+    { preHandler: authenticate },
+    async (request, reply) => {
+      await meetingController.removeLikeMeeting(request, reply);
+    }
+  );
+
+  fastify.delete(
+    "/meetings/:id/comments",
+    { preHandler: authenticate },
+    async (request, reply) => {
+      await meetingController.removeCommentMeeting(request, reply);
+    }
   );
 
   done();

@@ -7,8 +7,10 @@ export interface IMeetingService {
     body: string;
     userId: string;
   }): Promise<any>;
-  addLike(meetingId: string, authorId: string): Promise<void>;
-  addComment(meetingId: string, authorId: string, content: string): Promise<void>
+  addLikeMeeting(meetingId: string, authorId: string): Promise<void>;
+  removeLikeMeeting(id: string): Promise<void>;
+  addComment(meetingId: string, userId: string, content: string): Promise<void>;
+  removeCommentMeeting(id: string): Promise<void>;
 }
 
 export class MeetingService implements IMeetingService {
@@ -27,22 +29,43 @@ export class MeetingService implements IMeetingService {
     }
   }
   //função da camada service para adicionar likes nas meetings
-  async addLike(meetingId: string, userId: string) {
+  async addLikeMeeting(meetingId: string, userId: string) {
     try {
-      await this.meetingRepository.addLike(meetingId, userId);
+      await this.meetingRepository.addLikeMeeting(meetingId, userId);
     } catch (error) {
       throw new Error(`Error adding like to meeting ${error}`);
     }
   }
 
-  //função da camada service para adicionar comentários nas meetings
-  async addComment(meetingId: string, authorId: string, content: string) {
-      
+  async removeLikeMeeting(id: string): Promise<void> {
     try {
-      await this.meetingRepository.addComment(meetingId, authorId, content)
+      await this.meetingRepository.deleteLikeMeeting(id);
+    } catch (error) {
+      throw new Error(`Error removind like to meeting ${error}`);
     }
-    catch (error) {
-      throw new Error(`Ocorreu um erro na camada de serviço: ${error}`)
+  }
+
+  async addComment(
+    meetingId: string,
+    userId: string,
+    content: string
+  ): Promise<void> {
+    try {
+      await this.meetingRepository.addCommentMeeting(
+        meetingId,
+        userId,
+        content
+      );
+    } catch (error) {
+      throw new Error(`Error adding comment to meeting: ${error}`);
+    }
+  }
+
+  async removeCommentMeeting(id: string): Promise<void> {
+    try {
+      await this.meetingRepository.deleteCommentMeeting(id);
+    } catch (error) {
+      throw new Error(`Error removing comment to meeting ${error}`);
     }
   }
 }

@@ -1,4 +1,7 @@
+import { PrismaClient } from "@prisma/client";
 import { FastifyReply, FastifyRequest } from "fastify";
+
+const prisma = new PrismaClient();
 
 //plugin to authenticate
 export async function authenticate(

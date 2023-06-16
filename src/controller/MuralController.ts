@@ -40,7 +40,7 @@ export class MuralController implements IMuralController {
     }
   }
 
-  //função da camada controller para adicionar likes nas meetings
+  //método que retorna os murais de amigos 
   async getMurals(request: FastifyRequest, reply: FastifyReply): Promise<void> {
     try {
       const { userId } = request.user as any;

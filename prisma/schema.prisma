@@ -23,30 +23,36 @@ model Meetings {
 }
 
 model Comments {
-  id         String   @id @default(cuid())
-  meetingId  Meetings @relation(fields: [meetingsId], references: [id])
-  author     User     @relation(fields: [userId], references: [id])
-  content    String
-  createdAt  DateTime @default(now())
-  meetingsId String
-  userId     String
+  id        String    @id @default(cuid())
+  meeting   Meetings? @relation(fields: [meetingId], references: [id])
+  mural     Mural?    @relation(fields: [muralId], references: [id])
+  author    User      @relation(fields: [userId], references: [id])
+  content   String
+  createdAt DateTime  @default(now())
+  meetingId String?
+  userId    String
+  muralId   String?
 }
 
 model Likes {
-  id         String   @id @default(cuid())
-  meetingId  Meetings @relation(fields: [meetingsId], references: [id])
-  userId     User     @relation(fields: [author], references: [id])
-  createdAt  DateTime @default(now())
-  meetingsId String
-  author     String
+  id        String    @id @default(cuid())
+  meeting   Meetings? @relation(fields: [meetingId], references: [id])
+  mural     Mural?    @relation(fields: [muralId], references: [id])
+  userId    User      @relation(fields: [author], references: [id])
+  createdAt DateTime  @default(now())
+  meetingId String?
+  author    String
+  muralId   String?
 }
 
 model Mural {
-  id        String   @id @default(cuid())
+  id        String     @id @default(cuid())
   body      String
-  author    User     @relation(fields: [userId], references: [id])
-  createdAt DateTime @default(now())
+  author    User       @relation(fields: [userId], references: [id])
+  createdAt DateTime   @default(now())
   userId    String
+  comments  Comments[]
+  likes     Likes[]
 }
 
 model User {
@@ -57,7 +63,7 @@ model User {
   token    String?
   forum    Meetings[]
   Comments Comments[]
-  Likes    Likes[]
+  likes    Likes[]
 
   sentRequests     Friendship[] @relation(name: "Requester")
   receivedRequests Friendship[] @relation(name: "Addressed")

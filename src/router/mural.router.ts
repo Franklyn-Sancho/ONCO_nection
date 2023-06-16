@@ -22,7 +22,7 @@ export function muralRouter(
   );
 
   fastify.get(
-    "/timeline",
+    "/mural/timeline",
     {preHandler: [authenticate]},
     muralController.getMurals.bind(muralController)
   )

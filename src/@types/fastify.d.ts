@@ -1,12 +1,12 @@
-/* declare module 'fastify' {
-    interface FastifyRequest {
-        body: {
-            type: string;
-            title: string;
-            body: string;
-        }
-        user: {
-            userId: string;
-        }
-    }
+/* import "fastify";
+
+interface User {
+  userId: string;
+  // Adicione aqui outras propriedades do usuário, se houver
+}
+
+declare module "fastify" {
+  interface FastifyRequest {
+    user: User;
+  }
 } */
