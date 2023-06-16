@@ -1,5 +1,5 @@
 import { FastifyInstance, preValidationHookHandler } from "fastify";
-import { MeetingController } from "../controller/MeetingsController";
+import { MeetingController } from "../controller/MeetingController";
 import { MeetingService } from "../service/MeetingService";
 import { MeetingRepository } from "../repository/MeetingRepository";
 import { authenticate } from "../plugins/authenticate";
@@ -30,7 +30,7 @@ export function meetingRouter(
   fastify.post(
     "/meetings/:id/comments",
     { preHandler: authenticate },
-    meetingController.addComment.bind(meetingController)
+    meetingController.addCommentMeeting.bind(meetingController)
   );
 
   fastify.delete(

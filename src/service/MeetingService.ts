@@ -8,8 +8,8 @@ export interface IMeetingService {
     userId: string;
   }): Promise<any>;
   addLikeMeeting(meetingId: string, authorId: string): Promise<void>;
-  removeLikeMeeting(id: string): Promise<void>;
-  addComment(meetingId: string, userId: string, content: string): Promise<void>;
+  removeLikeMeeting(id: string, userId: string): Promise<void>;
+  addCommentMeeting(meetingId: string, userId: string, content: string): Promise<void>;
   removeCommentMeeting(id: string): Promise<void>;
 }
 
@@ -37,15 +37,15 @@ export class MeetingService implements IMeetingService {
     }
   }
 
-  async removeLikeMeeting(id: string): Promise<void> {
+  async removeLikeMeeting(id: string, userId: string): Promise<void> {
     try {
-      await this.meetingRepository.deleteLikeMeeting(id);
+      await this.meetingRepository.deleteLikeMeeting(id, userId);
     } catch (error) {
       throw new Error(`Error removind like to meeting ${error}`);
     }
   }
 
-  async addComment(
+  async addCommentMeeting(
     meetingId: string,
     userId: string,
     content: string

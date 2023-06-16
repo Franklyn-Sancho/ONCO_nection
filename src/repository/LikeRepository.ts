@@ -3,7 +3,7 @@ import { Likes, PrismaClient } from "@prisma/client";
 /**
  * Por este recurso fazer parte de dois sistemas diferentes, adicionei dois campos
  * opcionais para representar o id do meeting ou do mural, bastando apenas extender
- * sua estrutura para a classe requerida
+ * sua estrutura para a classe desejada.
  */
 
 //interface de métodos da classe LikesRepository
@@ -18,13 +18,16 @@ export interface ILikeRepository {
 }
 
 /**
- * a classe da camada de repositório do sistema de likes do sistema implementa a interface de métodos
- * a classe será extendida nas classes Meeting e Mural
+ * A classe da camada de repositório do sistema de likes do sistema
+ * implementa a interface de métodos ILikeRepository.
+ * A classe será extendida em suas funcionalidades: mural e meeting.
+ * Já que teremos duas extensões em ambas as funcionalidades,
+ * está não poderá ser abstrata
  */
-export class LikesRepository implements ILikeRepository {
+export class LikeRepository implements ILikeRepository {
   protected prisma: PrismaClient;
 
-  //prisma instanciado
+  //prisma instanciado no constructor
   constructor(prisma: PrismaClient) {
     this.prisma = prisma;
   }
@@ -33,27 +36,29 @@ export class LikesRepository implements ILikeRepository {
   async createLike(data: {
     meetingId?: string | undefined;
     muralId?: string | undefined;
-    author: string; //será o id do usuário autenticado
+    author: string; //o autor do like será o id do usuário autenticado
   }) {
     try {
       return await this.prisma.likes.create({
-        data,
+        data, //recebe data [o parâmetro do método]
       });
     } catch (error) {
-      throw new Error(`Error creating like: ${error}`);
+      throw new Error(`Erro no createLike do repositório: ${error}`);
     }
   }
 
-  //immplementação do método que recupera do id do like requerido
+  //implementação do método que recupera o id do like
   async getLikeById(id: string) {
     try {
+      //faz a busca no banco de dados pelo id
       const like = await this.prisma.likes.findUnique({
         where: {
           id,
         },
       });
+      console.log(like)
       if (!like) {
-        throw new Error("Nenhum like encontrado");
+        throw new Error("Nenhum like com esse id foi encontrado");
       }
 
       return like;

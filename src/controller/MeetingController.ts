@@ -1,17 +1,7 @@
-import {
-  FastifyBaseLogger,
-  FastifyReply,
-  FastifyRequest,
-  FastifySchema,
-  FastifyTypeProviderDefault,
-  RawServerDefault,
-  RouteGenericInterface,
-} from "fastify";
+import { FastifyReply, FastifyRequest } from "fastify";
 import { IMeetingService } from "../service/MeetingService";
 import { z } from "zod";
 import { validateRequest } from "../utils/validateRequest";
-import { ResolveFastifyRequestType } from "fastify/types/type-provider";
-import { IncomingMessage, ServerResponse } from "http";
 
 export interface IMeetingController {
   createMeeting(request: FastifyRequest, reply: FastifyReply): Promise<void>;
@@ -20,7 +10,7 @@ export interface IMeetingController {
     request: FastifyRequest,
     reply: FastifyReply
   ): Promise<void>;
-  addComment(request: FastifyRequest, reply: FastifyReply): Promise<void>;
+  addCommentMeeting(request: FastifyRequest, reply: FastifyReply): Promise<void>;
   removeCommentMeeting(
     request: FastifyRequest,
     reply: FastifyReply
@@ -81,8 +71,9 @@ export class MeetingController implements IMeetingController {
   async removeLikeMeeting(request: FastifyRequest, reply: FastifyReply) {
     try {
       const { id } = request.params as any;
+      const { userId } = request.user as any;
 
-      await this.meetingService.removeLikeMeeting(id);
+      await this.meetingService.removeLikeMeeting(id, userId);
 
       reply.code(204).send();
     } catch (error) {
@@ -92,13 +83,13 @@ export class MeetingController implements IMeetingController {
     }
   }
 
-  async addComment(request: FastifyRequest, reply: FastifyReply) {
+  async addCommentMeeting(request: FastifyRequest, reply: FastifyReply) {
     try {
       const { id } = request.params as any;
       const { userId } = request.user as any;
       const { content } = request.body as any;
 
-      await this.meetingService.addComment(id, userId, content);
+      await this.meetingService.addCommentMeeting(id, userId, content);
 
       reply.code(204).send();
     } catch (error) {

@@ -1,8 +1,7 @@
-import { FastifyReply, FastifyRequest } from "fastify";
-import { ILikeRepository } from "../repository/LikesRepository";
+import { ILikeRepository } from "../repository/LikeRepository";
 
 //interface de métodos da classe LikesService
-export interface ILikesService {
+export interface ILikeService {
   createLike(data: {
     meetingId: string;
     muralId: string;
@@ -12,7 +11,7 @@ export interface ILikesService {
 }
 
 //a classe da camada de serviços do sistema de likes implementa a interface de métodos
-export class LikesService implements ILikesService {
+export class LikeService implements ILikeService {
   constructor(private likeRepository: ILikeRepository) {}
 
   async createLike(data: {
@@ -23,20 +22,20 @@ export class LikesService implements ILikesService {
     try {
       await this.likeRepository.createLike(data);
     } catch (error) {
-      throw new Error(`Error adding like: ${error}`);
+      throw new Error(`Error adding like in likeService: ${error}`);
     }
   }
 
   async deleteLike(id: string, userId: string): Promise<void> {
     try {
-      /* const like = await this.likeRepository.getLikeById(id);
-      if (like.author !== userId) {
-        throw new Error("Você não tem permissão");
-      } */
+      const like = await this.likeRepository.getLikeById(id);
 
+      if (like.author !== userId) {
+        throw new Error("Acesso Negado");
+      }
       await this.likeRepository.deleteLike(id);
     } catch (error) {
-      throw new Error(`Error removing like: ${error}`);
+      throw new Error(`Error removing like in likeService: ${error}`);
     }
   }
 }

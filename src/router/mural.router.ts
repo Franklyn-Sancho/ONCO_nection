@@ -12,8 +12,8 @@ export function muralRouter(
 ) {
   const prisma = new PrismaClient();
   const muralRepository = new MuralRepository(prisma);
-  const muralService = new MuralService(muralRepository)
-  const muralController = new MuralController(muralService)
+  const muralService = new MuralService(muralRepository);
+  const muralController = new MuralController(muralService);
 
   fastify.post(
     "/mural/create",
@@ -23,21 +23,37 @@ export function muralRouter(
 
   fastify.get(
     "/mural/timeline",
-    {preHandler: [authenticate]},
+    { preHandler: [authenticate] },
     muralController.getMurals.bind(muralController)
-  )
+  );
 
-  /* fastify.post(
-    "/meeting/:id/likes",
+  fastify.post(
+    "/mural/:id/likes",
     { preHandler: authenticate },
-    meetingController.addLike.bind(meetingController)
+    muralController.addLikeMural.bind(muralController)
   );
 
   fastify.post(
     "/meeting/:id/comments",
     { preHandler: authenticate },
-    meetingController.addComment.bind(meetingController)
-  ); */
+    muralController.addCommentMural.bind(muralController)
+  );
+
+  fastify.delete(
+    "/mural/:id/likes",
+    { preHandler: authenticate },
+    async (request, reply) => {
+      await muralController.removeLikeMural(request, reply);
+    }
+  );
+
+  fastify.delete(
+    "/mural/:id/comments",
+    { preHandler: authenticate },
+    async (request, reply) => {
+      await muralController.removeCommentMural(request, reply);
+    }
+  );
 
   done();
 }

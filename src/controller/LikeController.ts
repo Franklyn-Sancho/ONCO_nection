@@ -1,18 +1,21 @@
 import { FastifyReply, FastifyRequest } from "fastify";
-import { ILikesService } from "../service/LikesService";
+import { ILikeService } from "../service/LikeService";
 
+//interface de métodos do LikeController
 export interface ILikeController {
-  addLike(request: FastifyRequest, reply: FastifyReply): Promise<void>;
+  createLike(request: FastifyRequest, reply: FastifyReply): Promise<void>;
   deleteLike(request: FastifyRequest, reply: FastifyReply): Promise<void>;
 }
 
+//Classe LikeController implementa a interface ILikeController
 export class LikeController implements ILikeController {
-  constructor(private likeService: ILikesService) {}
+  constructor(private likeService: ILikeService) {}
 
-  async addLike(request: FastifyRequest, reply: FastifyReply): Promise<void> {
+  //implementando o método para criar o like
+  async createLike(request: FastifyRequest, reply: FastifyReply): Promise<void> {
     try {
       const { meetingId, muralId } = request.body as any;
-      const { userId: author } = request.user as any;
+      const { userId: author } = request.user as any; //id do usuário autenticado
 
       await this.likeService.createLike({
         meetingId,
@@ -22,7 +25,7 @@ export class LikeController implements ILikeController {
       reply.code(204).send();
     } catch (error) {
       reply.code(500).send({
-        error: `Error adding like: ${error}`,
+        error: `Error adding like in LikeController: ${error}`,
       });
     }
   }
@@ -33,12 +36,11 @@ export class LikeController implements ILikeController {
       const { userId } = request.user as any;
 
       await this.likeService.deleteLike(id, userId);
-      /* console.log(userId); */
 
       reply.code(204).send();
     } catch (error) {
       reply.code(500).send({
-        error: `Error removing like: ${error}`,
+        error: `Error removing like in LikeController: ${error}`,
       });
     }
   }
