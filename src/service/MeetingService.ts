@@ -41,7 +41,7 @@ export class MeetingService implements IMeetingService {
     try {
       await this.meetingRepository.deleteLikeMeeting(id, userId);
     } catch (error) {
-      throw new Error(`Error removind like to meeting ${error}`);
+      throw new Error(`Error removing like to meeting ${error}`);
     }
   }
 

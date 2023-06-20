@@ -2,6 +2,8 @@ import { PrismaClient, User } from "@prisma/client";
 
 const prisma = new PrismaClient()
 
+//* => adicionar funcionalidade para logar com o google!
+
 //class user repository
 export default class UserRepository {
 

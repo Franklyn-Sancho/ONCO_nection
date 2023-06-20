@@ -3,6 +3,7 @@ import { IMeetingService } from "../service/MeetingService";
 import { z } from "zod";
 import { validateRequest } from "../utils/validateRequest";
 
+//interface de métodos da classe MeetingController
 export interface IMeetingController {
   createMeeting(request: FastifyRequest, reply: FastifyReply): Promise<void>;
   addLikeMeeting(request: FastifyRequest, reply: FastifyReply): Promise<void>;
@@ -17,6 +18,7 @@ export interface IMeetingController {
   ): Promise<void>;
 }
 
+//A classe MeetingController implementa a interface de métodos 
 export class MeetingController implements IMeetingController {
   constructor(private meetingService: IMeetingService) {}
 
@@ -56,7 +58,6 @@ export class MeetingController implements IMeetingController {
     try {
       const { id } = request.params as any;
       const { userId } = request.user as any;
-      console.log(userId);
 
       await this.meetingService.addLikeMeeting(id, userId);
 
@@ -70,8 +71,8 @@ export class MeetingController implements IMeetingController {
 
   async removeLikeMeeting(request: FastifyRequest, reply: FastifyReply) {
     try {
-      const { id } = request.params as any;
-      const { userId } = request.user as any;
+      const { id } = request.params as any
+      const { userId } = request.user as any
 
       await this.meetingService.removeLikeMeeting(id, userId);
 

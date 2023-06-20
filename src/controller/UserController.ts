@@ -1,7 +1,6 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import UserService from "../service/UserService";
 import { User } from "@prisma/client";
-import { z } from "zod";
 import {
   userRegisterValidade,
   userAutenticateValidade,
