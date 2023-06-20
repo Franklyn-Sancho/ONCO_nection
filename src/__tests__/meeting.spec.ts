@@ -25,7 +25,7 @@ describe("MeetingController", () => {
 
   it("Should create a new meeting", async () => {
     const response = await request(server.server)
-      .post("/meeting/create")
+      .post("/meetings/create")
       .send({
         type: "type",
         title: "title",
@@ -42,7 +42,7 @@ describe("MeetingController", () => {
 
   it("Should to return title error validation", async () => {
     const response = await request(server.server)
-      .post("/meeting/create")
+      .post("/meetings/create")
       .send({
         type: "type",
         /* title: "title", */
@@ -59,7 +59,7 @@ describe("MeetingController", () => {
 
   it("Should to return body error validation", async () => {
     const response = await request(server.server)
-      .post("/meeting/create")
+      .post("/meetings/create")
       .send({
         type: "type",
         title: "title",
@@ -76,7 +76,7 @@ describe("MeetingController", () => {
 
   it("Should not create a meeting without an authenticated user", async () => {
     const response = await request(server.server)
-      .post("/meeting/create")
+      .post("/meetings/create")
       .send({
         type: "type",
         title: "title",

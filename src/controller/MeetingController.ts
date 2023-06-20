@@ -11,14 +11,17 @@ export interface IMeetingController {
     request: FastifyRequest,
     reply: FastifyReply
   ): Promise<void>;
-  addCommentMeeting(request: FastifyRequest, reply: FastifyReply): Promise<void>;
+  addCommentMeeting(
+    request: FastifyRequest,
+    reply: FastifyReply
+  ): Promise<void>;
   removeCommentMeeting(
     request: FastifyRequest,
     reply: FastifyReply
   ): Promise<void>;
 }
 
-//A classe MeetingController implementa a interface de métodos 
+//A classe MeetingController implementa a interface de métodos
 export class MeetingController implements IMeetingController {
   constructor(private meetingService: IMeetingService) {}
 
@@ -35,6 +38,7 @@ export class MeetingController implements IMeetingController {
       await validateRequest(request, reply, meetingValidations);
       const { type, title, body } = request.body as any;
       const { userId } = request.user as any;
+      console.log(userId);
 
       await this.meetingService.createMeeting({
         type,
@@ -46,7 +50,6 @@ export class MeetingController implements IMeetingController {
         message: "Meeting criado com sucesso",
       });
     } catch (error) {
-      console.log(request.user);
       reply.code(500).send({
         error: error,
       });
@@ -61,22 +64,23 @@ export class MeetingController implements IMeetingController {
 
       await this.meetingService.addLikeMeeting(id, userId);
 
-      reply.code(204).send();
+      reply.code(204).send(); //se retornar 204 o like foi adicionado com sucesso
     } catch (error) {
       reply.code(500).send({
-        error: `Ocorreu um erro na camada controller: ${error}`,
+        error: `Ocorreu um erro na camada de controle: ${error}`,
       });
     }
   }
 
+  //método da camada de controle para remover like do meeting
   async removeLikeMeeting(request: FastifyRequest, reply: FastifyReply) {
     try {
-      const { id } = request.params as any
-      const { userId } = request.user as any
+      const { id } = request.params as any;
+      const { userId } = request.user as any;
 
       await this.meetingService.removeLikeMeeting(id, userId);
 
-      reply.code(204).send();
+      reply.code(204).send(); //se retornar 204 o like foi removido com sucesso
     } catch (error) {
       reply.code(500).send({
         error: `error removing like from meeting: ${error}`,

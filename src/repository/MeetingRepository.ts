@@ -10,6 +10,7 @@ export interface IMeetingRepository {
     body: string;
     userId: string;
   }): Promise<Meetings>;
+  getMeetingById(meetingId: string): Promise<Meetings>;
   addLikeMeeting(meetingId: string, authorId: string): Promise<Likes>;
   deleteLikeMeeting(id: string, userId: string): Promise<void>;
   addCommentMeeting(
@@ -48,6 +49,25 @@ export class MeetingRepository implements IMeetingRepository {
       throw new Error(`Error creating meeting: ${error}`);
     }
   }
+
+  async getMeetingById(meetingId: string): Promise<Meetings> {
+    try {
+      const meeting = await this.prisma.meetings.findUnique({
+        where: {
+          id: meetingId,
+        },
+      });
+
+      if (!meeting) {
+        throw new Error("Nenhum meeting com esse Id foi encontrado");
+      }
+
+      return meeting;
+    } catch (error) {
+      throw new Error(`Ocorreu um erro ao retornar o meeting: ${error}`);
+    }
+  }
+
   //função da camada repositório para adicionar likes nos meetings
   async addLikeMeeting(meetingId: string, authorId: string) {
     try {

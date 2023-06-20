@@ -31,6 +31,7 @@ export class MuralController implements IMuralController {
       await validateRequest(request, reply, muralValidations);
       const { body } = request.body as any;
       const { userId } = request.user as any;
+      console.log(userId)
 
       await this.muralService.createMural({
         body,
