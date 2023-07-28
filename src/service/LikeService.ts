@@ -7,7 +7,7 @@ export interface ILikeService {
     muralId: string;
     author: string;
   }): Promise<void>;
-  deleteLike(id: string, userId: string): Promise<void>;
+  deleteLike(id: string): Promise<void>;
 }
 
 //a classe da camada de serviços do sistema de likes implementa a interface de métodos
@@ -26,13 +26,8 @@ export class LikeService implements ILikeService {
     }
   }
 
-  async deleteLike(id: string, userId: string): Promise<void> {
+  async deleteLike(id: string): Promise<void> {
     try {
-      const like = await this.likeRepository.getLikeById(id);
-
-      if (like.author !== userId) {
-        throw new Error("Acesso Negado");
-      }
       await this.likeRepository.deleteLike(id);
     } catch (error) {
       throw new Error(`Error removing like in likeService: ${error}`);

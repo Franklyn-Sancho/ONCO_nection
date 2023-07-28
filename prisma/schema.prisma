@@ -51,6 +51,7 @@ model Mural {
   author    User       @relation(fields: [userId], references: [id])
   createdAt DateTime   @default(now())
   userId    String
+  image     String?
   comments  Comments[]
   likes     Likes[]
 }

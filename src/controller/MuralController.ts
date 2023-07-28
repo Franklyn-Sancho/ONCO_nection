@@ -1,8 +1,9 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 
-import { z } from "zod";
-import { validateRequest } from "../utils/validateRequest";
 import { IMuralService } from "../service/MuralService";
+
+import { validateMural } from "../utils/muralValidations";
+import { handleImageUpload, handleMultipartFormData } from "../service/FileService";
 
 export interface IMuralController {
   createMural(request: FastifyRequest, reply: FastifyReply): Promise<void>;
@@ -23,27 +24,27 @@ export class MuralController implements IMuralController {
     request: FastifyRequest,
     reply: FastifyReply
   ): Promise<void> {
-    const muralValidations = z.object({
-      body: z.string({ required_error: "body is required" }),
-    });
-
     try {
-      await validateRequest(request, reply, muralValidations);
-      const { body } = request.body as any;
       const { userId } = request.user as any;
-      console.log(userId)
+      const { body, image } = request.body as any;
+
+      await validateMural(request, reply);
+
+      const base64Image = image ? image[0].data.toString("base64") : undefined;
+      await handleImageUpload(request);
 
       await this.muralService.createMural({
         body,
         userId,
+        image: base64Image,
       });
       reply.send({
         message: "Publicado com sucesso",
       });
     } catch (error) {
-      console.log(request.user);
+      console.log(request.body);
       reply.code(500).send({
-        error: error,
+        error: `ocorreu o seguinte erro ${error}`,
       });
     }
   }
@@ -123,3 +124,16 @@ export class MuralController implements IMuralController {
     }
   }
 }
+
+/* await validateRequest(request, reply, muralValidations);
+      const { body } = request.body as any;
+      const { userId } = request.user as any;
+      console.log(userId)
+
+      await this.muralService.createMural({
+        body,
+        userId,
+      });
+      reply.send({
+        message: "Publicado com sucesso",
+      }); */

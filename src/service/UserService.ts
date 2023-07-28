@@ -33,7 +33,9 @@ export default class UserService {
   }
 
   //service layer authenticate user
+  //! há uma redundância de exceção entre a camada de serviço e controlador*****
   async authenticate(user: User): Promise<string> {
+
     const findUser = await this.userRepository.findByEmail(user.email);
 
     if (!findUser) {

@@ -16,7 +16,7 @@ export default class UserController {
   }
 
   //createUser function
-  async createUser(
+  async execute(
     request: FastifyRequest<{ Body: User }>,
     reply: FastifyReply
   ): Promise<void> {
@@ -35,7 +35,8 @@ export default class UserController {
   }
 
   //authenticationUser function
-  async authenticateUser(
+  //! há uma redundância de exceção entre a camada de serviço e controlador*****
+  async authenticate(
     request: FastifyRequest<{ Body: User }>,
     reply: FastifyReply
   ): Promise<void> {

@@ -33,9 +33,9 @@ export class LikeController implements ILikeController {
   async deleteLike(request: FastifyRequest, reply: FastifyReply) {
     try {
       const { id } = request.params as any;
-      const { userId } = request.user as any;
+      /* const { userId } = request.user as any; */
 
-      await this.likeService.deleteLike(id, userId);
+      await this.likeService.deleteLike(id);
 
       reply.code(204).send();
     } catch (error) {

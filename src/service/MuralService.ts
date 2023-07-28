@@ -1,8 +1,15 @@
 import { Comments, Likes, Mural } from "@prisma/client";
 import { IMuralRepository } from "../repository/MuralRepository";
+import path from "path";
+import fs from "fs";
+import { FastifyRequest } from "fastify";
 
 export interface IMuralService {
-  createMural(data: { body: string; userId: string }): Promise<any>;
+  createMural(data: {
+    body: string;
+    userId: string;
+    image?: string;
+  }): Promise<any>;
   getMurals(userId: string): Promise<Mural[]>;
   addLikeMural(muralId: string, authorId: string): Promise<Likes>;
   removeLikeMural(id: string, userId: string): Promise<Likes>;
@@ -17,7 +24,11 @@ export interface IMuralService {
 export class MuralService implements IMuralService {
   constructor(private muralRepository: IMuralRepository) {}
 
-  async createMural(data: { body: string; userId: string }): Promise<any> {
+  async createMural(data: {
+    body: string;
+    userId: string;
+    image?: string;
+  }): Promise<any> {
     try {
       return await this.muralRepository.createMural(data);
     } catch (error) {
@@ -26,12 +37,12 @@ export class MuralService implements IMuralService {
   }
 
   async getMurals(userId: string) {
-    return await this.muralRepository.getMurals(userId);
+    return await this.muralRepository.getMuralsIfFriends(userId);
   }
 
   async addLikeMural(muralId: string, authorId: string): Promise<Likes> {
     try {
-      return await this.muralRepository.addLikeMural(muralId, authorId);
+      return await this.muralRepository.addLikeInMural(muralId, authorId);
     } catch (error) {
       throw new Error(`error adding like in MuralService: ${error}`);
     }
@@ -39,7 +50,7 @@ export class MuralService implements IMuralService {
 
   async removeLikeMural(id: string, userId: string): Promise<Likes> {
     try {
-      return await this.muralRepository.removeLikeMural(id, userId);
+      return await this.muralRepository.removeLikeInMural(id, userId);
     } catch (error) {
       throw new Error(`error removing like in MuralService: ${error}`);
     }
@@ -51,7 +62,7 @@ export class MuralService implements IMuralService {
     content: string
   ): Promise<Comments> {
     try {
-      return await this.muralRepository.addCommentMural(
+      return await this.muralRepository.addCommentInMural(
         muralId,
         userId,
         content
@@ -63,7 +74,7 @@ export class MuralService implements IMuralService {
 
   async removeCommentMural(id: string, userId: string): Promise<Comments> {
     try {
-      return await this.muralRepository.removeCommentMural(id, userId);
+      return await this.muralRepository.removeCommentInMural(id, userId);
     } catch (error) {
       throw new Error(`Error removing comment in MuralService: $error`);
     }

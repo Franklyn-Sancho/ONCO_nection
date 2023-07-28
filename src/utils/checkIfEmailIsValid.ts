@@ -14,10 +14,10 @@ export async function checkIfEmailIsValidRegister(email: string) {
 }
 
 export async function checkIfEmailIsValidAuthentication(email: string) {
-    const user = await prisma.user.findUnique({
-      where: {
-        email: email,
-      },
-    });
-    return user;
-  }
+  const user = await prisma.user.findUnique({
+    where: {
+      email: email,
+    },
+  });
+  return user;
+}
