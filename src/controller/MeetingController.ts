@@ -2,6 +2,7 @@ import { FastifyReply, FastifyRequest } from "fastify";
 import { IMeetingService } from "../service/MeetingService";
 import { z } from "zod";
 import { validateRequest } from "../utils/validateRequest";
+import { handleImageUpload } from "../service/FileService";
 
 //interface de métodos da classe MeetingController
 export interface IMeetingController {
@@ -35,20 +36,28 @@ export class MeetingController implements IMeetingController {
     });
 
     try {
-      await validateRequest(request, reply, meetingValidations);
-      const { type, title, body } = request.body as any;
-      const { userId } = request.user as any;
-      console.log(userId);
+      const isValid = await validateRequest(request, reply, meetingValidations);
 
-      await this.meetingService.createMeeting({
-        type,
-        title,
-        body,
-        userId,
-      });
-      reply.send({
-        message: "Meeting criado com sucesso",
-      });
+      if (isValid) {
+        const { type, title, body, image } = request.body as any;
+        const { userId } = request.user as any;
+
+        const base64Image = image
+          ? image[0].data.toString("base64")
+          : undefined;
+        await handleImageUpload(request);
+
+        await this.meetingService.createMeeting({
+          type,
+          title,
+          body,
+          userId,
+          image: base64Image,
+        });
+        reply.send({
+          message: "Meeting criado com sucesso",
+        });
+      }
     } catch (error) {
       reply.code(500).send({
         error: error,

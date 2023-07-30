@@ -6,6 +6,7 @@ export interface IMeetingService {
     title: string;
     body: string;
     userId: string;
+    image?: string | undefined;
   }): Promise<any>;
   addLikeMeeting(meetingId: string, authorId: string): Promise<void>;
   removeLikeMeeting(id: string, userId: string): Promise<void>;
@@ -25,6 +26,7 @@ export class MeetingService implements IMeetingService {
     title: string;
     body: string;
     userId: string;
+    string?: string | undefined;
   }): Promise<any> {
     try {
       return await this.meetingRepository.createMeeting(data);

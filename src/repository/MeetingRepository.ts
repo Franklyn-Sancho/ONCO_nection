@@ -9,6 +9,7 @@ export interface IMeetingRepository {
     title: string;
     body: string;
     userId: string;
+    image?: string | undefined
   }): Promise<Meetings>;
   getMeetingById(meetingId: string): Promise<Meetings>;
   addLikeMeeting(meetingId: string, authorId: string): Promise<Likes>;
@@ -40,6 +41,7 @@ export class MeetingRepository implements IMeetingRepository {
     title: string;
     body: string;
     userId: string;
+    image?: string | undefined;
   }) {
     try {
       return await this.prisma.meetings.create({

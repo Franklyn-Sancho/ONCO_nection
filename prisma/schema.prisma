@@ -18,6 +18,7 @@ model Meetings {
   author    User?      @relation(fields: [userId], references: [id])
   createdAt DateTime   @default(now())
   userId    String
+  image     String?
   Comments  Comments[]
   Likes     Likes[]
 }

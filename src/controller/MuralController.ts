@@ -1,9 +1,12 @@
 import { FastifyReply, FastifyRequest } from "fastify";
-
 import { IMuralService } from "../service/MuralService";
-
 import { validateMural } from "../utils/muralValidations";
-import { handleImageUpload, handleMultipartFormData } from "../service/FileService";
+import {
+  handleImageUpload,
+  handleMultipartFormData,
+} from "../service/FileService";
+import { validateRequest } from "../utils/validateRequest";
+import { z } from "zod";
 
 export interface IMuralController {
   createMural(request: FastifyRequest, reply: FastifyReply): Promise<void>;
@@ -24,26 +27,33 @@ export class MuralController implements IMuralController {
     request: FastifyRequest,
     reply: FastifyReply
   ): Promise<void> {
+    const muralSchema = z.object({
+      body: z.string({ required_error: "body is required" }),
+      image: z.array(z.any()).optional(),
+    });
     try {
-      const { userId } = request.user as any;
-      const { body, image } = request.body as any;
+      const isValid = await validateRequest(request, reply, muralSchema);
 
-      await validateMural(request, reply);
+      if (isValid) {
+        const { userId } = request.user as any;
+        const { body, image } = request.body as any;
 
-      const base64Image = image ? image[0].data.toString("base64") : undefined;
-      await handleImageUpload(request);
+        const base64Image = image
+          ? image[0].data.toString("base64")
+          : undefined;
+        await handleImageUpload(request);
 
-      await this.muralService.createMural({
-        body,
-        userId,
-        image: base64Image,
-      });
-      reply.send({
-        message: "Publicado com sucesso",
-      });
+        await this.muralService.createMural({
+          body,
+          userId,
+          image: base64Image,
+        });
+        reply.send({
+          message: "Publicado com sucesso",
+        });
+      }
     } catch (error) {
-      console.log(request.body);
-      reply.code(500).send({
+      reply.status(500).send({
         error: `ocorreu o seguinte erro ${error}`,
       });
     }

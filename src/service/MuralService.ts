@@ -1,8 +1,5 @@
 import { Comments, Likes, Mural } from "@prisma/client";
 import { IMuralRepository } from "../repository/MuralRepository";
-import path from "path";
-import fs from "fs";
-import { FastifyRequest } from "fastify";
 
 export interface IMuralService {
   createMural(data: {

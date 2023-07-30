@@ -8,13 +8,14 @@ export async function validateRequest(
     ) {
   try {
     await validationSchema.parseAsync(request.body);
+    return true;
   } catch (error) {
     if (error instanceof z.ZodError) {
       const validationError = error.errors.map((e) => e.message).join(", ");
-      reply.status(400).send({
+      reply.code(400).send({
         message: `Ocorreu um erro: ${validationError}`,
       });
-      return;
+      return false;
     }
     throw error;
   }
