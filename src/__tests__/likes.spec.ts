@@ -31,7 +31,7 @@ describe("LikeController", () => {
 
   it("Should create a like", async () => {
     const response = await request(server.server)
-      .post(`/meetings/clj4erwlp0001c0f1002hccen/likes`)
+      .post(`/meetings/clip1obpm0001c0jo4ffw5bm4/likes`)
       .set("Authorization", `Bearer ${token}`);
 
     expect(response.status).toBe(204);

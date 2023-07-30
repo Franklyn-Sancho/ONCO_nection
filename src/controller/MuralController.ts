@@ -1,12 +1,13 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import { IMuralService } from "../service/MuralService";
-import { validateMural } from "../utils/muralValidations";
-import {
-  handleImageUpload,
-  handleMultipartFormData,
-} from "../service/FileService";
+import { handleImageUpload } from "../service/FileService";
 import { validateRequest } from "../utils/validateRequest";
 import { z } from "zod";
+
+interface MuralRequestBody {
+  body: string;
+  image?: any[];
+}
 
 export interface IMuralController {
   createMural(request: FastifyRequest, reply: FastifyReply): Promise<void>;
@@ -35,8 +36,8 @@ export class MuralController implements IMuralController {
       const isValid = await validateRequest(request, reply, muralSchema);
 
       if (isValid) {
-        const { userId } = request.user as any;
-        const { body, image } = request.body as any;
+        const { userId } = request.user as any
+        const { body, image } = request.body as MuralRequestBody;
 
         const base64Image = image
           ? image[0].data.toString("base64")

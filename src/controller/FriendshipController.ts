@@ -1,24 +1,13 @@
 import { Friendship, User } from "@prisma/client";
 import { IFriendshipService } from "../service/FriendshipService";
+import { FriendshipStatus } from "../repository/FriendshipRepository";
 
 //camada controladora para o sistema de amizades
 
-//interface para descrever os métodos que o controle deve implementar 
 export interface IFriendshipController {
-  //método para recuperar, criar e enviar solicitação de amizade
-  sendFriendRequest(
-    requesterId: string,
-    addressedId: string
-  ): Promise<Friendship>;
-  //método para aceitar e negar uma solicitação 
-  acceptFriendRequest(
-    requesterId: string,
-    addressedId: string,
-    status: "ACCEPTED" | "DENIED"
-  ): Promise<void>;
-  //método para deletar uma amizade
+  sendFriendRequest(requesterId: string,addressedId: string): Promise<Friendship>;
+  acceptFriendRequest(requesterId: string, addressedId: string, status: FriendshipStatus,): Promise<void>;
   deleteFriendship(requesterId: string, addressedId: string): Promise<void>;
-  //método para retornar e recuperar a lista de amigos de um usuário
   getFriends(userId: string): Promise<User[]>;
 }
 
@@ -42,7 +31,7 @@ export class FriendshipController implements IFriendshipController {
   async acceptFriendRequest(
     requesterId: string,
     addressedId: string,
-    status: "ACCEPTED" | "DENIED"
+    status: FriendshipStatus
   ): Promise<void> {
     return this.friendshipService.acceptFriendRequest(
       requesterId,

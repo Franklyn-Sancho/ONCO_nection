@@ -8,18 +8,9 @@ import { handleImageUpload } from "../service/FileService";
 export interface IMeetingController {
   createMeeting(request: FastifyRequest, reply: FastifyReply): Promise<void>;
   addLikeMeeting(request: FastifyRequest, reply: FastifyReply): Promise<void>;
-  removeLikeMeeting(
-    request: FastifyRequest,
-    reply: FastifyReply
-  ): Promise<void>;
-  addCommentMeeting(
-    request: FastifyRequest,
-    reply: FastifyReply
-  ): Promise<void>;
-  removeCommentMeeting(
-    request: FastifyRequest,
-    reply: FastifyReply
-  ): Promise<void>;
+  removeLikeMeeting(request: FastifyRequest, reply: FastifyReply): Promise<void>;
+  addCommentMeeting(request: FastifyRequest, reply: FastifyReply): Promise<void>;
+  removeCommentMeeting(request: FastifyRequest, reply: FastifyReply): Promise<void>;
 }
 
 //A classe MeetingController implementa a interface de métodos
@@ -98,20 +89,30 @@ export class MeetingController implements IMeetingController {
   }
 
   async addCommentMeeting(request: FastifyRequest, reply: FastifyReply) {
+    const commentSchema = z.object({
+      content: z.string({ required_error: "content is required" }),
+    });
+  
     try {
-      const { id } = request.params as any;
-      const { userId } = request.user as any;
-      const { content } = request.body as any;
-
-      await this.meetingService.addCommentMeeting(id, userId, content);
-
-      reply.code(204).send();
+      const isValid = await validateRequest(request, reply, commentSchema)
+      if (isValid) {
+        const { id } = request.params as any;
+        const { userId } = request.user as any;
+        const { content } = request.body as any;
+  
+        await this.meetingService.addCommentMeeting(id, userId, content);
+  
+        reply.code(201).send({
+          message: "Comentário adicionado com sucesso"
+        });
+      }
     } catch (error) {
       reply.code(500).send({
         error: `Ocorreu um erro na camada controller: ${error}`,
       });
     }
   }
+  
 
   async removeCommentMeeting(request: FastifyRequest, reply: FastifyReply) {
     try {

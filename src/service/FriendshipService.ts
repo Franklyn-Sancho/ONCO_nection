@@ -1,24 +1,12 @@
 import { Friendship, User } from "@prisma/client";
-import { IFriendshipRepository } from "../repository/FriendshipRepository";
+import { FriendshipStatus, IFriendshipRepository } from "../repository/FriendshipRepository";
 
 //camada de serviço para o sistema de amizades
 
-//interface para descrever os métodos que o serviço deve implementar
 export interface IFriendshipService {
-  //método para recuperar uma solicitação de amizade ou já existente
-  sendFriendRequest(
-    requesterId: string,
-    addressedId: string
-  ): Promise<Friendship>;
-  //método para aceitar e negar solicitação de amizade
-  acceptFriendRequest(
-    requesterId: string,
-    addressedId: string,
-    status: "ACCEPTED" | "DENIED"
-  ): Promise<void>;
-  //método para deletar amizade entre usuários 
+  sendFriendRequest(requesterId: string, addressedId: string): Promise<Friendship>;
+  acceptFriendRequest(requesterId: string, addressedId: string, status: FriendshipStatus): Promise<void>;
   deleteFriendship(requesterId: string, addressedId: string): Promise<void>;
-  //método para retornar a lista de amizades de um usuário por seu ID
   getFriends(userId: string): Promise<User[]>;
 }
 
@@ -30,11 +18,7 @@ export class FriendshipService implements IFriendshipService {
     this.friendshipRepository = friendshipRepository;
   }
 
-  //implementação do método de enviar solicitação de amizade
-  async sendFriendRequest(
-    requesterId: string,
-    addressedId: string
-  ): Promise<Friendship> {
+  async sendFriendRequest(requesterId: string, addressedId: string): Promise<Friendship> {
     const existingFriendship = await this.friendshipRepository.getFriendship(
       requesterId,
       addressedId
@@ -57,7 +41,7 @@ export class FriendshipService implements IFriendshipService {
   async acceptFriendRequest(
     requesterId: string,
     addressedId: string,
-    status: "ACCEPTED" | "DENIED"
+    status: FriendshipStatus
   ): Promise<void> {
     return this.friendshipRepository.acceptFriendship(
       requesterId,

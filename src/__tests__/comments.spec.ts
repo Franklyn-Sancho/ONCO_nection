@@ -23,14 +23,13 @@ describe("CommentsController", () => {
 
   it("Should a new comment on meeting", async () => {
     const response = await request(server.server)
-      .post("/meeting/clip2ga270003c0xzs789g1ed/comments")
+      .post("/meetings/clip1obpm0001c0jo4ffw5bm4/comments")
       .send({
         content: "teste de comentário"
       })
-      .set("Authorization", `Bearer ${token}`);
-      console.log(token)
+      .set("Authorization", `Bearer ${token}`)
 
-    expect(response.status).toBe(200);
+    expect(response.status).toBe(201);
     expect(response.body).toStrictEqual({
       message: "Comentário adicionado com sucesso",
     });
@@ -38,7 +37,7 @@ describe("CommentsController", () => {
 
   it("Should to return content error validation", async () => {
     const response = await request(server.server)
-      .post("/meeting/clit2d2l60003c0u2jnp4fjxe/comments")
+      .post("/meetings/clip1obpm0001c0jo4ffw5bm4/comments")
       .send({
         
       })
@@ -53,7 +52,7 @@ describe("CommentsController", () => {
 
   it("Should not create a comment without an authenticated user", async () => {
     const response = await request(server.server)
-      .post("/meeting/clit2d2l60003c0u2jnp4fjxe/comments")
+      .post("/meetings/clip1obpm0001c0jo4ffw5bm4/comments")
       .send({
         content: "texto de teste"
       })

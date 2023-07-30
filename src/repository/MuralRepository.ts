@@ -4,18 +4,19 @@ import { CommentsRepository } from "./CommentsRepository";
 
 /* const prisma = new PrismaClient(); */
 
-//Um mural será a publicação entre amigos na linha do tempo
+export interface CreateMuralData {
+  body: string;
+  userId: string;
+  image?: string;
+}
 
 //interface repository mural
 export interface IMuralRepository {
-  createMural(data: { body: string; userId: string, image?: string }): Promise<Mural>;
+  createMural(data: CreateMuralData): Promise<Mural>;
   getMuralsIfFriends(userId: string): Promise<Mural[]>;
   addLikeInMural(muralId: string, authorId: string): Promise<Likes>;
   removeLikeInMural(id: string, userId: string): Promise<Likes>;
-  addCommentInMural(
-    muralId: string,
-    userId: string,
-    content: string
+  addCommentInMural(muralId: string, userId: string, content: string
   ): Promise<Comments>;
   removeCommentInMural(id: string, userId: string): Promise<Comments>;
 }
@@ -34,22 +35,14 @@ export class MuralRepository implements IMuralRepository {
   }
 
   //função responsável por criar um novo mural
-  async createMural(data: { body: string; userId: string, image?: string | undefined }) {
-    try {
-      return await this.prisma.mural.create({
-        data, //a estrutura do data está no parâmetro da função {body, userId}
-      });
-    } catch (error) {
-      throw new Error(`Error creating mural: ${error}`);
-    }
+  async createMural(data: CreateMuralData) {
+    return await this.prisma.mural.create({
+      data, //a estrutura do data está no parâmetro da função {body, userId}
+    });
   }
 
   //repositório para retornar os murais entre amigos
   async getMuralsIfFriends(userId: string) {
-    /**
-     * a variável friends busca todos os registros de amizade onde o requesterId
-     * ou o addressedId é igual ao userId (usuário) e o status é accepted
-     */
     const friends = await this.prisma.friendship.findMany({
       where: {
         OR: [{ requesterId: userId }, { addressedId: userId }],
@@ -61,10 +54,6 @@ export class MuralRepository implements IMuralRepository {
       },
     });
 
-    /**
-     * Essa estrutura mapeia o array friends e cria um novo array, contendo o id
-     * dos usuários que são amigos do UserId
-     */
     const friendIds = friends.map((friendship) =>
       friendship.requesterId === userId
         ? friendship.addressedId
@@ -82,61 +71,42 @@ export class MuralRepository implements IMuralRepository {
 
   //implementando o método de adicionar like no mural
   async addLikeInMural(muralId: string, authorId: string) {
-    try {
-      return await this.likeRepository.createLike({
-        muralId,
-        author: authorId, //author recebe o id do usuário
-      });
-    } catch (error) {
-      throw new Error(`Error adding like in MuralRepository: ${error}`);
-    }
+    return await this.likeRepository.createLike({
+      muralId,
+      author: authorId, //author recebe o id do usuário
+    });
   }
 
   //implementando o método de remover like do mural
   async removeLikeInMural(id: string, userId: string) {
-    try {
-      const like = await this.likeRepository.getLikeById(id);
+    const like = await this.likeRepository.getLikeById(id);
 
-      //controle de acesso, apenas o próprio usuário pode remover seu like
-      if (like.author !== userId) {
-        throw new Error("Acessa negado");
-      }
-
-      return await this.likeRepository.deleteLike(id);
-    } catch (error) {
-      throw new Error(`Error removing like in MuralRepository: ${error}`);
+    //controle de acesso, apenas o próprio usuário pode remover seu like
+    if (like.author !== userId) {
+      throw new Error("Acessa negado");
     }
+
+    return await this.likeRepository.deleteLike(id);
   }
 
   //implementando o método de adicinar comentário no mural
-  async addCommentInMural(
-    muralId: string,
-    userId: string,
-    content: string
+  async addCommentInMural(muralId: string, userId: string, content: string
   ): Promise<Comments> {
-    try {
-      return await this.commentRepository.createComment({
-        muralId,
-        userId,
-        content,
-      });
-    } catch (error) {
-      throw new Error(`Error adding comment in MuralRepository: ${error}`);
-    }
+    return await this.commentRepository.createComment({
+      muralId,
+      userId,
+      content,
+    });
   }
 
   //implementando o método para remover comentários do mural
   async removeCommentInMural(id: string, userId: string): Promise<Comments> {
-    try {
-      const comment = await this.commentRepository.getCommentById(id);
+    const comment = await this.commentRepository.getCommentById(id);
 
-      //apenas o usuário pode remover o próprio like
-      if (comment.userId !== userId) {
-        throw new Error("Acesso negado");
-      }
-      return await this.commentRepository.deleteComment(id);
-    } catch (error) {
-      throw new Error(`Error removing comment in MuralRepository: ${error}`);
+    //apenas o usuário pode remover o próprio like
+    if (comment.userId !== userId) {
+      throw new Error("Acesso negado");
     }
+    return await this.commentRepository.deleteComment(id);
   }
 }
