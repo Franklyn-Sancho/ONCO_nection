@@ -7,10 +7,8 @@ const prisma = new PrismaClient();
 
 let server: FastifyInstance;
 
-//EM CONSTRUÇÃO
 describe("LikeController", () => {
   let token = "";
-  let meetingId = "";
 
   beforeAll(async () => {
     server = await serverPromise;
@@ -29,7 +27,7 @@ describe("LikeController", () => {
     server.close();
   });
 
-  it("Should create a like", async () => {
+  it("Should create a like on meeting", async () => {
     const response = await request(server.server)
       .post(`/meetings/clip1obpm0001c0jo4ffw5bm4/likes`)
       .set("Authorization", `Bearer ${token}`);
@@ -37,9 +35,19 @@ describe("LikeController", () => {
     expect(response.status).toBe(204);
   });
 
-  it("should to return a error", async() => {
+  it("Should create a like on mural", async () => {
+    const response = await request(server.server)
+      .post(`/mural/clklga0ke0001c0irn55f0w5e/likes`)
+      .set("Authorization", `Bearer ${token}`);
+
+    expect(response.status).toBe(204);
+  });
+
+  it("should to return a error page not found", async() => {
     const response = await request(server.server)
       .post("/meeting/1/likes")
       .set("Authorization", `Bearer ${token}`)
+
+      expect(response.status).toBe(404);
   })
 });

@@ -105,14 +105,23 @@ export class MuralController implements IMuralController {
   }
 
   async addCommentMural(request: FastifyRequest, reply: FastifyReply) {
+    const commentSchema = z.object({
+      body: z.string({ required_error: "content is required" }),
+    });
+  
     try {
-      const { id } = request.params as any;
-      const { userId } = request.user as any;
-      const { content } = request.body as any;
-
-      await this.muralService.addCommentMural(id, userId, content);
-
-      reply.code(204).send();
+      const isValid = await validateRequest(request, reply, commentSchema)
+      if (isValid) {
+        const { id } = request.params as any;
+        const { userId } = request.user as any;
+        const { body } = request.body as any;
+  
+        await this.muralService.addCommentMural(id, userId, body);
+  
+        reply.code(201).send({
+          message: "Comentário adicionado com sucesso"
+        });
+      }
     } catch (error) {
       reply.code(500).send({
         error: `Ocorreu um erro na camada controller: ${error}`,

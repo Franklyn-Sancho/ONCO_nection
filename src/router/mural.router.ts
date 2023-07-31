@@ -34,7 +34,7 @@ export function muralRouter(
   );
 
   fastify.post(
-    "/meeting/:id/comments",
+    "/mural/:id/comments",
     { preHandler: authenticate },
     muralController.addCommentMural.bind(muralController)
   );

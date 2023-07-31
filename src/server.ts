@@ -36,6 +36,10 @@ async function main() {
   fastify.register(registerFriendshipRoutes);
   fastify.register(muralRouter);
 
+  fastify.setNotFoundHandler((request, reply) => {
+    reply.code(404).send({error: "Página não encontrada"})
+  })
+
   await fastify.listen({ port: 3000, host: "0.0.0.0" });
 
   return fastify;

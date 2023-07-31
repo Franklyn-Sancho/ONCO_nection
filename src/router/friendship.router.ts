@@ -29,7 +29,9 @@ export function registerFriendshipRoutes(
         requesterId,
         addressedId
       );
-      reply.send(result);
+      reply.code(200).send({
+        message: "Solicitação de amizade enviada"
+      });
     }
   );
 
