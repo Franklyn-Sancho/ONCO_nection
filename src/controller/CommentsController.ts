@@ -26,14 +26,15 @@ export class CommentController implements ICommentController {
         const { meetingId, muralId, content } = request.body as any;
         const { userId } = request.user as any;
 
-        await this.commentService.addComment({
+       const comment = await this.commentService.addComment({
           content,
           meetingId,
           muralId,
           userId,
         });
         reply.code(201).send({
-          message: "Comentário adicionado com sucesso"
+          message: "Comentário adicionado com sucesso",
+          commentId: comment.id,
         });
       }
     } catch (error) {
@@ -46,8 +47,9 @@ export class CommentController implements ICommentController {
   async deleteComment(request: FastifyRequest, reply: FastifyReply) {
     try {
       const { id } = request.params as any;
+      const { userId } = request.user as any
 
-      await this.commentService.deleteComment(id);
+      await this.commentService.deleteComment(id, userId);
 
       reply.code(204).send();
     } catch (error) {

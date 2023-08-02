@@ -1,18 +1,33 @@
+import { Comments } from "@prisma/client";
 import { CreateCommentData, ICommentRepository } from "../repository/CommentsRepository";
 
 export interface ICommentService {
-  addComment(data: CreateCommentData): Promise<void>;
-  deleteComment(id: string): Promise<void>;
+  addComment(data: CreateCommentData): Promise<Comments>;
+  deleteComment(id: string, userId: string): Promise<void>;
 }
 
 export class CommentsService implements ICommentService {
   constructor(private commentsRepository: ICommentRepository) {}
 
-  async addComment(data: CreateCommentData): Promise<void> {
-    await this.commentsRepository.createComment(data);
+  async addComment(data: CreateCommentData): Promise<Comments> {
+    const comment = await this.commentsRepository.createComment(data);
+
+    return comment;
   }
 
-  async deleteComment(id: string): Promise<void> {
+  async deleteComment(id: string, userId: string): Promise<void> {
+
+    const comment = await this.commentsRepository.getCommentById(id)
+
+    if(!comment) {
+      throw new Error("Nenhum comentário com esse id foi encontrado")
+    }
+
+    if(comment.userId !== userId) {
+      throw new Error("Você não tem permissão para excluir esse comentário")
+    }
+
+
     await this.commentsRepository.deleteComment(id);
   }
 }

@@ -1,4 +1,4 @@
-import {Meetings, PrismaClient } from "@prisma/client";
+import { Meetings, PrismaClient } from "@prisma/client";
 import { LikeRepository } from "./LikeRepository";
 import { CommentsRepository } from "./CommentsRepository";
 
@@ -19,14 +19,10 @@ export interface IMeetingRepository {
 //MeetingRepository class implement interface
 export class MeetingRepository implements IMeetingRepository {
   private prisma: PrismaClient;
-  private likeRepository: LikeRepository;
-  private commentRepository: CommentsRepository;
 
   //instancia do Prisma Client no constructor
   constructor(prisma: PrismaClient) {
     this.prisma = prisma;
-    this.likeRepository = new LikeRepository(prisma)
-    this.commentRepository = new CommentsRepository(prisma);
   }
 
   //função responsável por criar um novo meeting
