@@ -29,8 +29,11 @@ describe("LikeController", () => {
 
   it("Should create a like on meeting", async () => {
     const response = await request(server.server)
-      .post(`/meetings/clip1obpm0001c0jo4ffw5bm4/likes`)
-      .set("Authorization", `Bearer ${token}`);
+      .post(`/meetings/clhqa3vak0003c0hkoms9ozea/likes`)
+      .set("Authorization", `Bearer ${token}`)
+      .send({});
+
+      console.log(response.body); 
 
     expect(response.status).toBe(204);
   });
@@ -38,7 +41,8 @@ describe("LikeController", () => {
   it("Should create a like on mural", async () => {
     const response = await request(server.server)
       .post(`/mural/clklga0ke0001c0irn55f0w5e/likes`)
-      .set("Authorization", `Bearer ${token}`);
+      .set("Authorization", `Bearer ${token}`)
+      .send({})
 
     expect(response.status).toBe(204);
   });

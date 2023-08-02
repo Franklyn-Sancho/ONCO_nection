@@ -1,19 +1,12 @@
 import { FastifyInstance } from "fastify";
-import { FriendshipController } from "../controller/FriendshipController";
-import { FriendshipRepository } from "../repository/FriendshipRepository";
-import { FriendshipService } from "../service/FriendshipService";
-import { PrismaClient } from "@prisma/client";
 import { authenticate } from "../plugins/authenticate";
+import { friendshipController } from "../utils/providers";
 
 export function registerFriendshipRoutes(
   fastify: FastifyInstance,
   options: any,
   done: () => void
 ) {
-  const prisma = new PrismaClient();
-  const friendshipRepository = new FriendshipRepository(prisma);
-  const friendshipService = new FriendshipService(friendshipRepository);
-  const friendshipController = new FriendshipController(friendshipService);
 
   // Registra a rota POST /friendships para enviar uma nova solicitação de amizade
   fastify.post(

@@ -41,9 +41,9 @@ describe("CommentsController", () => {
 
   it("Should a new comment on mural", async () => {
     const response = await request(server.server)
-      .post("/mural/clklga0ke0001c0irn55f0w5e/comments")
+      .post("/mural/clkiw8h110001c0shj62cvqy7/comments")
       .send({
-        body: "teste de comentário no mural"
+        content: "teste de comentário no mural"
       })
       .set("Authorization", `Bearer ${token}`)
 

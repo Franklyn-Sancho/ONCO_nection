@@ -22,6 +22,7 @@ export class LikeController implements ILikeController {
         muralId,
         author,
       });
+      console.log(meetingId, muralId, author)
       reply.code(204).send();
     } catch (error) {
       reply.code(500).send({
@@ -33,9 +34,9 @@ export class LikeController implements ILikeController {
   async deleteLike(request: FastifyRequest, reply: FastifyReply) {
     try {
       const { id } = request.params as any;
-      /* const { userId } = request.user as any; */
+      const {userId} = request.user as any
 
-      await this.likeService.deleteLike(id);
+      await this.likeService.deleteLike(id, userId);
 
       reply.code(204).send();
     } catch (error) {

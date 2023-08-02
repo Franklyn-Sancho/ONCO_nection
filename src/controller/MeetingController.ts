@@ -3,6 +3,13 @@ import { IMeetingService } from "../service/MeetingService";
 import { z } from "zod";
 import { validateRequest } from "../utils/validateRequest";
 import { handleImageUpload } from "../service/FileService";
+import { ILikeController } from "./LikeController";
+import { IMeetingRepository } from "../repository/MeetingRepository";
+import { ICommentController } from "./CommentsController";
+
+interface MeetingLikeRequestBody {
+  meetingId: string;
+}
 
 //interface de métodos da classe MeetingController
 export interface IMeetingController {
@@ -10,12 +17,17 @@ export interface IMeetingController {
   addLikeMeeting(request: FastifyRequest, reply: FastifyReply): Promise<void>;
   removeLikeMeeting(request: FastifyRequest, reply: FastifyReply): Promise<void>;
   addCommentMeeting(request: FastifyRequest, reply: FastifyReply): Promise<void>;
-  removeCommentMeeting(request: FastifyRequest, reply: FastifyReply): Promise<void>;
+  removeCommentMeeting(request: FastifyRequest,reply: FastifyReply): Promise<void>;
 }
 
 //A classe MeetingController implementa a interface de métodos
 export class MeetingController implements IMeetingController {
-  constructor(private meetingService: IMeetingService) {}
+  constructor(
+    private meetingService: IMeetingService,
+    private likeController: ILikeController,
+    private meetingRepository: IMeetingRepository,
+    private commentController: ICommentController
+  ) {}
 
   async createMeeting(
     request: FastifyRequest,
@@ -60,12 +72,19 @@ export class MeetingController implements IMeetingController {
   async addLikeMeeting(request: FastifyRequest, reply: FastifyReply) {
     try {
       const { id } = request.params as any;
-      const { userId } = request.user as any;
 
-      await this.meetingService.addLikeMeeting(id, userId);
+      const meeting = await this.meetingRepository.getMeetingById(id);
+        
+      if (!meeting) {
+          throw new Error("Meeting não encontrado");
+      }
 
-      reply.code(204).send(); //se retornar 204 o like foi adicionado com sucesso
+      (request.body as MeetingLikeRequestBody).meetingId = id
+
+      await this.likeController.createLike(request, reply);
+
     } catch (error) {
+      console.log(request.params);
       reply.code(500).send({
         error: `Ocorreu um erro na camada de controle: ${error}`,
       });
@@ -76,11 +95,11 @@ export class MeetingController implements IMeetingController {
   async removeLikeMeeting(request: FastifyRequest, reply: FastifyReply) {
     try {
       const { id } = request.params as any;
-      const { userId } = request.user as any;
+      
+      (request.body as MeetingLikeRequestBody).meetingId = id
 
-      await this.meetingService.removeLikeMeeting(id, userId);
+      await this.likeController.deleteLike(request, reply)
 
-      reply.code(204).send(); //se retornar 204 o like foi removido com sucesso
     } catch (error) {
       reply.code(500).send({
         error: `error removing like from meeting: ${error}`,
@@ -92,19 +111,15 @@ export class MeetingController implements IMeetingController {
     const commentSchema = z.object({
       content: z.string({ required_error: "content is required" }),
     });
-  
+
     try {
-      const isValid = await validateRequest(request, reply, commentSchema)
+      const isValid = await validateRequest(request, reply, commentSchema);
       if (isValid) {
         const { id } = request.params as any;
-        const { userId } = request.user as any;
-        const { content } = request.body as any;
-  
-        await this.meetingService.addCommentMeeting(id, userId, content);
-  
-        reply.code(201).send({
-          message: "Comentário adicionado com sucesso"
-        });
+
+        (request.body as MeetingLikeRequestBody).meetingId = id
+
+        await this.commentController.addComment(request, reply)
       }
     } catch (error) {
       reply.code(500).send({
@@ -112,15 +127,14 @@ export class MeetingController implements IMeetingController {
       });
     }
   }
-  
 
   async removeCommentMeeting(request: FastifyRequest, reply: FastifyReply) {
     try {
       const { id } = request.params as any;
 
-      await this.meetingService.removeCommentMeeting(id);
+      (request.body as MeetingLikeRequestBody).meetingId = id
 
-      reply.code(204).send();
+      await this.commentController.deleteComment(request, reply)
     } catch (error) {
       reply.code(500).send({
         error: `error removing comment from meeting: ${error}`,

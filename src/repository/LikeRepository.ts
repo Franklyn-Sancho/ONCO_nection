@@ -11,6 +11,7 @@ export interface ILikeRepository {
   createLike(data: CreateLikeData): Promise<Likes>;
   getLikeById(id: string): Promise<Likes>;
   deleteLike(id: string): Promise<Likes>;
+  getLikeByUserAndContent(data: CreateLikeData): Promise<Likes | null>;
 }
 
 export class LikeRepository implements ILikeRepository {
@@ -41,6 +42,18 @@ export class LikeRepository implements ILikeRepository {
     }
 
     return like;
+  }
+
+  async getLikeByUserAndContent(
+    data: CreateLikeData
+  ) {
+    return await this.prisma.likes.findFirst({
+      where: {
+        author: data.author,
+        muralId: data.muralId,
+        meetingId: data.meetingId,
+      },
+    });
   }
 
   //implementa o método de remoção de um like do usuário

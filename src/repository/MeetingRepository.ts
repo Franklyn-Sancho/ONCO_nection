@@ -1,4 +1,4 @@
-import { Comments, Likes, Meetings, PrismaClient } from "@prisma/client";
+import {Meetings, PrismaClient } from "@prisma/client";
 import { LikeRepository } from "./LikeRepository";
 import { CommentsRepository } from "./CommentsRepository";
 
@@ -14,10 +14,6 @@ export interface CreateMeetingData {
 export interface IMeetingRepository {
   createMeeting(data: CreateMeetingData): Promise<Meetings>;
   getMeetingById(meetingId: string): Promise<Meetings>;
-  addLikeMeeting(meetingId: string, authorId: string): Promise<Likes>;
-  deleteLikeMeeting(id: string, userId: string): Promise<void>;
-  addCommentMeeting(meetingId: string, userId: string, content: string): Promise<Comments>;
-  deleteCommentMeeting(id: string): Promise<void>;
 }
 
 //MeetingRepository class implement interface
@@ -29,7 +25,7 @@ export class MeetingRepository implements IMeetingRepository {
   //instancia do Prisma Client no constructor
   constructor(prisma: PrismaClient) {
     this.prisma = prisma;
-    this.likeRepository = new LikeRepository(prisma);
+    this.likeRepository = new LikeRepository(prisma)
     this.commentRepository = new CommentsRepository(prisma);
   }
 
@@ -52,36 +48,5 @@ export class MeetingRepository implements IMeetingRepository {
     }
 
     return meeting;
-  }
-
-  //função da camada repositório para adicionar likes nos meetings
-  async addLikeMeeting(meetingId: string, authorId: string) {
-    return await this.likeRepository.createLike({
-      meetingId,
-      author: authorId,
-    });
-  }
-
-  async deleteLikeMeeting(id: string, userId: string) {
-    const like = await this.likeRepository.getLikeById(id);
-
-      if (like.author !== userId) {
-        throw new Error("Você não tem autorização para remover esse like");
-      }
-      console.log(like);
-
-      await this.likeRepository.deleteLike(id);
-  }
-
-  async addCommentMeeting(meetingId: string, userId: string, content: string) {
-    return await this.commentRepository.createComment({
-      meetingId,
-      userId,
-      content,
-    });
-  }
-
-  async deleteCommentMeeting(id: string): Promise<void> {
-    await this.commentRepository.deleteComment(id);
   }
 }
