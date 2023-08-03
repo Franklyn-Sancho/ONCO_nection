@@ -16,6 +16,18 @@ export function meetingRouter(
     meetingController.createMeeting.bind(meetingController)
   );
 
+  fastify.put(
+    "/meetings/:id/update",
+    {preHandler: authenticate},
+    meetingController.updateMeeting.bind(meetingController)
+  )
+
+  fastify.delete(
+    "/meetings/:id/delete",
+    {preHandler: authenticate},
+    meetingController.deleteMeeting.bind(meetingController)
+  )
+
   fastify.post(
     "/meetings/:id/likes",
     { preHandler: authenticate },

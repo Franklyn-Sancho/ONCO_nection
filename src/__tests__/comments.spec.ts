@@ -65,7 +65,6 @@ describe("CommentsController", () => {
       .post("/meetings/clip1obpm0001c0jo4ffw5bm4/comments")
       .send({})
       .set("Authorization", `Bearer ${token}`);
-    console.log(token);
 
     expect(response.status).toBe(400);
     expect(response.body).toStrictEqual({
@@ -78,7 +77,6 @@ describe("CommentsController", () => {
       .post("/mural/clklga0ke0001c0irn55f0w5e/comments")
       .send({})
       .set("Authorization", `Bearer ${token}`);
-    console.log(token);
 
     expect(response.status).toBe(400);
     expect(response.body).toStrictEqual({
@@ -92,8 +90,7 @@ describe("CommentsController", () => {
       .send({
         content: "texto de teste",
       });
-    /* .set("Authorization", `Bearer ${token}`);
-      console.log(token) */
+    /* .set("Authorization", `Bearer ${token}`);*/
 
     expect(response.status).toBe(401);
     expect(response.body).toStrictEqual({
@@ -107,8 +104,7 @@ describe("CommentsController", () => {
       .send({
         content: "texto de teste",
       });
-    /* .set("Authorization", `Bearer ${token}`);
-      console.log(token) */
+    /* .set("Authorization", `Bearer ${token}`);*/
 
     expect(response.status).toBe(401);
     expect(response.body).toStrictEqual({
@@ -133,8 +129,6 @@ describe("CommentsController", () => {
 
     const commentId = CreateResponse.body.commentId;
 
-    console.log(commentId);
-
     const removeResponse = await request(server.server)
       .delete(`/meetings/${commentId}/comments`)
       .set("Authorization", `Bearer ${token}`)
@@ -154,9 +148,6 @@ describe("CommentsController", () => {
   
     // Extrai o ID do comentário criado
     const commentId = createResponse.body.commentId;
-
-    console.log(commentId)
-    console.log(token2)
   
     // Tenta excluir o comentário usando a segunda conta de usuário
     const removeResponse = await request(server.server)

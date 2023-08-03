@@ -14,7 +14,6 @@ export function registerFriendshipRoutes(
     { preHandler: [authenticate] },
     async (request, reply) => {
       const { userId: requesterId } = request.user as any;
-      console.log(requesterId);
 
       const { addressedId } = request.body as any;
 

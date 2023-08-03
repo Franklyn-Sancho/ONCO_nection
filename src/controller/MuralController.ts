@@ -14,6 +14,8 @@ interface MuralRequestBody {
 
 export interface IMuralController {
   createMural(request: FastifyRequest, reply: FastifyReply): Promise<void>;
+  updateMural(request: FastifyRequest, reply: FastifyReply): Promise<void>;
+  deleteMural(request: FastifyRequest, reply: FastifyReply): Promise<void>;
   getMurals(request: FastifyRequest, reply: FastifyReply): Promise<void>;
   addLikeMural(request: FastifyRequest, reply: FastifyReply): Promise<void>;
   removeLikeMural(request: FastifyRequest, reply: FastifyReply): Promise<void>;
@@ -35,35 +37,69 @@ export class MuralController implements IMuralController {
     request: FastifyRequest,
     reply: FastifyReply
   ): Promise<void> {
-    const muralSchema = z.object({
+    const muralValidations = z.object({
       body: z.string({ required_error: "body is required" }),
       image: z.array(z.any()).optional(),
     });
     try {
-      const isValid = await validateRequest(request, reply, muralSchema);
+      const isValid = await validateRequest(request, reply, muralValidations);
 
       if (isValid) {
         const { userId } = request.user as any
-        const { body, image } = request.body as MuralRequestBody;
+        const { body, image } = request.body as any;
 
         const base64Image = image
           ? image[0].data.toString("base64")
           : undefined;
         await handleImageUpload(request);
 
-        await this.muralService.createMural({
+        const mural = await this.muralService.createMural({
           body,
           userId,
           image: base64Image,
         });
         reply.send({
-          message: "Publicado com sucesso",
+          message: "Mural publicado com sucesso",
+          muralId: mural.id,
         });
       }
     } catch (error) {
       reply.status(500).send({
         error: `ocorreu o seguinte erro ${error}`,
       });
+    }
+  }
+
+  async updateMural(request: FastifyRequest, reply: FastifyReply): Promise<void> {
+      
+    try {
+      const {id} = request.params as any
+      const { body } = request.body as any
+      const { userId } = request.user as any
+
+      await this.muralService.updateMural(id, body, userId)
+      reply.code(200).send({
+        message: "mural atualizado com sucesso"
+      })
+    }
+    catch (error) {
+      reply.code(400).send(error)
+    }
+  }
+
+  async deleteMural(request: FastifyRequest, reply: FastifyReply): Promise<void> {
+      
+    try {
+      const {id} = request.params as any
+      const {userId} = request.user as any
+
+      await this.muralService.deleteMural(id, userId)
+      reply.code(200).send({
+        message: "mural deletado com sucesso"
+      })
+    }
+    catch (error) {
+      reply.code(500).send(error)
     }
   }
 
@@ -89,7 +125,6 @@ export class MuralController implements IMuralController {
       await this.likeController.createLike(request, reply);
 
     } catch (error) {
-      console.log(request.params);
       reply.code(500).send({
         error: `Ocorreu um erro na camada de controle: ${error}`,
       });
@@ -105,7 +140,7 @@ export class MuralController implements IMuralController {
       await this.likeController.deleteLike(request, reply)
     } catch (error) {
       reply.code(500).send({
-        error: `error removing like from meeting: ${error}`,
+        error: `error removing like from mural: ${error}`,
       });
     }
   }
@@ -140,7 +175,7 @@ export class MuralController implements IMuralController {
       await this.commentController.deleteComment(request, reply)
     } catch (error) {
       reply.code(500).send({
-        error: `error removing comment from meeting: ${error}`,
+        error: `error removing comment from mural: ${error}`,
       });
     }
   }

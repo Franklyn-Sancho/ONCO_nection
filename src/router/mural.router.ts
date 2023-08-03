@@ -20,6 +20,18 @@ export function muralRouter(
     muralController.getMurals.bind(muralController)
   );
 
+  fastify.put(
+    "/mural/:id/update",
+    {preHandler: authenticate},
+    muralController.updateMural.bind(muralController)
+  )
+
+  fastify.delete(
+    "/mural/:id/delete",
+    {preHandler: authenticate},
+    muralController.deleteMural.bind(muralController)
+  )
+
   fastify.post(
     "/mural/:id/likes",
     { preHandler: authenticate },

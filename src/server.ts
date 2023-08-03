@@ -6,6 +6,7 @@ import { meetingRouter } from "./router/meeting.router";
 import { muralRouter } from "./router/mural.router";
 import { registerFriendshipRoutes } from "./router/friendship.router";
 import fastifyMultipart from "@fastify/multipart";
+import socketioServer from "fastify-socket.io";
 
 import("dotenv").then((dotenv) => dotenv.config());
 
@@ -30,6 +31,7 @@ async function main() {
     addToBody: true, // Isso permite adicionar os campos ao objeto `request.body`
   });
   
+  fastify.register(socketioServer)
 
   fastify.register(userRouter); //register to userRouter
   fastify.register(meetingRouter); //register to meetingRouter

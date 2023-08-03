@@ -18,7 +18,6 @@ describe("LikeController", () => {
       password: "12345",
     });
     token = response.body.token;
-    console.log(token);
 
   });
 
@@ -32,8 +31,6 @@ describe("LikeController", () => {
       .post(`/meetings/clhqa3vak0003c0hkoms9ozea/likes`)
       .set("Authorization", `Bearer ${token}`)
       .send({});
-
-      console.log(response.body); 
 
     expect(response.status).toBe(204);
   });

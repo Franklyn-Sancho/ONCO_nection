@@ -36,7 +36,6 @@ export class LikeRepository implements ILikeRepository {
         id,
       },
     });
-    console.log(like);
     if (!like) {
       throw new Error("Nenhum like com esse id foi encontrado");
     }

@@ -22,7 +22,6 @@ export class LikeController implements ILikeController {
         muralId,
         author,
       });
-      console.log(meetingId, muralId, author)
       reply.code(204).send();
     } catch (error) {
       reply.code(500).send({
