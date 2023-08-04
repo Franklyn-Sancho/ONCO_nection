@@ -52,7 +52,7 @@ export default class UserService {
     }
 
     //return a token by jwt.sign
-    const token = jwt.sign({ userId: findUser.id }, process.env.TOKEN_KEY, {
+    const token = jwt.sign({ userId: user.id }, process.env.TOKEN_KEY, {
       expiresIn: "2h",
     });
 

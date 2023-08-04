@@ -1,5 +1,7 @@
 import { Mural } from "@prisma/client";
 import { CreateMuralData, IMuralRepository } from "../repository/MuralRepository";
+import { NotFountError } from "../errors/NotFoundError";
+import { ForbiddenError } from "../errors/ForbiddenError";
 
 export interface IMuralService {
   createMural(data: CreateMuralData): Promise<any>;
@@ -39,11 +41,11 @@ export class MuralService implements IMuralService {
     const existingMural = await this.muralRepository.getMuralById(muralId)
 
     if(!existingMural) {
-      throw new Error("Nenhum mural com este ID foi encontrado"); 
+      throw new NotFountError("Nenhum mural com este ID foi encontrado"); 
     }
 
     if(existingMural.userId !== userId) {
-      throw new Error("Você não tem permissão para excluir este conteúdo");
+      throw new ForbiddenError("Você não tem permissão para excluir este conteúdo");
     }
 
     return await this.muralRepository.deleteMural(muralId)

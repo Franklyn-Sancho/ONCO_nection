@@ -4,6 +4,8 @@ import {
   IMeetingRepository,
   UpdateMeetingData,
 } from "../repository/MeetingRepository";
+import { NotFountError } from "../errors/NotFoundError";
+import { ForbiddenError } from "../errors/ForbiddenError";
 
 export interface IMeetingService {
   createMeeting(data: CreateMeetingData): Promise<Meetings>;
@@ -44,11 +46,11 @@ export class MeetingService implements IMeetingService {
     const existMeeting = await this.meetingRepository.getMeetingById(meetingId);
 
     if (!existMeeting) {
-      throw new Error("Nenhum meeting com este ID foi encontrado");
+      throw new NotFountError("Nenhum meeting com este ID foi encontrado");
     }
 
     if (existMeeting.userId !== userId) {
-      throw new Error("Você não tem permissão para excluir esse conteúdo");
+      throw new ForbiddenError("Você não tem permissão para excluir esse conteúdo");
     }
 
     return await this.meetingRepository.deleteMeeting(meetingId);

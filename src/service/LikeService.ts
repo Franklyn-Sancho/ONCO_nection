@@ -1,3 +1,5 @@
+import { ForbiddenError } from "../errors/ForbiddenError";
+import { NotFountError } from "../errors/NotFoundError";
 import { CreateLikeData, ILikeRepository } from "../repository/LikeRepository";
 
 //interface de métodos da classe LikesService
@@ -26,11 +28,11 @@ export class LikeService implements ILikeService {
     const like = await this.likeRepository.getLikeById(id);
 
     if (!like) {
-      throw new Error("Like não encontrado");
+      throw new NotFountError("Like não encontrado");
     }
 
     if (like.author !== userId) {
-      throw new Error("Você não tem permissão para excluir este like");
+      throw new ForbiddenError("Você não tem permissão para excluir este like");
     }
 
     await this.likeRepository.deleteLike(id);

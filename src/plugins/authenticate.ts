@@ -1,4 +1,5 @@
 import { FastifyReply, FastifyRequest } from "fastify";
+import { UnauthorizedError } from "../errors/UnauthorizedError";
 
 
 //plugin to authenticate
@@ -13,8 +14,6 @@ export async function authenticate(
     const decodedToken = request.user;
     request.user = decodedToken;
   } catch (error) {
-    reply.status(401).send({
-      error: "Falha na autenticação",
-    });
+    throw new UnauthorizedError("falha na autenticação")
   }
 }

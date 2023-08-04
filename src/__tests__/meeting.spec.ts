@@ -3,8 +3,6 @@ import serverPromise from "../server";
 import { FastifyInstance } from "fastify";
 import { PrismaClient } from "@prisma/client";
 
-const prisma = new PrismaClient();
-
 let server: FastifyInstance;
 
 describe("MeetingController", () => {
@@ -95,11 +93,6 @@ describe("MeetingController", () => {
     // Atualiza o meeting
     const deleteResponse = await request(server.server)
       .delete(`/meetings/${meetingId}/delete`)
-      /* .send({
-        type: "new type",
-        title: "new title",
-        body: "new body",
-      }) */
       .set("Authorization", `Bearer ${token}`);
   
     expect(deleteResponse.status).toBe(200);
@@ -152,7 +145,9 @@ describe("MeetingController", () => {
 
     expect(response.status).toBe(401);
     expect(response.body).toStrictEqual({
-      error: "Falha na autenticação",
+      error: "Unauthorized",
+      message: "falha na autenticação",
+      statusCode: 401,
     });
   });
 
@@ -177,11 +172,11 @@ describe("MeetingController", () => {
     .set("Authorization", `Bearer ${token2}`)
   
     // Verifica se a operação falhou
-    expect(removeResponse.status).toBe(500);
+    expect(removeResponse.status).toBe(403);
     expect(removeResponse.body).toStrictEqual({
-      error: "Internal Server Error",
+      error: "Forbidden",
       message: "Você não tem permissão para excluir esse conteúdo",
-      statusCode: 500,
+      statusCode: 403,
     });
   });
 });
