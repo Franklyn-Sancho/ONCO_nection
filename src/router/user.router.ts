@@ -9,7 +9,7 @@ export default async function userRouter(fastify: FastifyInstance) {
 
     fastify.get('/main' ,{onRequest: [authenticate]}, (request, reply) => {reply.send("bem vindo")})
 
-    fastify.post("/user/register", userController.execute.bind(userController)) //register
+    fastify.post("/user/register", userController.register.bind(userController)) //register
     fastify.post("/user/login", userController.authenticate.bind(userController)) //login
 }
 

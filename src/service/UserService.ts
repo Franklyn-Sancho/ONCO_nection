@@ -2,44 +2,42 @@ import { User } from "@prisma/client";
 import UserRepository from "../repository/UserRepository";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import { Nodemailer } from "../utils/nodemailer";
+/* import EmailService, { transporter } from "../utils/nodemailer"; */
 
 //* criar um serviço para enviar um email de confirmação na função de registro
 
 //service user classes
 export default class UserService {
   private userRepository: UserRepository; //object instance userRepository
-  private nodemailer: Nodemailer;
+  /* private emailService: EmailService; */
 
   constructor() {
     this.userRepository = new UserRepository();
-    this.nodemailer = new Nodemailer();
+    /* this.emailService = new EmailService(transporter) */
   }
 
   //service layer create new user
-  async execute(user: User): Promise<User> {
-    //*create a password hash
-    const hashPassword = await bcrypt.hash(user.password, 10);
+  async register(user: User): Promise<User> {
+    user.password = await this.hashPassword(user.password);
 
-    user.password = hashPassword;
-    //create fuction by object instance userRepository
+    /* await this.emailService.sendConfirmationEmail(user.email) */
+
     const createdUser = await this.userRepository.create(user);
-
-    /* 
-     this.nodemailer.sendConfirmationEmail(user.email); => classe para enviar email de confirmação de registro
-    */
 
     return createdUser;
   }
 
-  //service layer authenticate user
-  //! há uma redundância de exceção entre a camada de serviço e controlador*****
-  async authenticate(user: User): Promise<string> {
+  private async hashPassword(password: string): Promise<string> {
+    return await bcrypt.hash(password, 10);
+  }
 
+  async authenticate(
+    user: User
+  ): Promise<{ success: boolean; message: string }> {
     const findUser = await this.userRepository.findByEmail(user.email);
 
     if (!findUser) {
-      throw new Error("Invalid Credentials");
+      return { success: false, message: "email não encontrado" };
     }
 
     const ValidPassword = await bcrypt.compare(
@@ -48,7 +46,7 @@ export default class UserService {
     );
 
     if (!ValidPassword) {
-      throw new Error("Invalid Credentials");
+      return { success: false, message: "email ou senha inválidos" };
     }
 
     //return a token by jwt.sign
@@ -56,6 +54,6 @@ export default class UserService {
       expiresIn: "2h",
     });
 
-    return token;
+    return { success: true, message: token };
   }
 }

@@ -12,26 +12,25 @@ describe("UserController", () => {
     server = await serverPromise;
   });
 
-  afterAll((done) => {
-    server.close(done);
+  afterAll(async () => {
+    await prisma.user.delete({
+      where: {
+        email: "test-register@email.com",
+      },
+    });
+    server.close();
   });
 
   it("Should create a user", async () => {
     const response = await request(server.server).post("/user/register").send({
       name: "Test User Register",
-      email: "test-register@example.com",
+      email: "test-register@email.com",
       password: "password",
     });
 
     expect(response.status).toBe(201);
     expect(response.body).toStrictEqual({
-      message: "Registro feito com sucesso",
-    });
-
-    await prisma.user.delete({
-      where: {
-        email: "test-register@example.com",
-      },
+      message: "Novo usuário registrado com sucesso",
     });
   });
 

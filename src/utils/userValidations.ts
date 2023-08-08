@@ -1,6 +1,6 @@
 //utils validations with Zod 
 import { z } from "zod";
-import { checkIfEmailIsValidAuthentication, checkIfEmailIsValidRegister } from "./checkIfEmailIsValid";
+import { checkIfEmailIsValid } from "./checkIfEmailIsValid";
 
 //Zod register user validations 
 export const userRegisterValidade = z.object({
@@ -10,7 +10,8 @@ export const userRegisterValidade = z.object({
     .email()
     //this refine call the checkIfEmailIsValid => ./checkIfEmailIsValid.ts
     .refine(async (e) => {
-      return await checkIfEmailIsValidRegister(e);
+      const result = !(await checkIfEmailIsValid(e)); 
+      return result;
     }, "verifique seus dados"),
   password: z.string({ required_error: "senha requerida" }),
 });
@@ -22,7 +23,7 @@ export const userAutenticateValidade = z.object({
     .email()
     .refine(async (e) => {
       //this refine call the checkIfEmailIsValid => ./checkIfEmailIsValid.ts
-      return await checkIfEmailIsValidAuthentication(e);
+      return await checkIfEmailIsValid(e);
     }, "verifique seus dados"),
   password: z.string({ required_error: "senha requerida" }),
 });
