@@ -1,11 +1,13 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import UserService from "../service/UserService";
-import { User } from "@prisma/client";
+import { PrismaClient, User } from "@prisma/client";
 import {
   userRegisterValidade,
   userAutenticateValidade,
 } from "../utils/userValidations";
 import { validateRequest } from "../utils/validateRequest";
+
+const prisma = new PrismaClient();
 
 //class user controller
 export default class UserController {
@@ -55,6 +57,39 @@ export default class UserController {
       reply.status(401).send({
         message: "email ou senha inválidos",
       });
+    }
+  }
+
+  async confirmEmail(request: FastifyRequest, reply: FastifyReply) {
+    const token = (request.params as any).token;
+
+    if (typeof token !== "string") {
+      reply.send("O link de confirmação é inválido ou expirou");
+      return;
+    }
+
+    // Busca o usuário pelo token de confirmação de email
+    const user = await prisma.user.findUnique({
+      where: { emailConfirmationToken: token },
+    });
+
+    if (
+      user &&
+      user.emailConfirmationExpires &&
+      user.emailConfirmationExpires > new Date()
+    ) {
+      await prisma.user.update({
+        where: {
+          id: user.id,
+        },
+        data: {
+          emailConfirmed: true,
+        },
+      });
+
+      reply.send("Seu email foi confirmado com sucesso");
+    } else {
+      reply.send("O link de confirmação é inválido ou expirou");
     }
   }
 }

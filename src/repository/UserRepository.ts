@@ -25,5 +25,12 @@ export default class UserRepository {
 
         return dbUser;
     }
+
+    async updateUser(id: string, data: Partial<User>): Promise<void> {
+        await prisma.user.update({
+            where: {id},
+            data,
+        })
+    } 
 }
 

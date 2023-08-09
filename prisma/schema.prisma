@@ -58,14 +58,17 @@ model Mural {
 }
 
 model User {
-  id       String     @id @default(cuid())
-  name     String
-  email    String     @unique
-  password String
-  token    String?
-  forum    Meetings[]
-  Comments Comments[]
-  likes    Likes[]
+  id                       String     @id @default(cuid())
+  name                     String
+  email                    String     @unique
+  password                 String
+  token                    String?
+  emailConfirmationToken   String?    @unique
+  emailConfirmationExpires DateTime?
+  emailConfirmed           Boolean    @default(false)
+  forum                    Meetings[]
+  Comments                 Comments[]
+  likes                    Likes[]
 
   sentRequests     Friendship[] @relation(name: "Requester")
   receivedRequests Friendship[] @relation(name: "Addressed")

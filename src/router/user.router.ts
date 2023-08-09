@@ -11,5 +11,8 @@ export default async function userRouter(fastify: FastifyInstance) {
 
     fastify.post("/user/register", userController.register.bind(userController)) //register
     fastify.post("/user/login", userController.authenticate.bind(userController)) //login
+
+    fastify.get("/confirm-email/:token", userController.confirmEmail.bind(userController))
+
 }
 

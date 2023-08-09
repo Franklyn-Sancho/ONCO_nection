@@ -2,27 +2,25 @@ import { User } from "@prisma/client";
 import UserRepository from "../repository/UserRepository";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import EmailService, { transporter } from "../utils/nodemailer";
-
-//* criar um serviço para enviar um email de confirmação na função de registro
+import EmailService, { IEmailService, transporter } from "../utils/nodemailer";
 
 //service user classes
 export default class UserService {
   private userRepository: UserRepository; //object instance userRepository
-  private emailService: EmailService;
+  private emailService: IEmailService;
 
   constructor() {
     this.userRepository = new UserRepository();
-    this.emailService = new EmailService(transporter)
+    this.emailService = new EmailService(transporter, this.userRepository)
   }
 
   //service layer create new user
   async register(user: User): Promise<User> {
     user.password = await this.hashPassword(user.password);
 
-    await this.emailService.sendConfirmationEmail(user.email)
-
     const createdUser = await this.userRepository.create(user);
+
+    await this.emailService.sendConfirmationEmail(createdUser)
 
     return createdUser;
   }
