@@ -54,7 +54,7 @@ export class MeetingController implements IMeetingController {
 
       if (isValid) {
         const { type, title, body, image } = request.body as any;
-        const { userId } = request.user as any;
+        const  { userId }  = request.user as any;
 
         const base64Image = image
           ? image[0].data.toString("base64")
@@ -74,6 +74,7 @@ export class MeetingController implements IMeetingController {
         });
       }
     } catch (error) {
+      console.log(request.user)
       reply.code(500).send({
         error: error,
       });

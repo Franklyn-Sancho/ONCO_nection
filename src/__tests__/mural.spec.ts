@@ -54,6 +54,8 @@ describe("MuralController", () => {
     
       // Extrai o ID do meeting criado
       const muralId = createResponse.body.muralId;
+
+      console.log(muralId)
     
       // Atualiza o meeting
       const updateResponse = await request(server.server)
@@ -80,6 +82,8 @@ describe("MuralController", () => {
     
       // Extrai o ID do meeting criado
       const muralId = createResponse.body.muralId
+
+      console.log(muralId)
     
       // Atualiza o meeting
       const deleteResponse = await request(server.server)

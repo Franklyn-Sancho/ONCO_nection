@@ -44,7 +44,7 @@ export default class EmailService implements IEmailService {
     return `
       <p>Olá ${name},</p>
       <p>Por favor, clique no link a seguir para confirmar seu email:</p>
-      <a href="${confirmationLink}">${confirmationLink}</a>
+      <a href="${confirmationLink}" />
     `;
   }
 

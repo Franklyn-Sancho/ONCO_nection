@@ -77,9 +77,10 @@ export class MuralController implements IMuralController {
       const { body } = request.body as any
       const { userId } = request.user as any
 
-      await this.muralService.updateMural(id, body, userId)
+      const mural = await this.muralService.updateMural(id, body, userId)
       reply.code(200).send({
-        message: "mural atualizado com sucesso"
+        message: "mural atualizado com sucesso",
+        muralId: mural.id,
       })
     }
     catch (error) {
@@ -93,9 +94,10 @@ export class MuralController implements IMuralController {
       const {id} = request.params as any
       const {userId} = request.user as any
 
-      await this.muralService.deleteMural(id, userId)
+      const mural = await this.muralService.deleteMural(id, userId)
       reply.code(200).send({
-        message: "mural deletado com sucesso"
+        message: "mural deletado com sucesso",
+        muralId: mural.id
       })
     }
     catch (error) {
