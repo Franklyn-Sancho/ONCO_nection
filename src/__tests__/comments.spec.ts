@@ -27,7 +27,7 @@ describe("CommentsController", () => {
   });
 
   afterAll(async () => {
-    /* await prisma.comments.deleteMany({}); */
+    await prisma.comments.deleteMany({});
     server.close();
   });
 
@@ -85,7 +85,7 @@ describe("CommentsController", () => {
     });
   });
 
-  it("Should to return content error validation", async () => {
+  it("Should to return content error validation on meeting", async () => {
     // Primeiro, crie um novo meeting e obtenha o meetingId
     const meetingResponse = await request(server.server)
       .post("/meetings/create")
@@ -112,7 +112,7 @@ describe("CommentsController", () => {
     });
   });
 
-  it("Should to return content error validation", async () => {
+  it("Should to return content error validation on mural", async () => {
     // Primeiro, crie um novo meeting e obtenha o meetingId
     const meetingResponse = await request(server.server)
       .post("/mural/create")
@@ -139,16 +139,14 @@ describe("CommentsController", () => {
     });
   });
 
-  it("Should to return an authentication error", async () => {
+  it("Should to return an authentication error mural comment", async () => {
     const meetingResponse = await request(server.server)
       .post("/mural/create")
       .send({
-        type: "type",
-        title: "title",
         body: "body",
       })
       .set("Authorization", `Bearer ${token}`);
-    const muralId = meetingResponse.body.muralID;
+    const muralId = meetingResponse.body.muralId;
     console.log(muralId);
 
     // Em seguida, use o meetingId para criar um novo comentário
@@ -161,40 +159,63 @@ describe("CommentsController", () => {
 
     expect(commentResponse.status).toBe(401);
     expect(commentResponse.body).toStrictEqual({
-      error: "falha na autenticação",
+      message: "falha de autenticação",
+      error: "Unauthorized",
+      statusCode: 401,
     });
   });
 
-  it("Should to return an authentication error", async () => {
-    const response = await request(server.server)
-      .post("/mural/clklga0ke0001c0irn55f0w5e/comments")
+  it("Should to return an authentication error meeting comment", async () => {
+    const meetingResponse = await request(server.server)
+      .post("/meetings/create")
       .send({
-        content: "texto de teste",
-      });
-    /* .set("Authorization", `Bearer ${token}`);*/
+        type: "type",
+        title: "title",
+        body: "body",
+      })
+      .set("Authorization", `Bearer ${token}`);
+    const meetingId = meetingResponse.body.meetingId;
+    console.log(meetingId);
 
-    expect(response.status).toBe(401);
-    expect(response.body).toStrictEqual({
-      error: "Falha na autenticação",
+    // Em seguida, use o meetingId para criar um novo comentário
+    const commentResponse = await request(server.server)
+      .post(`/mural/${meetingId}/comments`)
+      .send({
+        content: "Comentário de teste",
+      });
+    /* .set("Authorization", `Bearer ${token}`); */
+
+    expect(commentResponse.status).toBe(401);
+    expect(commentResponse.body).toStrictEqual({
+      message: "falha de autenticação",
+      error: "Unauthorized",
+      statusCode: 401,
     });
   });
 
   it("Should to create and remove comment on meeting", async () => {
-    const CreateResponse = await request(server.server)
-      .post("/meetings/clip1obpm0001c0jo4ffw5bm4/comments")
+    // Primeiro, crie um novo meeting e obtenha o meetingId
+    const meetingResponse = await request(server.server)
+      .post("/meetings/create")
       .send({
-        content: "teste de comentário no meeting",
+        type: "type",
+        title: "title",
+        body: "body",
+      })
+      .set("Authorization", `Bearer ${token}`);
+    const meetingId = meetingResponse.body.meetingId;
+    console.log(meetingId);
+
+    // Em seguida, use o meetingId para criar um novo comentário
+    const commentResponse = await request(server.server)
+      .post(`/meetings/${meetingId}/comments`)
+      .send({
+        content: "Comentário de teste",
       })
       .set("Authorization", `Bearer ${token}`);
 
-    expect(CreateResponse.status).toBe(201);
-    expect(CreateResponse.body).toHaveProperty("commentId");
-    expect(CreateResponse.body).toHaveProperty("message");
-    expect(CreateResponse.body.message).toBe(
-      "Comentário adicionado com sucesso"
-    );
-
-    const commentId = CreateResponse.body.commentId;
+    const commentId = commentResponse.body.commentId;
+    console.log(commentId);
 
     const removeResponse = await request(server.server)
       .delete(`/meetings/${commentId}/comments`)
@@ -204,28 +225,105 @@ describe("CommentsController", () => {
     expect(removeResponse.status).toBe(204);
   });
 
-  it("Should not allow user to delete another user's comment", async () => {
-    // Cria um novo comentário usando a primeira conta de usuário
-    const createResponse = await request(server.server)
-      .post("/meetings/clip1obpm0001c0jo4ffw5bm4/comments")
+  it("Should to create and remove comment on mural", async () => {
+    // Primeiro, crie um novo meeting e obtenha o meetingId
+    const meetingResponse = await request(server.server)
+      .post("/mural/create")
       .send({
-        content: "teste de comentário no meeting",
+        body: "body",
+      })
+      .set("Authorization", `Bearer ${token}`);
+    const muralId = meetingResponse.body.muralId;
+    console.log(muralId);
+
+    // Em seguida, use o meetingId para criar um novo comentário
+    const commentResponse = await request(server.server)
+      .post(`/mural/${muralId}/comments`)
+      .send({
+        content: "Comentário de teste",
       })
       .set("Authorization", `Bearer ${token}`);
 
-    // Extrai o ID do comentário criado
-    const commentId = createResponse.body.commentId;
+    const commentId = commentResponse.body.commentId;
+    console.log(commentId);
 
-    // Tenta excluir o comentário usando a segunda conta de usuário
+    const removeResponse = await request(server.server)
+      .delete(`/mural/${commentId}/comments`)
+      .set("Authorization", `Bearer ${token}`)
+      .send({});
+
+    expect(removeResponse.status).toBe(204);
+  });
+
+  it("Should not allow user to delete another user's meeting comment", async () => {
+    // Primeiro, crie um novo meeting e obtenha o meetingId
+    const meetingResponse = await request(server.server)
+      .post("/meetings/create")
+      .send({
+        type: "type",
+        title: "title",
+        body: "body",
+      })
+      .set("Authorization", `Bearer ${token}`);
+    const meetingId = meetingResponse.body.meetingId;
+    console.log(meetingId);
+
+    // Em seguida, use o meetingId para criar um novo comentário
+    const commentResponse = await request(server.server)
+      .post(`/meetings/${meetingId}/comments`)
+      .send({
+        content: "Comentário de teste",
+      })
+      .set("Authorization", `Bearer ${token}`);
+
+    const commentId = commentResponse.body.commentId;
+    console.log(commentId);
+
     const removeResponse = await request(server.server)
       .delete(`/meetings/${commentId}/comments`)
-      .set("Authorization", `Bearer ${token2}`);
+      .set("Authorization", `Bearer ${token2}`)
+      .send({});
 
-    // Verifica se a operação falhou
-    expect(removeResponse.status).toBe(500);
+    expect(removeResponse.status).toBe(401);
     expect(removeResponse.body).toStrictEqual({
-      error:
-        "Error removing comment: Error: Você não tem permissão para excluir esse comentário",
-    });
+      message: "falha de autenticação",
+      error: "Unauthorized",
+      statusCode: 401,
+    })
+  });
+
+  it("Should not allow user to delete another user's mural comment", async () => {
+    // Primeiro, crie um novo meeting e obtenha o meetingId
+    const meetingResponse = await request(server.server)
+      .post("/mural/create")
+      .send({
+        body: "body",
+      })
+      .set("Authorization", `Bearer ${token}`);
+    const muralId = meetingResponse.body.muralId;
+    console.log(muralId);
+
+    // Em seguida, use o meetingId para criar um novo comentário
+    const commentResponse = await request(server.server)
+      .post(`/mural/${muralId}/comments`)
+      .send({
+        content: "Comentário de teste",
+      })
+      .set("Authorization", `Bearer ${token}`);
+
+    const commentId = commentResponse.body.commentId;
+    console.log(commentId);
+
+    const removeResponse = await request(server.server)
+      .delete(`/meetings/${commentId}/comments`)
+      .set("Authorization", `Bearer ${token2}`)
+      .send({});
+
+    expect(removeResponse.status).toBe(401);
+    expect(removeResponse.body).toStrictEqual({
+      message: "falha de autenticação",
+      error: "Unauthorized",
+      statusCode: 401,
+    })
   });
 });

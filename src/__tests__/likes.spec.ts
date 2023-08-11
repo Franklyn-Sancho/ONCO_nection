@@ -26,23 +26,48 @@ describe("LikeController", () => {
     server.close();
   });
 
-  it("Should create a like on meeting", async () => {
-    const response = await request(server.server)
-      .post(`/meetings/clhqa3vak0003c0hkoms9ozea/likes`)
-      .set("Authorization", `Bearer ${token}`)
-      .send({});
+  it("Should create a new like on meeting", async () => {
+    // Primeiro, crie um novo meeting e obtenha o meetingId
+    const meetingResponse = await request(server.server)
+      .post("/meetings/create")
+      .send({
+        type: "type",
+        title: "title",
+        body: "body",
+      })
+      .set("Authorization", `Bearer ${token}`);
+    const meetingId = meetingResponse.body.meetingId;
+    console.log(meetingId);
 
-    expect(response.status).toBe(204);
-  });
-
-  it("Should create a like on mural", async () => {
-    const response = await request(server.server)
-      .post(`/mural/clklga0ke0001c0irn55f0w5e/likes`)
+    // Em seguida, use o meetingId para criar um novo comentário
+    const likesResponse = await request(server.server)
+      .post(`/meetings/${meetingId}/likes`)
       .set("Authorization", `Bearer ${token}`)
       .send({})
 
-    expect(response.status).toBe(204);
+      expect(likesResponse.status).toBe(204);
   });
+
+  it("Should create a new like on mural", async () => {
+    // Primeiro, crie um novo meeting e obtenha o meetingId
+    const meetingResponse = await request(server.server)
+      .post("/mural/create")
+      .send({
+        body: "body",
+      })
+      .set("Authorization", `Bearer ${token}`);
+    const muralId = meetingResponse.body.muralId;
+    console.log(muralId);
+
+    // Em seguida, use o meetingId para criar um novo comentário
+    const likesResponse = await request(server.server)
+      .post(`/mural/${muralId}/likes`)
+      .set("Authorization", `Bearer ${token}`)
+      .send({})
+
+      expect(likesResponse.status).toBe(204);
+  });
+
 
   it("should to return a error page not found", async() => {
     const response = await request(server.server)

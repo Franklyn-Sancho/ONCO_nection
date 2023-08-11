@@ -15,7 +15,7 @@ describe("UserController", () => {
   afterAll(async () => {
     await prisma.user.delete({
       where: {
-        email: "test-register@email.com",
+        email: "test@email.com",
       },
     });
     server.close();
@@ -24,7 +24,7 @@ describe("UserController", () => {
   it("Should create a user", async () => {
     const response = await request(server.server).post("/user/register").send({
       name: "Test User Register",
-      email: "test-register@email.com",
+      email: "test@email.com",
       password: "password",
     });
 
@@ -42,7 +42,7 @@ describe("UserController", () => {
 
     expect(response.status).toBe(400);
     expect(response.body).toStrictEqual({
-      message: "Ocorreu um erro: nome requerido",
+      message: "Ocorreu um erro: nome requerido, verifique seus dados",
     });
   });
 
@@ -54,7 +54,7 @@ describe("UserController", () => {
 
     expect(response.status).toBe(400);
     expect(response.body).toStrictEqual({
-      message: "Ocorreu um erro: nome requerido, verifique seus dados",
+      message: "Ocorreu um erro: nome requerido",
     });
   });
   it("Should to return validation password error", async () => {
@@ -65,7 +65,7 @@ describe("UserController", () => {
 
     expect(response.status).toBe(400);
     expect(response.body).toStrictEqual({
-      message: "Ocorreu um erro: senha requerida",
+      message: "Ocorreu um erro: senha requerida, verifique seus dados",
     });
   });
 

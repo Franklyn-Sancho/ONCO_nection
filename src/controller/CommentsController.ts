@@ -2,6 +2,7 @@ import { FastifyReply, FastifyRequest } from "fastify";
 import { ICommentService } from "../service/CommentsService";
 import { z } from "zod";
 import { validateRequest } from "../utils/validateRequest";
+import { UnauthorizedError } from "../errors/UnauthorizedError";
 
 export interface ICommentController {
   addComment(request: FastifyRequest, reply: FastifyReply): Promise<void>;
@@ -26,7 +27,7 @@ export class CommentController implements ICommentController {
         const { meetingId, muralId, content } = request.body as any;
         const { userId } = request.user as any;
 
-       const comment = await this.commentService.addComment({
+        const comment = await this.commentService.addComment({
           content,
           meetingId,
           muralId,
@@ -38,16 +39,22 @@ export class CommentController implements ICommentController {
         });
       }
     } catch (error) {
-      reply.code(500).send({
-        error: `Error adding comment: ${error}`,
-      });
+      if (error instanceof UnauthorizedError) {
+        reply.code(error.statusCode).send({
+          error: error.message,
+        });
+      } else {
+        reply.code(500).send({
+          error: error,
+        });
+      }
     }
   }
 
   async deleteComment(request: FastifyRequest, reply: FastifyReply) {
     try {
       const { id } = request.params as any;
-      const { userId } = request.user as any
+      const { userId } = request.user as any;
 
       await this.commentService.deleteComment(id, userId);
 

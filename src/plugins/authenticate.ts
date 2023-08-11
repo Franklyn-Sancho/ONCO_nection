@@ -14,6 +14,6 @@ export async function authenticate(
     const decodedToken = request.user as any;
     request.user = decodedToken;
   } catch (error) {
-    throw new UnauthorizedError("falha na autenticação")
+    throw new UnauthorizedError("falha de autenticação")
   }
 }

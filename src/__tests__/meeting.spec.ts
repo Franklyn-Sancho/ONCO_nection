@@ -3,6 +3,8 @@ import serverPromise from "../server";
 import { FastifyInstance } from "fastify";
 import { PrismaClient } from "@prisma/client";
 
+const prisma = new PrismaClient()
+
 let server: FastifyInstance;
 
 describe("MeetingController", () => {
@@ -25,6 +27,7 @@ describe("MeetingController", () => {
   });
 
   afterAll((done) => {
+    await prisma.meeting.deleteMany({});
     server.close(done);
   });
 
