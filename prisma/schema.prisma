@@ -58,23 +58,27 @@ model Mural {
 }
 
 model User {
-  id                       String     @id @default(cuid())
+  id                       String    @id @default(cuid())
   name                     String
-  email                    String     @unique
+  email                    String    @unique
   password                 String
   token                    String?
-  emailConfirmationToken   String?    @unique
+  emailConfirmationToken   String?   @unique
   emailConfirmationExpires DateTime?
-  emailConfirmed           Boolean    @default(false)
-  forum                    Meetings[]
-  Comments                 Comments[]
-  likes                    Likes[]
+  emailConfirmed           Boolean   @default(false)
 
   sentRequests     Friendship[] @relation(name: "Requester")
   receivedRequests Friendship[] @relation(name: "Addressed")
-  mural            Mural[]
-  sentMessages     Message[]    @relation(name: "Sender")
-  receivedMessages Message[]    @relation(name: "Recipient")
+
+  sentMessages     Message[] @relation(name: "Sender")
+  receivedMessages Message[] @relation(name: "Recipient")
+
+  initiatedChats Chat[]     @relation(name: "ChatToInitiator")
+  receivedChats  Chat[]     @relation(name: "ChatToParticipant")
+  Meetings       Meetings[]
+  Comments       Comments[]
+  Likes          Likes[]
+  Mural          Mural[]
 }
 
 model Friendship {
@@ -94,13 +98,23 @@ model Visitor {
 }
 
 model Message {
-  id          String   @id @default(cuid())
+  id          String  @id @default(cuid())
   content     String
-  sender      User     @relation(fields: [senderId], references: [id], name: "Sender")
-  recipient   User     @relation(fields: [recipientId], references: [id], name: "Recipient")
-  createdAt   DateTime @default(now())
   senderId    String
+  sender      User    @relation(fields: [senderId], references: [id], name: "Sender")
   recipientId String
+  recipient   User    @relation(fields: [recipientId], references: [id], name: "Recipient")
+  chatId      String
+  Chat        Chat   @relation(fields: [chatId], references: [id])
+}
+
+model Chat {
+  id            String    @id @default(cuid())
+  initiatorId   String
+  initiator     User      @relation(fields: [initiatorId], references: [id], name:"ChatToInitiator")
+  participantId String
+  participant   User      @relation(fields: [participantId], references: [id], name:"ChatToParticipant")
+  messages      Message[]
 }
 
 generator erd {
