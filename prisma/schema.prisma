@@ -73,6 +73,8 @@ model User {
   sentRequests     Friendship[] @relation(name: "Requester")
   receivedRequests Friendship[] @relation(name: "Addressed")
   mural            Mural[]
+  sentMessages     Message[]    @relation(name: "Sender")
+  receivedMessages Message[]    @relation(name: "Recipient")
 }
 
 model Friendship {
@@ -85,7 +87,22 @@ model Friendship {
   addressedId String
 }
 
+//i need to implement this system
 model Visitor {
   id   String @id @default(cuid())
   name String
+}
+
+model Message {
+  id          String   @id @default(cuid())
+  content     String
+  sender      User     @relation(fields: [senderId], references: [id], name: "Sender")
+  recipient   User     @relation(fields: [recipientId], references: [id], name: "Recipient")
+  createdAt   DateTime @default(now())
+  senderId    String
+  recipientId String
+}
+
+generator erd {
+  provider = "prisma-erd-generator"
 }

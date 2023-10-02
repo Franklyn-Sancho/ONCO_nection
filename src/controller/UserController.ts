@@ -22,7 +22,6 @@ export default class UserController {
     request: FastifyRequest<{ Body: User }>,
     reply: FastifyReply
   ): Promise<void> {
-    //this struct try to save new user on database
     try {
       await validateRequest(request, reply, userRegisterValidade);
       await this.userService.register(request.body);

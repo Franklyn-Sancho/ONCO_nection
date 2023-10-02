@@ -3,6 +3,8 @@ import nodemailer from "nodemailer";
 import UserRepository from "../repository/UserRepository";
 import { User } from "@prisma/client";
 
+//test: ~/go/bin/MailHog 
+
 export interface IEmailService {
   generateEmailConfirmationToken(user: User): Promise<string>;
   confirmationEmailTemplate(name: string, confirmationLink: string): string;
