@@ -1,11 +1,22 @@
 import { Friendship, User } from "@prisma/client";
-import { FriendshipStatus, IFriendshipRepository } from "../repository/FriendshipRepository";
+import {
+  FriendshipStatus,
+  IFriendshipRepository,
+} from "../repository/FriendshipRepository";
+import { IChatService } from "./ChatService";
 
 //camada de serviço para o sistema de amizades
 
 export interface IFriendshipService {
-  sendFriendRequest(requesterId: string, addressedId: string): Promise<Friendship>;
-  acceptFriendRequest(requesterId: string, addressedId: string, status: FriendshipStatus): Promise<void>;
+  sendFriendRequest(
+    requesterId: string,
+    addressedId: string
+  ): Promise<Friendship>;
+  acceptFriendRequest(
+    requesterId: string,
+    addressedId: string,
+    status: FriendshipStatus
+  ): Promise<void>;
   deleteFriendship(requesterId: string, addressedId: string): Promise<void>;
   getFriends(userId: string): Promise<User[]>;
 }
@@ -13,12 +24,20 @@ export interface IFriendshipService {
 //classe da camada de serviço do sistema de amizade implementa a interface
 export class FriendshipService implements IFriendshipService {
   private friendshipRepository: IFriendshipRepository;
+  private chatService: IChatService;
 
-  constructor(friendshipRepository: IFriendshipRepository) {
+  constructor(
+    friendshipRepository: IFriendshipRepository,
+    chatService: IChatService
+  ) {
     this.friendshipRepository = friendshipRepository;
+    this.chatService = chatService;
   }
 
-  async sendFriendRequest(requesterId: string, addressedId: string): Promise<Friendship> {
+  async sendFriendRequest(
+    requesterId: string,
+    addressedId: string
+  ): Promise<Friendship> {
     const existingFriendship = await this.friendshipRepository.getFriendship(
       requesterId,
       addressedId
@@ -33,7 +52,7 @@ export class FriendshipService implements IFriendshipService {
         "Já existe uma solicitação de amizade pendente ou aceita"
       );
     }
-    //se não existe, o método do repositório é chamado 
+    //se não existe, o método do repositório é chamado
     return this.friendshipRepository.createFriendship(requesterId, addressedId);
   }
 
@@ -43,18 +62,19 @@ export class FriendshipService implements IFriendshipService {
     addressedId: string,
     status: FriendshipStatus
   ): Promise<void> {
-    return this.friendshipRepository.acceptFriendship(
+    this.friendshipRepository.acceptFriendship(
       requesterId,
       addressedId,
       status
     );
+
+    if (status === "ACCEPTED") {
+      await this.chatService.createChat(requesterId, addressedId);
+    }
   }
 
   //implementação do método para deletar amizade entre dois usuários
-  async deleteFriendship(
-    requesterId: string,
-    addressedId: string
-  ) {
+  async deleteFriendship(requesterId: string, addressedId: string) {
     return this.friendshipRepository.deleteFriendship(requesterId, addressedId);
   }
 

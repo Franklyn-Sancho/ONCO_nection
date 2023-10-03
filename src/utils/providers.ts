@@ -16,6 +16,9 @@ import { FriendshipController } from "../controller/FriendshipController";
 import { CommentsRepository } from "../repository/CommentsRepository";
 import { CommentsService } from "../service/CommentsService";
 import { CommentController } from "../controller/CommentsController";
+import { ChatRepository } from "../repository/ChatRepository";
+import { ChatService } from "../service/ChatService";
+import { ChatController } from "../controller/ChatController";
 
 
 const prisma = new PrismaClient();
@@ -45,9 +48,14 @@ const friendshipRepository = new FriendshipRepository(prisma);
 const friendshipService = new FriendshipService(friendshipRepository);
 const friendshipController = new FriendshipController(friendshipService);
 
+const chatRepository = new ChatRepository(prisma)
+const chatService = new ChatService(chatRepository)
+const chatController = new ChatController(chatService)
+
 export {
   likeController,
   meetingController,
   muralController,
   friendshipController,
+  chatController
 };
