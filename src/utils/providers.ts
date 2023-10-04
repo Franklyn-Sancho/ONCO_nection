@@ -40,17 +40,19 @@ const meetingController = new MeetingController(
   commentController
 );
 
+const chatRepository = new ChatRepository(prisma)
+const chatService = new ChatService(chatRepository)
+const chatController = new ChatController(chatService)
+
 const muralRepository = new MuralRepository(prisma);
 const muralService = new MuralService(muralRepository);
 const muralController = new MuralController(muralService, likeController, commentController);
 
 const friendshipRepository = new FriendshipRepository(prisma);
-const friendshipService = new FriendshipService(friendshipRepository);
+const friendshipService = new FriendshipService(friendshipRepository, chatService);
 const friendshipController = new FriendshipController(friendshipService);
 
-const chatRepository = new ChatRepository(prisma)
-const chatService = new ChatService(chatRepository)
-const chatController = new ChatController(chatService)
+
 
 export {
   likeController,

@@ -26,16 +26,16 @@ describe("FriendshipsController", () => {
       token2 = response2.body.token;
     });
   
-    afterAll(async () => {
+    /* afterAll(async () => {
         await prisma.friendship.deleteMany({});
         server.close();
       });
-  
+   */
     it("Should to send a friendship solicitation", async () => {
       const response = await request(server.server)
         .post("/friendships")
         .send({
-            addressedId: "clikuzcja0000c08b5w9c9qa9"
+            addressedId: "cln8wl1bb0002c0ia18saphih"
         })
         .set("Authorization", `Bearer ${token}`)
   
@@ -47,7 +47,7 @@ describe("FriendshipsController", () => {
   
     it("Should to accept a friendship solicitation", async () => {
       const response = await request(server.server)
-        .put("/friendships/clikuzcja0000c08b5w9c9qa9")
+        .put("/friendships/cln8zucsq0002c0osg87hu37v")
         .send({
           status: "ACCEPTED"
         })
