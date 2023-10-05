@@ -14,8 +14,9 @@ export class MessageController implements IMessageController {
 
   async createMessage(request: FastifyRequest, reply: FastifyReply) {
     try {
-      const { content, recipientId, chatId } = request.body as any;
-      const {userId: senderId} = request.user as any
+      const { content, recipientId } = request.body as any;
+      const { chatId } = request.params as any
+      const { userId: senderId } = request.user as any;
 
       await this.messageService.createMessage(
         content,
@@ -28,6 +29,7 @@ export class MessageController implements IMessageController {
         message: "Mensagem enviada com sucesso",
       });
     } catch (error) {
+      console.log(request.body, request.user)
       reply.code(500).send({
         message: "Ocorreu um erro, tente novamente mais tarde",
       });

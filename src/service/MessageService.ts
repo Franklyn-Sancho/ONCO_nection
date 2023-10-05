@@ -1,4 +1,5 @@
 import { IMessageRepository } from "../repository/MessageRepository";
+import * as socketIo from "socket.io";
 
 export interface IMessageService {
   createMessage(
@@ -11,9 +12,11 @@ export interface IMessageService {
 
 export class MessageService implements IMessageService {
   private messageRepository: IMessageRepository;
+  private io: socketIo.Server;
 
-  constructor(messageRepository: IMessageRepository) {
+  constructor(messageRepository: IMessageRepository, io: socketIo.Server) {
     this.messageRepository = messageRepository;
+    this.io = io;
   }
 
   async createMessage(
@@ -22,11 +25,15 @@ export class MessageService implements IMessageService {
     recipientId: string,
     chatId: string
   ) {
-    return this.messageRepository.createMessage(
+    const newMessage = this.messageRepository.createMessage(
       content,
       senderId,
       recipientId,
       chatId
     );
+
+    this.io.emit('message', newMessage);
+
+    return newMessage
   }
 }

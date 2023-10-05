@@ -6,7 +6,9 @@ import { meetingRouter } from "./router/meeting.router";
 import { muralRouter } from "./router/mural.router";
 import { registerFriendshipRoutes } from "./router/friendship.router";
 import fastifyMultipart from "@fastify/multipart";
-/* import socketioServer from "fastify-socket.io"; */
+import { messageRouter } from "./router/chat.router";
+import { setupSocket } from "./socket";
+import { chatService, io, messageService } from "./utils/providers";
 
 import("dotenv").then((dotenv) => dotenv.config());
 
@@ -15,6 +17,8 @@ async function main() {
   const fastify = Fastify({
     logger: true,
   });
+
+  setupSocket(io, messageService, chatService)
 
   await fastify.register(cors, {
     origin: true,
@@ -30,17 +34,18 @@ async function main() {
   fastify.register(fastifyMultipart, {
     addToBody: true, // Isso permite adicionar os campos ao objeto `request.body`
   });
-  
+
   /* fastify.register(socketioServer) */
 
   fastify.register(userRouter); //register to userRouter
   fastify.register(meetingRouter); //register to meetingRouter
   fastify.register(registerFriendshipRoutes);
   fastify.register(muralRouter);
+  fastify.register(messageRouter);
 
   fastify.setNotFoundHandler((request, reply) => {
-    reply.code(404).send({error: "Página não encontrada"})
-  })
+    reply.code(404).send({ error: "Página não encontrada" });
+  });
 
   await fastify.listen({ port: 3000, host: "0.0.0.0" });
 

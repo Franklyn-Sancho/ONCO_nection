@@ -19,7 +19,14 @@ import { CommentController } from "../controller/CommentsController";
 import { ChatRepository } from "../repository/ChatRepository";
 import { ChatService } from "../service/ChatService";
 import { ChatController } from "../controller/ChatController";
+import { MessageRepository } from "../repository/MessageRepository";
+import { MessageService } from "../service/MessageService";
+import { MessageController } from "../controller/MessageController";
+import { Server } from "http";
+import * as socketIo from "socket.io";
 
+const httpServer = new Server();
+const io = new socketIo.Server(httpServer);
 
 const prisma = new PrismaClient();
 
@@ -52,12 +59,20 @@ const friendshipRepository = new FriendshipRepository(prisma);
 const friendshipService = new FriendshipService(friendshipRepository, chatService);
 const friendshipController = new FriendshipController(friendshipService);
 
+const messageRepository = new MessageRepository(prisma)
+const messageService = new MessageService(messageRepository, io)
+const messageController = new MessageController(messageService)
+
 
 
 export {
+  io,
   likeController,
   meetingController,
   muralController,
   friendshipController,
-  chatController
+  chatService,
+  chatController,
+  messageService,
+  messageController
 };

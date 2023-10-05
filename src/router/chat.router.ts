@@ -1,8 +1,8 @@
 import { FastifyInstance } from "fastify";
 import { authenticate } from "../plugins/authenticate";
-import { chatController } from "../utils/providers";
+import { chatController, messageController } from "../utils/providers";
 
-export function meetingRouter(
+export function messageRouter(
   fastify: FastifyInstance,
   options: any,
   done: () => void
@@ -12,4 +12,12 @@ export function meetingRouter(
     { preHandler: authenticate },
     chatController.createChat.bind(chatController)
   );
+
+  fastify.post(
+    "/chat/:chatId/message",
+    { preHandler: authenticate },
+    messageController.createMessage.bind(messageController)
+  );
+
+  done();
 }
