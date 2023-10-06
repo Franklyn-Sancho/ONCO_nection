@@ -19,5 +19,10 @@ export function messageRouter(
     messageController.createMessage.bind(messageController)
   );
 
+  fastify.get(
+    "/chat/:id",
+    chatController.getChat.bind(chatController)
+  )
+
   done();
 }

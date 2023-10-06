@@ -2,13 +2,13 @@ import Fastify from "fastify";
 import cors from "@fastify/cors";
 import jwt from "@fastify/jwt";
 import userRouter from "./router/user.router";
-import { meetingRouter } from "./router/meeting.router";
-import { muralRouter } from "./router/mural.router";
-import { registerFriendshipRoutes } from "./router/friendship.router";
 import fastifyMultipart from "@fastify/multipart";
 import { messageRouter } from "./router/chat.router";
 import { setupSocket } from "./socket";
 import { chatService, io, messageService } from "./utils/providers";
+import { meetingRouter } from "./router/meeting.router";
+import { muralRouter } from "./router/mural.router";
+import { registerFriendshipRoutes } from "./router/friendship.router";
 
 import("dotenv").then((dotenv) => dotenv.config());
 
@@ -18,7 +18,7 @@ async function main() {
     logger: true,
   });
 
-  setupSocket(io, messageService, chatService)
+  setupSocket(io, messageService, chatService);
 
   await fastify.register(cors, {
     origin: true,
@@ -34,8 +34,6 @@ async function main() {
   fastify.register(fastifyMultipart, {
     addToBody: true, // Isso permite adicionar os campos ao objeto `request.body`
   });
-
-  /* fastify.register(socketioServer) */
 
   fastify.register(userRouter); //register to userRouter
   fastify.register(meetingRouter); //register to meetingRouter

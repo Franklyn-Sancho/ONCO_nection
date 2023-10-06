@@ -26,5 +26,5 @@ export class MessageRepository implements IMessageRepository {
                 chatId
             }
         })
-    }
+    }   
 }

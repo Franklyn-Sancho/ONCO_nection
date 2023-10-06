@@ -1,6 +1,6 @@
-import { randomBytes } from "crypto";
 import nodemailer from "nodemailer";
 import UserRepository from "../repository/UserRepository";
+import { randomBytes } from "crypto";
 import { User } from "@prisma/client";
 
 //test: ~/go/bin/MailHog 
