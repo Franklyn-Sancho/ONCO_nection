@@ -6,7 +6,7 @@ import { FriendshipStatus } from "../repository/FriendshipRepository";
 
 export interface IFriendshipController {
   sendFriendRequest(requesterId: string,addressedId: string): Promise<Friendship>;
-  acceptFriendRequest(requesterId: string, addressedId: string, status: FriendshipStatus,): Promise<void>;
+  acceptFriendRequest(id: string, requesterId: string, addressedId: string, status: FriendshipStatus,): Promise<void>;
   deleteFriendship(requesterId: string, addressedId: string): Promise<void>;
   getFriends(userId: string): Promise<User[]>;
 }
@@ -29,12 +29,12 @@ export class FriendshipController implements IFriendshipController {
 
   //implementa o método de aceitar ou negar uma solicitação
   async acceptFriendRequest(
-    requesterId: string,
+    id: string,
     addressedId: string,
     status: FriendshipStatus
   ): Promise<void> {
     return this.friendshipService.acceptFriendRequest(
-      requesterId,
+      id,
       addressedId,
       status
     );

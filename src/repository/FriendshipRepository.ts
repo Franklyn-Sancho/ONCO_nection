@@ -6,9 +6,21 @@ export type FriendshipStatus = "ACCEPTED" | "DENIED";
 
 //interface para descrever os métodos que o repositório deve implementar
 export interface IFriendshipRepository {
-  getFriendship(requesterId: string, addressedId: string): Promise<Friendship | null>;
-  createFriendship(requesterId: string, addressedId: string): Promise<Friendship>;
-  acceptFriendship(requesterId: string, addressedId: string, status: string): Promise<void>;
+  getFriendshipById(id: string): any;
+  getFriendship(
+    requesterId: string,
+    addressedId: string
+  ): Promise<Friendship | null>;
+  createFriendship(
+    requesterId: string,
+    addressedId: string
+  ): Promise<Friendship>;
+  acceptFriendship(
+    id: string,
+    requesterId: string,
+    addressedId: string,
+    status: string
+  ): Promise<void>;
   deleteFriendship(requesterId: string, addressedId: string): Promise<void>;
   getFriends(userId: string): Promise<User[]>;
 }
@@ -19,6 +31,13 @@ export class FriendshipRepository implements IFriendshipRepository {
 
   constructor(prisma: PrismaClient) {
     this.prisma = prisma;
+  }
+  async getFriendshipById(id: string) {
+    return this.prisma.friendship.findUnique({
+      where: {
+        id,
+      },
+    });
   }
 
   //implementa o método getFriendship para recuperar uma solicitação de amizade
@@ -41,24 +60,17 @@ export class FriendshipRepository implements IFriendshipRepository {
       },
     });
   }
- 
-  
+
   async acceptFriendship(
+    id: string,
     requesterId: string,
     addressedId: string,
     status: FriendshipStatus //valores do type FriendshipStatus
   ): Promise<void> {
-    const existingFriendship = await this.getFriendship(
-      requesterId,
-      addressedId
-    );
-    //estrutura para testar se a solicitação já foi aceita, se sim, retorna erro
-    if (existingFriendship && existingFriendship.status === "ACCEPTED") {
-      throw new Error("A solicitação de amizade já foi aceita");
-    }
     //caso contrário, atualiza o banco de dados
     await this.prisma.friendship.updateMany({
       where: {
+        id,
         requesterId,
         addressedId,
       },

@@ -27,13 +27,12 @@ export function registerFriendshipRoutes(
     }
   );
 
-  // Registra a rota PUT /friendships/:requesterId/:addresseeId para aceitar uma solicitação de amizade existente
   fastify.put(
-    "/friendships/:requesterId",
+    "/friendships/:id",
     { preHandler: [authenticate] },
     async (request, reply) => {
       const { userId: addressedId } = request.user as any;
-      const { requesterId } = request.params as any;
+      const { id } = request.params as any;
       const { status } = request.body as any;
 
       if (status !== "ACCEPTED" && status !== "DENIED") {
@@ -42,7 +41,7 @@ export function registerFriendshipRoutes(
       }
 
       await friendshipController.acceptFriendRequest(
-        requesterId,
+        id,
         addressedId,
         status
       );

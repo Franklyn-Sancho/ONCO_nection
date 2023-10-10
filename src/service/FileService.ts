@@ -3,6 +3,7 @@ import { FastifyRequest } from "fastify";
 import * as fs from "fs";
 import * as path from "path";
 
+//pasta onde estarão as pastas de upload
 const uploadDir = "./upload";
 
 export async function uploadImage(fileBuffer: Buffer, filename: string) {
@@ -18,6 +19,7 @@ export async function uploadImage(fileBuffer: Buffer, filename: string) {
   return filePath;
 }
 
+//
 export async function handleMultipartFormData(
   imageBuffer: Buffer,
   filename: string

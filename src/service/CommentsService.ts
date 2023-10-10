@@ -1,6 +1,6 @@
 import { Comments } from "@prisma/client";
 import { CreateCommentData, ICommentRepository } from "../repository/CommentsRepository";
-import { NotFountError } from "../errors/NotFoundError";
+import { NotFoundError } from "../errors/NotFoundError";
 import { ForbiddenError } from "../errors/ForbiddenError";
 
 export interface ICommentService {
@@ -22,7 +22,7 @@ export class CommentsService implements ICommentService {
     const comment = await this.commentsRepository.getCommentById(id)
 
     if(!comment) {
-      throw new NotFountError("Nenhum comentário com esse id foi encontrado")
+      throw new NotFoundError("Nenhum comentário com esse id foi encontrado")
     }
 
     if(comment.userId !== userId) {

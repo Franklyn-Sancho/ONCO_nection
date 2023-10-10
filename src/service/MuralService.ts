@@ -1,12 +1,15 @@
 import { Mural } from "@prisma/client";
-import { CreateMuralData, IMuralRepository } from "../repository/MuralRepository";
-import { NotFountError } from "../errors/NotFoundError";
+import {
+  CreateMuralData,
+  IMuralRepository,
+} from "../repository/MuralRepository";
+import { NotFoundError } from "../errors/NotFoundError";
 import { ForbiddenError } from "../errors/ForbiddenError";
 
 export interface IMuralService {
   createMural(data: CreateMuralData): Promise<any>;
   getMurals(userId: string): Promise<Mural[]>;
-  updateMural(muralId: string, body: string, userId: string): Promise<Mural>
+  updateMural(muralId: string, body: string, userId: string): Promise<Mural>;
   deleteMural(muralId: string, userId: string): Promise<Mural>;
 }
 
@@ -21,33 +24,37 @@ export class MuralService implements IMuralService {
     return await this.muralRepository.getMuralsIfFriends(userId);
   }
 
-  async updateMural(muralId: string, body: string, userId: string): Promise<Mural> {
-      
-    const existingMural = await this.muralRepository.getMuralById(muralId)
+  async updateMural(
+    muralId: string,
+    body: string,
+    userId: string
+  ): Promise<Mural> {
+    const existingMural = await this.muralRepository.getMuralById(muralId);
 
-    if(!existingMural) {
-      throw new Error("Nenhum mural com este ID foi encontrado")
+    if (!existingMural) {
+      throw new NotFoundError("Nenhum mural com este ID foi encontrado");
     }
 
-    if(existingMural.userId !== userId) {
-      throw new Error("Você não tem permissão para atualizar este mural");
+    if (existingMural.userId !== userId) {
+      throw new ForbiddenError("Você não tem permissão para atualizar este mural");
     }
 
-    return await this.muralRepository.updateMural(muralId, body)
+    return await this.muralRepository.updateMural(muralId, body);
   }
 
   async deleteMural(muralId: string, userId: string): Promise<Mural> {
-      
-    const existingMural = await this.muralRepository.getMuralById(muralId)
+    const existingMural = await this.muralRepository.getMuralById(muralId);
 
-    if(!existingMural) {
-      throw new NotFountError("Nenhum mural com este ID foi encontrado"); 
+    if (!existingMural) {
+      throw new NotFoundError("Nenhum mural com este ID foi encontrado");
     }
 
-    if(existingMural.userId !== userId) {
-      throw new ForbiddenError("Você não tem permissão para excluir este conteúdo");
+    if (existingMural.userId !== userId) {
+      throw new ForbiddenError(
+        "Você não tem permissão para excluir este mural"
+      );
     }
 
-    return await this.muralRepository.deleteMural(muralId)
+    return await this.muralRepository.deleteMural(muralId);
   }
 }

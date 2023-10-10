@@ -1,11 +1,9 @@
-import { FastifyBaseLogger, FastifyReply, FastifyRequest, FastifySchema, FastifyTypeProviderDefault, RawServerDefault, RouteGenericInterface } from "fastify";
+import { FastifyReply, FastifyRequest } from "fastify";
 import { IChatService } from "../service/ChatService";
-import { ResolveFastifyRequestType } from "fastify/types/type-provider";
-import { IncomingMessage, ServerResponse } from "http";
 
 export interface IChatController {
-  createChat(request: FastifyRequest, reply: FastifyReply): any;
-  getChat(request: FastifyRequest, reply: FastifyReply): any;
+  /* createChat(request: FastifyRequest, reply: FastifyReply): any; */ //!unused function
+  getChatById(request: FastifyRequest, reply: FastifyReply): any;
 }
 
 export class ChatController implements IChatController {
@@ -15,9 +13,8 @@ export class ChatController implements IChatController {
     this.chatService = chatService;
   }
 
-  async createChat(request: FastifyRequest, reply: FastifyReply) {
+  /* async createChat(request: FastifyRequest, reply: FastifyReply) {
     try {
-     /*  const { id } = request.params as any; */
       const { userId: initiatorId } = request.user as any;
       const { participantId } = request.body as any;
 
@@ -31,23 +28,21 @@ export class ChatController implements IChatController {
         message: "ocorreu um erro, tente novamente mais tarde",
       });
     }
-  }
+  } */
 
-  async getChat(request: FastifyRequest, reply: FastifyReply) {
-      
+  async getChatById(request: FastifyRequest, reply: FastifyReply) {
     try {
-      const {id} = request.params as any
+      const { id } = request.params as any;
 
-    const messages = await this.chatService.getChat(id)
-    reply.send({
-      message: "mensagens retornadas com sucesso",
-      content: messages
-    })
-    }
-    catch (error) {
+      const messages = await this.chatService.getChatById(id);
+      reply.send({
+        message: "mensagens do chat retornadas com sucesso",
+        content: messages,
+      });
+    } catch (error) {
       reply.status(500).send({
-        message: "ocorreu um erro, tente novamente mais tarde"
-      })
+        message: "ocorreu um erro, tente novamente mais tarde",
+      });
     }
   }
 }

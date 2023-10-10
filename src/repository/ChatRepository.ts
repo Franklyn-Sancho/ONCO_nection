@@ -2,7 +2,8 @@ import { PrismaClient } from "@prisma/client";
 
 export interface IChatRepository {
   createChat(initiatorId: string, participantId: string): any;
-  getChat(id: string): any;
+  getChatById(id: string): any;
+  getChatByUsers(user1Id: string, user2Id: string): any;
 }
 
 export class ChatRepository implements IChatRepository {
@@ -21,14 +22,25 @@ export class ChatRepository implements IChatRepository {
     });
   }
 
-  async getChat(id: string) {
+  async getChatById(id: string) {
     return this.prisma.chat.findUnique({
       where: {
         id,
       },
       include: {
         messages: true,
-      }
+      },
+    });
+  }
+
+  async getChatByUsers(user1Id: string, user2Id: string) {
+    return this.prisma.chat.findFirst({
+      where: {
+        AND: [
+          { OR: [{ initiatorId: user1Id }, { initiatorId: user2Id }] },
+          { OR: [{ participantId: user1Id }, { participantId: user2Id }] },
+        ],
+      },
     });
   }
 }

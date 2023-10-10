@@ -47,7 +47,7 @@ describe("FriendshipsController", () => {
   
     it("Should to accept a friendship solicitation", async () => {
       const response = await request(server.server)
-        .put("/friendships/cln8zucsq0002c0osg87hu37v")
+        .put("/friendships/clniwvbs00001c0mh51s3ydmq")
         .send({
           status: "ACCEPTED"
         })

@@ -4,8 +4,8 @@ import {
   IFriendshipRepository,
 } from "../repository/FriendshipRepository";
 import { IChatService } from "./ChatService";
+import { BadRequestError } from "../errors/BadRequestError";
 
-//camada de serviço para o sistema de amizades
 
 export interface IFriendshipService {
   sendFriendRequest(
@@ -13,7 +13,7 @@ export interface IFriendshipService {
     addressedId: string
   ): Promise<Friendship>;
   acceptFriendRequest(
-    requesterId: string,
+    id: string,
     addressedId: string,
     status: FriendshipStatus
   ): Promise<void>;
@@ -48,7 +48,7 @@ export class FriendshipService implements IFriendshipService {
       (existingFriendship.status === "PENDING" ||
         existingFriendship.status === "ACCEPTED")
     ) {
-      throw new Error(
+      throw new BadRequestError(
         "Já existe uma solicitação de amizade pendente ou aceita"
       );
     }
@@ -58,20 +58,34 @@ export class FriendshipService implements IFriendshipService {
 
   //implementação do método para aceitar ou negar uma solicitação
   async acceptFriendRequest(
-    requesterId: string,
+    id: string,
     addressedId: string,
     status: FriendshipStatus
   ): Promise<void> {
+    const existingFriendship = await this.friendshipRepository.getFriendshipById(id);
+  
+    if (!existingFriendship) {
+      throw new BadRequestError("A solicitação de amizade não existe");
+    }
+  
+    const { requesterId } = existingFriendship;
+  
+    if (existingFriendship.status === "ACCEPTED") {
+      throw new BadRequestError("A solicitação de amizade já foi aceita");
+    }
+  
     this.friendshipRepository.acceptFriendship(
+      id,
       requesterId,
       addressedId,
       status
     );
-
+  
     if (status === "ACCEPTED") {
       await this.chatService.createChat(requesterId, addressedId);
     }
   }
+  
 
   //implementação do método para deletar amizade entre dois usuários
   async deleteFriendship(requesterId: string, addressedId: string) {

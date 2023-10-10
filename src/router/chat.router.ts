@@ -7,11 +7,6 @@ export function messageRouter(
   options: any,
   done: () => void
 ) {
-  fastify.post(
-    "/chat/:id",
-    { preHandler: authenticate },
-    chatController.createChat.bind(chatController)
-  );
 
   fastify.post(
     "/chat/:chatId/message",
@@ -21,7 +16,7 @@ export function messageRouter(
 
   fastify.get(
     "/chat/:id",
-    chatController.getChat.bind(chatController)
+    chatController.getChatById.bind(chatController)
   )
 
   done();

@@ -4,7 +4,7 @@ import {
   IMeetingRepository,
   UpdateMeetingData,
 } from "../repository/MeetingRepository";
-import { NotFountError } from "../errors/NotFoundError";
+import { NotFoundError } from "../errors/NotFoundError";
 import { ForbiddenError } from "../errors/ForbiddenError";
 
 export interface IMeetingService {
@@ -32,11 +32,11 @@ export class MeetingService implements IMeetingService {
     const existMeeting = await this.meetingRepository.getMeetingById(meetingId);
 
     if (!existMeeting) {
-      throw new Error("Nenhum meeting com esse ID foi encontrado");
+      throw new NotFoundError("Nenhum meeting com esse ID foi encontrado");
     }
 
     if (existMeeting.userId !== userId) {
-      throw new Error("Você não tem permissão para excluir esse meeting");
+      throw new ForbiddenError("Você não tem permissão para excluir esse meeting");
     }
 
     return await this.meetingRepository.updateMeeting(meetingId, data);
@@ -46,7 +46,7 @@ export class MeetingService implements IMeetingService {
     const existMeeting = await this.meetingRepository.getMeetingById(meetingId);
 
     if (!existMeeting) {
-      throw new NotFountError("Nenhum meeting com este ID foi encontrado");
+      throw new NotFoundError("Nenhum meeting com este ID foi encontrado");
     }
 
     if (existMeeting.userId !== userId) {

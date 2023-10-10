@@ -1,5 +1,5 @@
 import { ForbiddenError } from "../errors/ForbiddenError";
-import { NotFountError } from "../errors/NotFoundError";
+import { NotFoundError } from "../errors/NotFoundError";
 import { CreateLikeData, ILikeRepository } from "../repository/LikeRepository";
 
 //interface de métodos da classe LikesService
@@ -28,7 +28,7 @@ export class LikeService implements ILikeService {
     const like = await this.likeRepository.getLikeById(id);
 
     if (!like) {
-      throw new NotFountError("Like não encontrado");
+      throw new NotFoundError("Like não encontrado");
     }
 
     if (like.author !== userId) {
