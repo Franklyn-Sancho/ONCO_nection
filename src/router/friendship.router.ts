@@ -7,74 +7,32 @@ export function registerFriendshipRoutes(
   options: any,
   done: () => void
 ) {
-
   // Registra a rota POST /friendships para enviar uma nova solicitação de amizade
   fastify.post(
     "/friendships",
     { preHandler: [authenticate] },
-    async (request, reply) => {
-      const { userId: requesterId } = request.user as any;
-
-      const { addressedId } = request.body as any;
-
-      const result = await friendshipController.sendFriendRequest(
-        requesterId,
-        addressedId
-      );
-      reply.code(200).send({
-        message: "Solicitação de amizade enviada"
-      });
-    }
+    friendshipController.sendFriendRequest.bind(friendshipController)
   );
 
   fastify.put(
     "/friendships/:id",
     { preHandler: [authenticate] },
-    async (request, reply) => {
-      const { userId: addressedId } = request.user as any;
-      const { id } = request.params as any;
-      const { status } = request.body as any;
-
-      if (status !== "ACCEPTED" && status !== "DENIED") {
-        reply.status(400).send({ error: "Valor de status inválido" });
-        return;
-      }
-
-      await friendshipController.acceptFriendRequest(
-        id,
-        addressedId,
-        status
-      );
-
-      if (status === "ACCEPTED") {
-        reply.send({ message: "Solicitação de amizade aceita" });
-      } else {
-        reply.send({ message: "Solicitação de amizade negada" });
-      }
-    }
+    friendshipController.acceptFriendRequest.bind(friendshipController)
   );
 
   // Registra a rota GET /friends/:userId para recuperar a lista de amigos de um usuário
   fastify.get(
     "/friends/:userId",
     { preHandler: [authenticate] },
-    async (request, reply) => {
-      const { userId } = request.params as any;
-      const result = await friendshipController.getFriends(userId);
-      reply.send(result);
-    }
+    friendshipController.getFriends.bind(friendshipController)
   );
 
   //rota responsável por deletar uma amizade por seu ID
-  fastify.delete("/friendship/:addressedId", async (request, reply) => {
-    const { addressedId } = request.params as any;
-    const { userId: requesterId } = request.user as any;
-
-    await friendshipController.deleteFriendship(requesterId, addressedId);
-    reply.send({
-      message: "Usuário deletado com sucesso",
-    });
-  });
+  fastify.delete(
+    "/friendship/:addressedId",
+    { preHandler: [authenticate] },
+    friendshipController.deleteFriendship.bind(friendshipController)
+  );
 
   done();
 }

@@ -17,8 +17,6 @@ export interface IFriendshipRepository {
   ): Promise<Friendship>;
   acceptFriendship(
     id: string,
-    requesterId: string,
-    addressedId: string,
     status: string
   ): Promise<void>;
   deleteFriendship(requesterId: string, addressedId: string): Promise<void>;
@@ -63,16 +61,12 @@ export class FriendshipRepository implements IFriendshipRepository {
 
   async acceptFriendship(
     id: string,
-    requesterId: string,
-    addressedId: string,
     status: FriendshipStatus //valores do type FriendshipStatus
   ): Promise<void> {
     //caso contrário, atualiza o banco de dados
     await this.prisma.friendship.updateMany({
       where: {
         id,
-        requesterId,
-        addressedId,
       },
       data: {
         status,
