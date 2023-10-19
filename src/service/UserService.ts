@@ -4,29 +4,27 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import EmailService, { IEmailService, transporter } from "../utils/nodemailer";
 
-//service user classes
 export default class UserService {
-  private userRepository: UserRepository; //object instance userRepository
+  private userRepository: UserRepository;
   private emailService: IEmailService;
 
   constructor() {
     this.userRepository = new UserRepository();
-    this.emailService = new EmailService(transporter, this.userRepository)
+    this.emailService = new EmailService(transporter, this.userRepository);
   }
 
-  //service layer create new user
+  private async hashPassword(password: string): Promise<string> {
+    return await bcrypt.hash(password, 10);
+  }
+
   async register(user: User): Promise<User> {
     user.password = await this.hashPassword(user.password);
 
     const createdUser = await this.userRepository.create(user);
 
-    await this.emailService.sendConfirmationEmail(createdUser)
+    await this.emailService.sendConfirmationEmail(createdUser);
 
     return createdUser;
-  }
-
-  private async hashPassword(password: string): Promise<string> {
-    return await bcrypt.hash(password, 10);
   }
 
   async authenticate(
@@ -49,7 +47,7 @@ export default class UserService {
 
     //return a token by jwt.sign
     const token = jwt.sign({ userId: findUser.id }, process.env.TOKEN_KEY, {
-      expiresIn: "2h",
+      expiresIn: "1h",
     });
 
     return { success: true, message: token };

@@ -9,7 +9,7 @@ export interface CreateCommentData {
 
 export interface ICommentRepository {
   createComment(data: CreateCommentData): Promise<Comments>;
-  getCommentById(id: string): Promise<Comments>;
+  getCommentById(id: string): Promise<Comments | null>;
   deleteComment(id: string): Promise<Comments>;
 }
 
@@ -26,20 +26,15 @@ export class CommentsRepository implements ICommentRepository {
     });
   }
 
-  async getCommentById(id: string) {
-    const comment = await this.prisma.comments.findUnique({
+  async getCommentById(id: string): Promise<Comments | null> {
+    return await this.prisma.comments.findUnique({
       where: {
         id,
       },
     });
-    if (!comment) {
-      throw new Error("Nenhum comentário com esse id foi encontrado");
-    }
-
-    return comment;
   }
 
-  async deleteComment(id: string) {
+  async deleteComment(id: string): Promise<Comments> {
     return await this.prisma.comments.delete({
       where: { id },
     });

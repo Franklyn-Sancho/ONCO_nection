@@ -1,35 +1,26 @@
 import { PrismaClient, User } from "@prisma/client";
 
-const prisma = new PrismaClient()
+const prisma = new PrismaClient();
 
-
-//class user repository
 export default class UserRepository {
+  async create(user: User): Promise<User> {
+    return await prisma.user.create({
+      data: user,
+    });
+  }
 
-    //repository layer create new user
-    async create(user: User): Promise<User> {
-        const createUser = await prisma.user.create({
-            data: user,
-        })
-        return createUser
-    }
+  async findByEmail(email: string): Promise<User | null> {
+    return await prisma.user.findUnique({
+      where: {
+        email,
+      },
+    });
+  }
 
-    //repository layer find user
-    async findByEmail(email: string): Promise<User | null> {
-        const dbUser = await prisma.user.findUnique({
-            where: {
-                email,
-            }
-        })
-
-        return dbUser;
-    }
-
-    async updateUser(id: string, data: Partial<User>): Promise<void> {
-        await prisma.user.update({
-            where: {id},
-            data,
-        })
-    } 
+  async updateUser(id: string, data: Partial<User>): Promise<User> {
+    return await prisma.user.update({
+      where: { id },
+      data,
+    });
+  }
 }
-

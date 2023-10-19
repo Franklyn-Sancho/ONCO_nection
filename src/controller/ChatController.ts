@@ -1,9 +1,13 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import { IChatService } from "../service/ChatService";
+import { Chat } from "@prisma/client";
 
 export interface IChatController {
   /* createChat(request: FastifyRequest, reply: FastifyReply): any; */ //!unused function
-  getChatById(request: FastifyRequest, reply: FastifyReply): any;
+  getChatById(
+    request: FastifyRequest,
+    reply: FastifyReply
+  ): Promise<Chat | null>;
 }
 
 export class ChatController implements IChatController {
@@ -30,7 +34,10 @@ export class ChatController implements IChatController {
     }
   } */
 
-  async getChatById(request: FastifyRequest, reply: FastifyReply) {
+  async getChatById(
+    request: FastifyRequest,
+    reply: FastifyReply
+  ): Promise<Chat | null> {
     try {
       const { id } = request.params as any;
 
@@ -39,10 +46,14 @@ export class ChatController implements IChatController {
         message: "mensagens do chat retornadas com sucesso",
         content: messages,
       });
+
+      return messages;
     } catch (error) {
       reply.status(500).send({
         message: "ocorreu um erro, tente novamente mais tarde",
       });
     }
+
+    return null;
   }
 }

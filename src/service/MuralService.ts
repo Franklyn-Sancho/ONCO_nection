@@ -7,8 +7,8 @@ import { NotFoundError } from "../errors/NotFoundError";
 import { ForbiddenError } from "../errors/ForbiddenError";
 
 export interface IMuralService {
-  createMural(data: CreateMuralData): Promise<any>;
-  getMurals(userId: string): Promise<Mural[]>;
+  createMural(data: CreateMuralData): Promise<Mural>;
+  getMurals(userId: string): Promise<Mural[] | null>;
   updateMural(muralId: string, body: string, userId: string): Promise<Mural>;
   deleteMural(muralId: string, userId: string): Promise<Mural>;
 }
@@ -16,11 +16,11 @@ export interface IMuralService {
 export class MuralService implements IMuralService {
   constructor(private muralRepository: IMuralRepository) {}
 
-  async createMural(data: CreateMuralData): Promise<any> {
+  async createMural(data: CreateMuralData): Promise<Mural> {
     return await this.muralRepository.createMural(data);
   }
 
-  async getMurals(userId: string) {
+  async getMurals(userId: string): Promise<Mural[] | null> {
     return await this.muralRepository.getMuralsIfFriends(userId);
   }
 

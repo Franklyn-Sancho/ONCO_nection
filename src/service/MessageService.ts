@@ -1,3 +1,4 @@
+import { Message } from "@prisma/client";
 import { IMessageRepository } from "../repository/MessageRepository";
 import * as socketIo from "socket.io";
 
@@ -7,7 +8,7 @@ export interface IMessageService {
     senderId: string,
     recipientId: string,
     chatId: string
-  ): any;
+  ): Promise<Message>;
 }
 
 export class MessageService implements IMessageService {
@@ -24,7 +25,7 @@ export class MessageService implements IMessageService {
     senderId: string,
     recipientId: string,
     chatId: string
-  ) {
+  ): Promise<Message> {
     const newMessage = this.messageRepository.createMessage(
       content,
       senderId,

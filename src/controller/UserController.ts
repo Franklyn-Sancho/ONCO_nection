@@ -26,7 +26,7 @@ export default class UserController {
       await validateRequest(request, reply, userRegisterValidade);
       await this.userService.register(request.body);
       reply.status(201).send({
-        message: "Novo usuário registrado com sucesso",
+        message: "Registro feito com sucesso",
       });
     } catch {
       reply.status(500).send({
@@ -35,8 +35,6 @@ export default class UserController {
     }
   }
 
-  //authenticationUser function
-  //! há uma redundância de exceção entre a camada de serviço e controlador*****
   async authenticate(
     request: FastifyRequest<{ Body: User }>,
     reply: FastifyReply
@@ -51,7 +49,6 @@ export default class UserController {
           message: result.message,
         });
       }
-      /* reply.send({ token }); */
     } catch (error) {
       reply.status(401).send({
         message: "email ou senha inválidos",

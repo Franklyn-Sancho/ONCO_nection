@@ -9,7 +9,7 @@ export interface CreateLikeData {
 //interface de métodos da classe LikesRepository
 export interface ILikeRepository {
   createLike(data: CreateLikeData): Promise<Likes>;
-  getLikeById(id: string): Promise<Likes>;
+  getLikeById(id: string): Promise<Likes | null>;
   deleteLike(id: string): Promise<Likes>;
   getLikeByUserAndContent(data: CreateLikeData): Promise<Likes | null>;
 }
@@ -23,29 +23,22 @@ export class LikeRepository implements ILikeRepository {
   }
 
   //implementação do método de criação de likes no banco de dados
-  async createLike(data: CreateLikeData) {
+  async createLike(data: CreateLikeData): Promise<Likes> {
     return await this.prisma.likes.create({
       data, //recebe data [o parâmetro do método]
     });
   }
 
   //implementação do método que recupera o id do like
-  async getLikeById(id: string) {
-    const like = await this.prisma.likes.findUnique({
+  async getLikeById(id: string): Promise<Likes | null> {
+    return await this.prisma.likes.findUnique({
       where: {
         id,
       },
     });
-    if (!like) {
-      throw new Error("Nenhum like com esse id foi encontrado");
-    }
-
-    return like;
   }
 
-  async getLikeByUserAndContent(
-    data: CreateLikeData
-  ) {
+  async getLikeByUserAndContent(data: CreateLikeData): Promise<Likes | null> {
     return await this.prisma.likes.findFirst({
       where: {
         author: data.author,
@@ -56,7 +49,7 @@ export class LikeRepository implements ILikeRepository {
   }
 
   //implementa o método de remoção de um like do usuário
-  async deleteLike(id: string) {
+  async deleteLike(id: string): Promise<Likes> {
     return await this.prisma.likes.delete({
       where: { id },
     });

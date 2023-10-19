@@ -6,7 +6,7 @@ export type FriendshipStatus = "ACCEPTED" | "DENIED";
 
 //interface para descrever os métodos que o repositório deve implementar
 export interface IFriendshipRepository {
-  getFriendshipById(id: string): any;
+  getFriendshipById(id: string): Promise<Friendship | null>;
   getFriendship(
     requesterId: string,
     addressedId: string
@@ -20,7 +20,7 @@ export interface IFriendshipRepository {
     status: string
   ): Promise<void>;
   deleteFriendship(requesterId: string, addressedId: string): Promise<void>;
-  getFriends(userId: string): Promise<User[]>;
+  getFriends(userId: string): Promise<User[] | null>;
 }
 
 //a classe de repositório implementa a interface com os métodos
@@ -30,7 +30,7 @@ export class FriendshipRepository implements IFriendshipRepository {
   constructor(prisma: PrismaClient) {
     this.prisma = prisma;
   }
-  async getFriendshipById(id: string) {
+  async getFriendshipById(id: string): Promise<Friendship | null> {
     return this.prisma.friendship.findUnique({
       where: {
         id,
@@ -39,7 +39,7 @@ export class FriendshipRepository implements IFriendshipRepository {
   }
 
   //implementa o método getFriendship para recuperar uma solicitação de amizade
-  async getFriendship(requesterId: string, addressedId: string) {
+  async getFriendship(requesterId: string, addressedId: string): Promise<Friendship | null> {
     return this.prisma.friendship.findFirst({
       where: {
         requesterId,
@@ -91,7 +91,7 @@ export class FriendshipRepository implements IFriendshipRepository {
   }
 
   //implementa o método que retorna a lista de amizades;
-  async getFriends(userId: string) {
+  async getFriends(userId: string): Promise<User[] | null> {
     const friendships = await this.prisma.friendship.findMany({
       where: {
         OR: [{ requesterId: userId }, { addressedId: userId }],

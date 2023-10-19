@@ -10,8 +10,8 @@ export interface CreateMuralData {
 //interface repository mural
 export interface IMuralRepository {
   createMural(data: CreateMuralData): Promise<Mural>;
-  getMuralById(muralId: string): Promise<Mural>;
-  getMuralsIfFriends(userId: string): Promise<Mural[]>;
+  getMuralById(muralId: string): Promise<Mural | null>;
+  getMuralsIfFriends(userId: string): Promise<Mural[] | null>;
   updateMural(muralId: string, body: string): Promise<Mural>
   deleteMural(muralId: string): Promise<Mural>;
 }
@@ -32,22 +32,15 @@ export class MuralRepository implements IMuralRepository {
     });
   }
 
-  async getMuralById(muralId: string): Promise<Mural> {
-    const mural = await this.prisma.mural.findUnique({
+  async getMuralById(muralId: string): Promise<Mural | null> {
+    return await this.prisma.mural.findUnique({
       where: {
         id: muralId
       },
     });
-
-    if (!mural) {
-      throw new Error("Nenhum meeting com esse Id foi encontrado");
-    }
-
-    return mural;
   }
 
-  //repositório para retornar os murais entre amigos
-  async getMuralsIfFriends(userId: string) {
+  async getMuralsIfFriends(userId: string): Promise<Mural[] | null> {
     const friends = await this.prisma.friendship.findMany({
       where: {
         OR: [{ requesterId: userId }, { addressedId: userId }],

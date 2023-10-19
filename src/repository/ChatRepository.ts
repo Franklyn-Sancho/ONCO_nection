@@ -1,9 +1,9 @@
-import { PrismaClient } from "@prisma/client";
+import { Chat, PrismaClient } from "@prisma/client";
 
 export interface IChatRepository {
-  createChat(initiatorId: string, participantId: string): any;
-  getChatById(id: string): any;
-  getChatByUsers(user1Id: string, user2Id: string): any;
+  createChat(initiatorId: string, participantId: string): Promise<Chat>;
+  getChatById(id: string): Promise<Chat | null>;
+  getChatByUsers(user1Id: string, user2Id: string): Promise<Chat | null>;
 }
 
 export class ChatRepository implements IChatRepository {
@@ -13,7 +13,7 @@ export class ChatRepository implements IChatRepository {
     this.prisma = prisma;
   }
 
-  async createChat(initiatorId: string, participantId: string) {
+  async createChat(initiatorId: string, participantId: string): Promise<Chat> {
     return this.prisma.chat.create({
       data: {
         initiatorId,
@@ -22,7 +22,7 @@ export class ChatRepository implements IChatRepository {
     });
   }
 
-  async getChatById(id: string) {
+  async getChatById(id: string): Promise<Chat | null> {
     return this.prisma.chat.findUnique({
       where: {
         id,
@@ -33,7 +33,7 @@ export class ChatRepository implements IChatRepository {
     });
   }
 
-  async getChatByUsers(user1Id: string, user2Id: string) {
+  async getChatByUsers(user1Id: string, user2Id: string): Promise<Chat | null> {
     return this.prisma.chat.findFirst({
       where: {
         AND: [
