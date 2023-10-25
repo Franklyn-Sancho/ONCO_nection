@@ -2,6 +2,7 @@
 import { FastifyRequest } from "fastify";
 import * as fs from "fs";
 import * as path from "path";
+import { Image } from "../types/meetingTypes";
 
 //pasta onde estarão as pastas de upload
 const uploadDir = "./upload";
@@ -37,11 +38,17 @@ export async function handleImageUpload(
   request: FastifyRequest
 ): Promise<string | undefined> {
   const contentType = request.headers["content-type"];
-  const { image } = request.body as any;
+  const {image} = request.body as {image?: Image[]}
 
   if (image && contentType && contentType.startsWith("multipart/form-data")) {
     const imageBuffer = image[0].data;
     const filename = image[0].filename;
-    return await handleMultipartFormData(imageBuffer, filename);
+    const filePath = await handleMultipartFormData(imageBuffer, filename);
+
+    // Lê o arquivo e codifica em base64
+    const fileContent = fs.readFileSync(filePath);
+    const base64Image = fileContent.toString('base64');
+
+    return base64Image;
   }
 }

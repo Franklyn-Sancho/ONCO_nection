@@ -1,18 +1,12 @@
-import {Mural, PrismaClient } from "@prisma/client";
-
-export interface CreateMuralData {
-  body: string;
-  userId: string;
-  image?: string;
-}
-
+import { Mural, PrismaClient } from "@prisma/client";
+import { CreateMuralData } from "../types/muralTypes";
 
 //interface repository mural
 export interface IMuralRepository {
   createMural(data: CreateMuralData): Promise<Mural>;
   getMuralById(muralId: string): Promise<Mural | null>;
   getMuralsIfFriends(userId: string): Promise<Mural[] | null>;
-  updateMural(muralId: string, body: string): Promise<Mural>
+  updateMural(muralId: string, body: string): Promise<Mural>;
   deleteMural(muralId: string): Promise<Mural>;
 }
 
@@ -28,14 +22,17 @@ export class MuralRepository implements IMuralRepository {
   //função responsável por criar um novo mural
   async createMural(data: CreateMuralData) {
     return await this.prisma.mural.create({
-      data, //a estrutura do data está no parâmetro da função {body, userId}
+      data: {
+        ...data,
+        image: data.image?.toString(), 
+      },
     });
   }
 
   async getMuralById(muralId: string): Promise<Mural | null> {
     return await this.prisma.mural.findUnique({
       where: {
-        id: muralId
+        id: muralId,
       },
     });
   }
@@ -70,19 +67,19 @@ export class MuralRepository implements IMuralRepository {
   async updateMural(muralId: string, body: string): Promise<Mural> {
     return await this.prisma.mural.update({
       where: {
-        id: muralId
+        id: muralId,
       },
       data: {
         body,
-      }
-    })
+      },
+    });
   }
 
   async deleteMural(muralId: string): Promise<Mural> {
-      return await this.prisma.mural.delete({
-        where: {
-          id: muralId,
-        }
-      })
+    return await this.prisma.mural.delete({
+      where: {
+        id: muralId,
+      },
+    });
   }
 }

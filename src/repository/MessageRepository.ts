@@ -1,4 +1,4 @@
-import { PrismaClient } from "@prisma/client";
+import { Message, PrismaClient } from "@prisma/client";
 
 
 export interface IMessageRepository {
@@ -7,7 +7,7 @@ export interface IMessageRepository {
     senderId: string,
     recipientId: string,
     chatId: string
-  ): any;
+  ): Promise<Message>;
 }
 
 export class MessageRepository implements IMessageRepository {
@@ -17,7 +17,7 @@ export class MessageRepository implements IMessageRepository {
         this.prisma = prisma
     }
 
-    async createMessage(content: string, senderId: string, recipientId: string, chatId: string) {
+    async createMessage(content: string, senderId: string, recipientId: string, chatId: string): Promise<Message> {
         return this.prisma.message.create({
             data: {
                 content,

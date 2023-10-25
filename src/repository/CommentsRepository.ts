@@ -1,14 +1,9 @@
 import { Comments, PrismaClient } from "@prisma/client";
+import { CommentTypes} from "../types/commentTypes";
 
-export interface CreateCommentData {
-  content: string;
-  meetingId?: string;
-  muralId?: string;
-  userId: string;
-}
 
 export interface ICommentRepository {
-  createComment(data: CreateCommentData): Promise<Comments>;
+  createComment(data: CommentTypes): Promise<Comments>;
   getCommentById(id: string): Promise<Comments | null>;
   deleteComment(id: string): Promise<Comments>;
 }
@@ -20,7 +15,7 @@ export class CommentsRepository implements ICommentRepository {
     this.prisma = prisma;
   }
 
-  async createComment(data: CreateCommentData): Promise<Comments> {
+  async createComment(data: CommentTypes): Promise<Comments> {
     return await this.prisma.comments.create({
       data,
     });

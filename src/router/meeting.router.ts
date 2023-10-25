@@ -1,6 +1,7 @@
 import { FastifyInstance } from "fastify";
 import { authenticate } from "../plugins/authenticate";
 import { meetingController } from "../utils/providers";
+import { UserRequest } from "../types/userTypes";
 
 export function meetingRouter(
   fastify: FastifyInstance,

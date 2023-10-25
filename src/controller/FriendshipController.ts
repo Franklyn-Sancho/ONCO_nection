@@ -1,10 +1,7 @@
 import { Friendship, User } from "@prisma/client";
-import {
-  FriendshipService,
-  IFriendshipService,
-} from "../service/FriendshipService";
-import { FriendshipStatus } from "../repository/FriendshipRepository";
+import { IFriendshipService } from "../service/FriendshipService";
 import { FastifyReply, FastifyRequest } from "fastify";
+import { UserRequest } from "../types/userTypes";
 
 //camada controladora para o sistema de amizades
 
@@ -31,12 +28,12 @@ export class FriendshipController implements IFriendshipController {
 
   //implementa o método de enviar solicitação
   async sendFriendRequest(
-    request: FastifyRequest,
+    request: UserRequest,
     reply: FastifyReply
   ): Promise<Friendship> {
-    const { userId: requesterId } = request.user as any;
+    const { userId: requesterId } = request.user;
 
-    const { addressedId } = request.body as any;
+    const { addressedId } = request.body.friendship;
 
     await this.friendshipService.sendFriendRequest(requesterId, addressedId);
     return reply.code(200).send({

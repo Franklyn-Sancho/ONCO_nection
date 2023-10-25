@@ -1,17 +1,14 @@
 import { Likes, PrismaClient } from "@prisma/client";
+import { LikesTypes } from "../types/likesTypes";
 
-export interface CreateLikeData {
-  meetingId?: string;
-  muralId?: string;
-  author: string;
-}
+
 
 //interface de métodos da classe LikesRepository
 export interface ILikeRepository {
-  createLike(data: CreateLikeData): Promise<Likes>;
+  createLike(data: LikesTypes): Promise<Likes>;
   getLikeById(id: string): Promise<Likes | null>;
   deleteLike(id: string): Promise<Likes>;
-  getLikeByUserAndContent(data: CreateLikeData): Promise<Likes | null>;
+  getLikeByUserAndContent(data: LikesTypes): Promise<Likes | null>;
 }
 
 export class LikeRepository implements ILikeRepository {
@@ -23,7 +20,7 @@ export class LikeRepository implements ILikeRepository {
   }
 
   //implementação do método de criação de likes no banco de dados
-  async createLike(data: CreateLikeData): Promise<Likes> {
+  async createLike(data: LikesTypes): Promise<Likes> {
     return await this.prisma.likes.create({
       data, //recebe data [o parâmetro do método]
     });
@@ -38,7 +35,7 @@ export class LikeRepository implements ILikeRepository {
     });
   }
 
-  async getLikeByUserAndContent(data: CreateLikeData): Promise<Likes | null> {
+  async getLikeByUserAndContent(data: LikesTypes): Promise<Likes | null> {
     return await this.prisma.likes.findFirst({
       where: {
         author: data.author,

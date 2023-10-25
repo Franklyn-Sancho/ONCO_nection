@@ -1,11 +1,11 @@
 import { Meetings } from "@prisma/client";
 import {
-  CreateMeetingData,
   IMeetingRepository,
   UpdateMeetingData,
 } from "../repository/MeetingRepository";
 import { NotFoundError } from "../errors/NotFoundError";
 import { ForbiddenError } from "../errors/ForbiddenError";
+import { CreateMeetingData } from "../types/meetingTypes";
 
 export interface IMeetingService {
   createMeeting(data: CreateMeetingData): Promise<Meetings>;

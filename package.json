@@ -9,7 +9,7 @@
   },
   "scripts": {
     "dev": "tsx watch src/server.ts",
-    "test": "jest --forceExit --detectOpenHandles --watch --maxWorkers=1"
+    "test": "jest --forceExit --detectOpenHandles --maxWorkers=1"
   },
   "keywords": [],
   "author": "",

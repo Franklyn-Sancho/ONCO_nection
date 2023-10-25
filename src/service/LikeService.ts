@@ -1,11 +1,12 @@
 import { Likes } from "@prisma/client";
 import { ForbiddenError } from "../errors/ForbiddenError";
 import { NotFoundError } from "../errors/NotFoundError";
-import { CreateLikeData, ILikeRepository } from "../repository/LikeRepository";
+import { ILikeRepository } from "../repository/LikeRepository";
+import { LikesTypes } from "../types/likesTypes";
 
 //interface de métodos da classe LikesService
 export interface ILikeService {
-  createLike(data: CreateLikeData): Promise<Likes>;
+  createLike(data: LikesTypes): Promise<Likes>;
   deleteLike(id: string, userId: string): Promise<void>;
 }
 
@@ -13,7 +14,7 @@ export interface ILikeService {
 export class LikeService implements ILikeService {
   constructor(private likeRepository: ILikeRepository) {}
 
-  async createLike(data: CreateLikeData): Promise<Likes> {
+  async createLike(data: LikesTypes): Promise<Likes> {
     const existingLike = await this.likeRepository.getLikeByUserAndContent(
       data
     );

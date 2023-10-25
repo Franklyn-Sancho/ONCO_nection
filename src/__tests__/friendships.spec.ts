@@ -26,11 +26,11 @@ describe("FriendshipsController", () => {
       token2 = response2.body.token;
     });
   
-    /* afterAll(async () => {
+    afterAll(async () => {
         await prisma.friendship.deleteMany({});
         server.close();
       });
-   */
+  
     it("Should to send a friendship solicitation", async () => {
       const response = await request(server.server)
         .post("/friendships")
