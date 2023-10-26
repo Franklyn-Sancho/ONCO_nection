@@ -4,3 +4,7 @@ export interface CommentTypes {
   muralId?: string | null;
   userId: string;
 }
+
+export interface CommentParams {
+  commentId: string
+}

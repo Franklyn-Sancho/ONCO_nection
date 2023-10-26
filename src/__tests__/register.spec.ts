@@ -31,7 +31,7 @@ describe("UserController", () => {
 
     expect(response.status).toBe(201);
     expect(response.body).toStrictEqual({
-      message: "Novo usuário registrado com sucesso",
+      message: "Registro feito com sucesso",
     });
   });
 

@@ -2,6 +2,8 @@ import request from "supertest";
 import serverPromise from "../server";
 import { FastifyInstance } from "fastify";
 import { PrismaClient } from "@prisma/client";
+import { MeetingParams } from "../types/meetingTypes";
+import { CommentParams } from "../types/commentTypes";
 
 const prisma = new PrismaClient();
 
@@ -286,9 +288,7 @@ describe("CommentsController", () => {
 
     expect(removeResponse.status).toBe(401);
     expect(removeResponse.body).toStrictEqual({
-      message: "falha de autenticação",
-      error: "Unauthorized",
-      statusCode: 401,
+      "error": "Error removing comment: Error: Você não tem permissão para excluir esse comentário"
     })
   });
 

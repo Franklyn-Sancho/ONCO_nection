@@ -21,31 +21,31 @@ export function muralRouter(
   );
 
   fastify.put(
-    "/mural/:id/update",
+    "/mural/:muralId/update",
     {preHandler: authenticate},
     muralController.updateMural.bind(muralController)
   )
 
   fastify.delete(
-    "/mural/:id/delete",
+    "/mural/:muralId/delete",
     {preHandler: authenticate},
     muralController.deleteMural.bind(muralController)
   )
 
   fastify.post(
-    "/mural/:id/likes",
+    "/mural/:muralId/likes",
     { preHandler: authenticate },
     muralController.addLikeMural.bind(muralController)
   );
 
   fastify.post(
-    "/mural/:id/comments",
+    "/mural/:muralId/comments",
     { preHandler: authenticate },
     muralController.addCommentMural.bind(muralController)
   );
 
   fastify.delete(
-    "/mural/:id/likes",
+    "/mural/:likesId/likes",
     { preHandler: authenticate },
     async (request, reply) => {
       await muralController.removeLikeMural(request, reply);
@@ -53,7 +53,7 @@ export function muralRouter(
   );
 
   fastify.delete(
-    "/mural/:id/comments",
+    "/mural/:commentId/comments",
     { preHandler: authenticate },
     async (request, reply) => {
       await muralController.removeCommentMural(request, reply);

@@ -4,7 +4,9 @@ import { z } from "zod";
 import { validateRequest } from "../utils/validateRequest";
 import { UnauthorizedError } from "../errors/UnauthorizedError";
 import { UserRequest } from "../types/userTypes";
-import { NotFoundError } from "../errors/NotFoundError";
+import { BodyParams } from "../types/bodyTypes";
+import { UserParams } from "../types/usersTypes";
+import { CommentParams, CommentTypes } from "../types/commentTypes";
 
 export interface ICommentController {
   addComment(request: FastifyRequest, reply: FastifyReply): Promise<void>;
@@ -14,7 +16,10 @@ export interface ICommentController {
 export class CommentController implements ICommentController {
   constructor(private commentService: ICommentService) {}
 
-  async addComment(request: UserRequest, reply: FastifyReply): Promise<void> {
+  async addComment(
+    request: FastifyRequest,
+    reply: FastifyReply
+  ): Promise<void> {
     const commentSchema = z.object({
       content: z.string({ required_error: "content is required" }),
     });
@@ -23,13 +28,9 @@ export class CommentController implements ICommentController {
       const isValid = await validateRequest(request, reply, commentSchema);
 
       if (isValid) {
-        const { meetingId, muralId, content } = request.body.comment || {
-          meetingId: null,
-          muralId: null,
-          content: "",
-        };
+        const { meetingId, muralId, content } = request.body as CommentTypes;
 
-        const { userId } = request.user;
+        const { userId } = request.user as UserParams;
 
         const comment = await this.commentService.addComment({
           content,
@@ -48,7 +49,7 @@ export class CommentController implements ICommentController {
           error: error.message,
         });
       } else {
-        console.log(request.body.comment);
+        console.log(request.body);
         reply.code(500).send({
           error: error,
         });
@@ -56,12 +57,12 @@ export class CommentController implements ICommentController {
     }
   }
 
-  async deleteComment(request: UserRequest, reply: FastifyReply) {
+  async deleteComment(request: FastifyRequest, reply: FastifyReply) {
     try {
-      const { id } = request.params;
-      const { userId } = request.user;
+      const { commentId } = request.params as CommentParams;
+      const { userId } = request.user as UserParams;
 
-      await this.commentService.deleteComment(id, userId);
+      await this.commentService.deleteComment(commentId, userId);
 
       reply.code(204).send();
     } catch (error) {

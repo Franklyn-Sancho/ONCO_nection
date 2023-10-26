@@ -7,7 +7,10 @@ import { ILikeController } from "./LikeController";
 import { IMeetingRepository } from "../repository/MeetingRepository";
 import { ICommentController } from "./CommentsController";
 import { BodyParams } from "../types/bodyTypes";
-import { MeetingParams } from "../types/meetingTypes";
+import { CreateMeetingData, MeetingParams } from "../types/meetingTypes";
+import { UserParams } from "../types/usersTypes";
+import { CommentParams } from "../types/commentTypes";
+import { LikeParams } from "../types/likesTypes";
 
 /* interface MeetingLikeRequestBody {
   meetingId: string;
@@ -55,13 +58,9 @@ export class MeetingController implements IMeetingController {
       const isValid = await validateRequest(request, reply, meetingValidations);
 
       if (isValid) {
-        const { type, title, body } = (request.body as BodyParams).meeting || {
-          type: "",
-          title: "",
-          body: "",
-        };
+        const { type, title, body } = request.body as CreateMeetingData;
 
-        const { userId } = request.user as any;
+        const { userId } = request.user as UserParams;
 
         const base64Image = await handleImageUpload(request);
 
@@ -98,7 +97,7 @@ export class MeetingController implements IMeetingController {
       /* if (isValid) { */
       const data = meetingValidations.parse(request.body);
       const { meetingId } = request.params as MeetingParams;
-      const { userId } = request.user as any;
+      const { userId } = request.user as UserParams;
 
       await this.meetingService.updateMeeting(meetingId, data, userId);
       reply.code(200).send({
@@ -116,7 +115,7 @@ export class MeetingController implements IMeetingController {
   ): Promise<void> {
     try {
       const { meetingId } = request.params as MeetingParams;
-      const { userId } = request.user as any;
+      const { userId } = request.user as UserParams;
 
       await this.meetingService.deleteMeeting(meetingId, userId);
 
@@ -133,13 +132,13 @@ export class MeetingController implements IMeetingController {
     try {
       const { meetingId } = request.params as MeetingParams;
 
+      (request.body as MeetingParams).meetingId = meetingId;
+
       const meeting = await this.meetingRepository.getMeetingById(meetingId);
 
       if (!meeting) {
         throw new Error("Meeting não encontrado");
       }
-
-      (request.body as MeetingParams).meetingId = meetingId;
 
       await this.likeController.createLike(request, reply);
     } catch (error) {
@@ -152,9 +151,9 @@ export class MeetingController implements IMeetingController {
   //método da camada de controle para remover like do meeting
   async removeLikeMeeting(request: FastifyRequest, reply: FastifyReply) {
     try {
-      const { meetingId } = request.params as MeetingParams;
+      const { likesId } = request.params as LikeParams;
 
-      (request.body as MeetingParams).meetingId = meetingId;
+      (request.body as MeetingParams).meetingId = likesId;
 
       await this.likeController.deleteLike(request, reply);
     } catch (error) {
@@ -187,9 +186,9 @@ export class MeetingController implements IMeetingController {
 
   async removeCommentMeeting(request: FastifyRequest, reply: FastifyReply) {
     try {
-      const { meetingId } = request.params as MeetingParams;
+      const { commentId } = request.params as CommentParams;
 
-      (request.body as MeetingParams).meetingId = meetingId;
+      (request.body as CommentParams).commentId = commentId;
 
       await this.commentController.deleteComment(request, reply);
     } catch (error) {

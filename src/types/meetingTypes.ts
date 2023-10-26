@@ -6,7 +6,7 @@ export interface Image {
 }
 
 export interface CreateMeetingData {
-  type: string;
+  type: string | null;
   title: string;
   body: string;
   userId: string;

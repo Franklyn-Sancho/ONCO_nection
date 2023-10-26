@@ -1,6 +1,8 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import { ILikeService } from "../service/LikeService";
 import { UserRequest } from "../types/userTypes";
+import { LikeParams, LikesTypes } from "../types/likesTypes";
+import { UserParams } from "../types/usersTypes";
 
 //interface de métodos do LikeController
 export interface ILikeController {
@@ -13,14 +15,14 @@ export class LikeController implements ILikeController {
   constructor(private likeService: ILikeService) {}
 
   //implementando o método para criar o like
-  async createLike(request: UserRequest, reply: FastifyReply): Promise<void> {
+  async createLike(
+    request: FastifyRequest,
+    reply: FastifyReply
+  ): Promise<void> {
     try {
-      const { meetingId, muralId } = request.body.likes || {
-        meetingId: null,
-        muralId: null,
-      };
+      const { meetingId, muralId } = request.body as LikesTypes;
 
-      const { userId: author } = request.user;
+      const { userId: author } = request.user as UserParams;
 
       await this.likeService.createLike({
         meetingId,
@@ -35,12 +37,12 @@ export class LikeController implements ILikeController {
     }
   }
 
-  async deleteLike(request: UserRequest, reply: FastifyReply) {
+  async deleteLike(request: FastifyRequest, reply: FastifyReply) {
     try {
-      const { id } = request.params;
-      const { userId } = request.user;
+      const { likesId } = request.params as LikeParams;
+      const { userId } = request.user as UserParams;
 
-      await this.likeService.deleteLike(id, userId);
+      await this.likeService.deleteLike(likesId, userId);
 
       reply.code(204).send();
     } catch (error) {

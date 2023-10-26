@@ -7,7 +7,10 @@ import { ILikeController } from "./LikeController";
 import { ICommentController } from "./CommentsController";
 import { UserRequest } from "../types/userTypes";
 import { BodyParams } from "../types/bodyTypes";
-import { MuralParams } from "../types/muralTypes";
+import { CreateMuralData, MuralParams } from "../types/muralTypes";
+import { UserParams } from "../types/usersTypes";
+import { LikeParams } from "../types/likesTypes";
+import { CommentParams } from "../types/commentTypes";
 
 export interface IMuralController {
   createMural(request: FastifyRequest, reply: FastifyReply): Promise<void>;
@@ -42,10 +45,8 @@ export class MuralController implements IMuralController {
       const isValid = await validateRequest(request, reply, muralValidations);
 
       if (isValid) {
-        const { userId } = request.user as any;
-        const { body } = (request.body as BodyParams).mural || {
-          body: "",
-        };
+        const { userId } = request.user as UserParams;
+        const { body } = request.body as CreateMuralData;
 
         const base64Image = await handleImageUpload(request);
 
@@ -78,11 +79,9 @@ export class MuralController implements IMuralController {
       /* const data = muralValidations.parse(request.body); */
 
       const { muralId } = request.params as MuralParams;
-      const { body } = (request.body as BodyParams).mural || {
-        body: "",
-      };
+      const { body } = request.body as CreateMuralData;
 
-      const { userId } = request.user as any;
+      const { userId } = request.user as UserParams;
 
       await this.muralService.updateMural(muralId, body, userId);
       reply.code(200).send({
@@ -99,7 +98,7 @@ export class MuralController implements IMuralController {
   ): Promise<void> {
     try {
       const { muralId } = request.params as MuralParams;
-      const { userId } = request.user as any;
+      const { userId } = request.user as UserParams;
 
       const mural = await this.muralService.deleteMural(muralId, userId);
       reply.code(200).send({
@@ -112,9 +111,9 @@ export class MuralController implements IMuralController {
   }
 
   //método que retorna os murais de amigos
-  async getMurals(request: UserRequest, reply: FastifyReply): Promise<void> {
+  async getMurals(request: FastifyRequest, reply: FastifyReply): Promise<void> {
     try {
-      const { userId } = request.user as any;
+      const { userId } = request.user as UserParams;
       const murals = await this.muralService.getMurals(userId);
       reply.send(murals);
     } catch (error) {
@@ -140,9 +139,9 @@ export class MuralController implements IMuralController {
 
   async removeLikeMural(request: FastifyRequest, reply: FastifyReply) {
     try {
-      const { muralId } = request.params as MuralParams;
+      const { likesId } = request.params as LikeParams;
 
-      (request.body as MuralParams).muralId = muralId;
+      (request.body as MuralParams).muralId = likesId;
 
       await this.likeController.deleteLike(request, reply);
     } catch (error) {
@@ -175,9 +174,9 @@ export class MuralController implements IMuralController {
 
   async removeCommentMural(request: FastifyRequest, reply: FastifyReply) {
     try {
-      const { muralId } = request.params as MuralParams;
+      const { commentId } = request.params as CommentParams;
 
-      (request.body as MuralParams).muralId = muralId;
+      (request.body as MuralParams).muralId = commentId;
 
       await this.commentController.deleteComment(request, reply);
     } catch (error) {

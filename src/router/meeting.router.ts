@@ -18,31 +18,31 @@ export function meetingRouter(
   );
 
   fastify.put(
-    "/meetings/:id/update",
+    "/meetings/:meetingId/update",
     {preHandler: authenticate},
     meetingController.updateMeeting.bind(meetingController)
   )
 
   fastify.delete(
-    "/meetings/:id/delete",
+    "/meetings/:meetingId/delete",
     {preHandler: authenticate},
     meetingController.deleteMeeting.bind(meetingController)
   )
 
   fastify.post(
-    "/meetings/:id/likes",
+    "/meetings/:meetingId/likes",
     { preHandler: authenticate },
     meetingController.addLikeMeeting.bind(meetingController)
   );
 
   fastify.post(
-    "/meetings/:id/comments",
+    "/meetings/:meetingId/comments",
     { preHandler: authenticate },
     meetingController.addCommentMeeting.bind(meetingController)
   );
 
   fastify.delete(
-    "/meetings/:id/likes",
+    "/meetings/:likesId/likes",
     { preHandler: authenticate },
     async (request, reply) => {
       await meetingController.removeLikeMeeting(request, reply);
@@ -50,7 +50,7 @@ export function meetingRouter(
   );
 
   fastify.delete(
-    "/meetings/:id/comments",
+    "/meetings/:commentId/comments",
     { preHandler: authenticate },
     async (request, reply) => {
       await meetingController.removeCommentMeeting(request, reply);

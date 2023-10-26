@@ -3,3 +3,7 @@ export interface LikesTypes {
   muralId?: string | null;
   author: string;
 }
+
+export interface LikeParams {
+  likesId: string;
+}
