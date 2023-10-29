@@ -5,6 +5,7 @@ import {
 } from "../repository/FriendshipRepository";
 import { IChatService } from "./ChatService";
 import { BadRequestError } from "../errors/BadRequestError";
+import { ForbiddenError } from "../errors/ForbiddenError";
 
 export interface IFriendshipService {
   sendFriendRequest(
@@ -13,8 +14,9 @@ export interface IFriendshipService {
   ): Promise<Friendship>;
   acceptFriendRequest(
     id: string,
-    status: FriendshipStatus
-  ): Promise<void>;
+    status: FriendshipStatus,
+    userId: string
+  ): Promise<Friendship>;
   deleteFriendship(requesterId: string, addressedId: string): Promise<void>;
   getFriends(userId: string): Promise<User[] | null>;
 }
@@ -57,10 +59,10 @@ export class FriendshipService implements IFriendshipService {
   //implementação do método para aceitar ou negar uma solicitação
   async acceptFriendRequest(
     id: string,
-    status: FriendshipStatus
-  ): Promise<void> {
-    const existingFriendship =
-      await this.friendshipRepository.getFriendshipById(id);
+    status: FriendshipStatus,
+    userId: string
+  ): Promise<Friendship> {
+    const existingFriendship = await this.friendshipRepository.getFriendshipById(id);
 
     if (!existingFriendship)
       throw new BadRequestError("A solicitação de amizade não existe");
@@ -68,12 +70,17 @@ export class FriendshipService implements IFriendshipService {
     if (existingFriendship.status === "ACCEPTED")
       throw new BadRequestError("Uma solicitação de amizade ja foi enciada");
 
+      if (existingFriendship.addressedId !== userId)
+      throw new ForbiddenError("Você não tem permissão para aceitar esta solicitação de amizade");
+
     const { requesterId, addressedId } = existingFriendship;
 
-    await this.friendshipRepository.acceptFriendship(id, status);
+    const acceptFriendship = await this.friendshipRepository.acceptFriendship(id, status);
 
     if (status === "ACCEPTED")
       await this.chatService.createChat(requesterId, addressedId);
+    
+      return acceptFriendship
   }
 
   //implementação do método para deletar amizade entre dois usuários

@@ -50,18 +50,24 @@ export class FriendshipController implements IFriendshipController {
   ): Promise<void> {
     const { id } = request.params as any;
     const { status } = request.body as any;
+    const { userId: addressedId } = request.user as any;
 
     if (!["ACCEPTED", "DENIED"].includes(status))
       return reply.status(400).send({
         error: "Valor de status inválido",
       });
 
-    await this.friendshipService.acceptFriendRequest(id, status);
+    const friendship = await this.friendshipService.acceptFriendRequest(
+      id,
+      status,
+      addressedId
+    );
 
     reply.send({
       message: `Solicitação de amizade ${
         status === "ACCEPTED" ? "aceita" : "negada"
       }`,
+      friendshipId: friendship.id,
     });
   }
 

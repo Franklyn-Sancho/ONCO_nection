@@ -15,10 +15,7 @@ export interface IFriendshipRepository {
     requesterId: string,
     addressedId: string
   ): Promise<Friendship>;
-  acceptFriendship(
-    id: string,
-    status: string
-  ): Promise<void>;
+  acceptFriendship(id: string, status: string): Promise<Friendship>;
   deleteFriendship(requesterId: string, addressedId: string): Promise<void>;
   getFriends(userId: string): Promise<User[] | null>;
 }
@@ -39,7 +36,10 @@ export class FriendshipRepository implements IFriendshipRepository {
   }
 
   //implementa o método getFriendship para recuperar uma solicitação de amizade
-  async getFriendship(requesterId: string, addressedId: string): Promise<Friendship | null> {
+  async getFriendship(
+    requesterId: string,
+    addressedId: string
+  ): Promise<Friendship | null> {
     return this.prisma.friendship.findFirst({
       where: {
         requesterId,
@@ -62,9 +62,9 @@ export class FriendshipRepository implements IFriendshipRepository {
   async acceptFriendship(
     id: string,
     status: FriendshipStatus //valores do type FriendshipStatus
-  ): Promise<void> {
+  ): Promise<Friendship> {
     //caso contrário, atualiza o banco de dados
-    await this.prisma.friendship.updateMany({
+    return await this.prisma.friendship.update({
       where: {
         id,
       },
