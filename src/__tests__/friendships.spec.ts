@@ -39,10 +39,15 @@ describe("FriendshipsController", () => {
       })
       .set("Authorization", `Bearer ${token}`);
 
+    const friendshipId = response.body.friendshipId
+
     expect(response.status).toBe(200);
     expect(response.body).toStrictEqual({
       message: "Solicitação de amizade enviada",
+      friendshipId: friendshipId
     });
+
+    await prisma.friendship.deleteMany({});
   });
 
   it("Should to accept a friendship solicitation", async () => {
@@ -53,6 +58,8 @@ describe("FriendshipsController", () => {
       })
       .set("Authorization", `Bearer ${token}`);
 
+    console.log(sendFriendship.body);
+
     const friendshipId = sendFriendship.body.friendshipId;
 
     const acceptFriendship = await request(server.server)
@@ -60,7 +67,7 @@ describe("FriendshipsController", () => {
       .send({
         status: "ACCEPTED",
       })
-      .set("Authorization", `Bearer ${token}`);
+      .set("Authorization", `Bearer ${token2}`);
 
       console.log(friendshipId)
 

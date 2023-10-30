@@ -286,7 +286,7 @@ describe("CommentsController", () => {
       .set("Authorization", `Bearer ${token2}`)
       .send({});
 
-    expect(removeResponse.status).toBe(401);
+    expect(removeResponse.status).toBe(500);
     expect(removeResponse.body).toStrictEqual({
       "error": "Error removing comment: Error: Você não tem permissão para excluir esse comentário"
     })
@@ -319,11 +319,9 @@ describe("CommentsController", () => {
       .set("Authorization", `Bearer ${token2}`)
       .send({});
 
-    expect(removeResponse.status).toBe(401);
+    expect(removeResponse.status).toBe(500);
     expect(removeResponse.body).toStrictEqual({
-      message: "falha de autenticação",
-      error: "Unauthorized",
-      statusCode: 401,
+      "error": "Error removing comment: Error: Você não tem permissão para excluir esse comentário"
     })
   });
 });

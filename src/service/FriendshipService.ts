@@ -85,7 +85,7 @@ export class FriendshipService implements IFriendshipService {
 
   //implementação do método para deletar amizade entre dois usuários
   async deleteFriendship(requesterId: string, addressedId: string): Promise<void> {
-    return this.friendshipRepository.deleteFriendship(requesterId, addressedId);
+    await this.friendshipRepository.deleteFriendship(requesterId, addressedId);
   }
 
   //implementação do método para retornar lista de usuários

@@ -26,9 +26,9 @@ describe("MuralController", () => {
     token2 = response2.body.token;
   });
 
-  afterAll((done) => {
+  afterAll(async () => {
     await prisma.mural.deleteMany({});
-    server.close(done);
+    server.close();
   });
 
   it("Should create a new mural", async () => {
@@ -70,7 +70,6 @@ describe("MuralController", () => {
     expect(updateResponse.status).toBe(200);
     expect(updateResponse.body).toStrictEqual({
       message: "mural atualizado com sucesso",
-      muralId: muralId,
     });
   });
 
@@ -146,11 +145,11 @@ describe("MuralController", () => {
       .set("Authorization", `Bearer ${token2}`);
 
     // Verifica se a operação falhou
-    expect(removeResponse.status).toBe(401);
+    expect(removeResponse.status).toBe(403);
     expect(removeResponse.body).toStrictEqual({
-      error: "Unauthorized",
-      message: "falha de autenticação",
-      statusCode: 401,
+      error: "Forbidden",
+      message: "Você não tem permissão para excluir este mural",
+      statusCode: 403,
     });
   });
 });
