@@ -2,7 +2,7 @@ import { Friendship, PrismaClient, User } from "@prisma/client";
 
 //Friendship system repository
 
-export type FriendshipStatus = "ACCEPTED" | "DENIED";
+export type FriendshipStatus = "ACCEPTED" | "DENIED" | "BLOCKED";
 
 //interface para descrever os métodos que o repositório deve implementar
 export interface IFriendshipRepository {
@@ -16,7 +16,8 @@ export interface IFriendshipRepository {
     addressedId: string
   ): Promise<Friendship>;
   acceptFriendship(id: string, status: string): Promise<Friendship>;
-  deleteFriendship(requesterId: string, addressedId: string): Promise<void>;
+  blockFriendship(id: string, status: string): Promise<Friendship>;
+  deleteFriendship(id: string): Promise<void>;
   getFriends(userId: string): Promise<User[] | null>;
 }
 
@@ -74,21 +75,25 @@ export class FriendshipRepository implements IFriendshipRepository {
     });
   }
 
+  async blockFriendship(id: string, status: string): Promise<Friendship> {
+      return await this.prisma.friendship.update({
+        where: {
+          id,
+        },
+        data: {
+          status,
+        }
+      })
+  }
+
   //implementa o método deleteFriendship para deletar uma amizade
-  async deleteFriendship(
-    requesterId: string,
-    addressedId: string
-  ): Promise<void> {
-    await this.prisma.friendship.deleteMany({
+  async deleteFriendship(id: string): Promise<void> {
+    await this.prisma.friendship.delete({
       where: {
-        OR: [
-          { requesterId, addressedId },
-          { requesterId: addressedId, addressedId: requesterId },
-        ],
-        status: "ACCEPTED",
+        id: id,
       },
     });
-  }
+}
 
   //implementa o método que retorna a lista de amizades;
   async getFriends(userId: string): Promise<User[] | null> {

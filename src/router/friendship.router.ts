@@ -29,7 +29,7 @@ export function registerFriendshipRoutes(
 
   //rota responsável por deletar uma amizade por seu ID
   fastify.delete(
-    "/friendship/:addressedId",
+    "/friendship/:id",
     { preHandler: [authenticate] },
     friendshipController.deleteFriendship.bind(friendshipController)
   );

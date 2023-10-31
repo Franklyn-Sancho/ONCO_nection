@@ -76,16 +76,16 @@ export class FriendshipController implements IFriendshipController {
     request: FastifyRequest,
     reply: FastifyReply
   ): Promise<void> {
-    const { addressedId } = request.params as any;
+    const { id } = request.params as any;
     const { userId: requesterId } = request.user as any;
 
-    await this.friendshipService.deleteFriendship(requesterId, addressedId);
+    await this.friendshipService.deleteFriendship(requesterId, id);
     return reply.send({
       message: "Amizade desfeita com sucesso",
     });
   }
 
-  //implementa o método para retornar a lista de usuários
+
   async getFriends(
     request: FastifyRequest,
     reply: FastifyReply

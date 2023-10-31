@@ -17,6 +17,7 @@ export interface IFriendshipService {
     status: FriendshipStatus,
     userId: string
   ): Promise<Friendship>;
+  /* blockFriendship(id: string, status: string): Promise<Friendship> */
   deleteFriendship(requesterId: string, addressedId: string): Promise<void>;
   getFriends(userId: string): Promise<User[] | null>;
 }
@@ -62,30 +63,51 @@ export class FriendshipService implements IFriendshipService {
     status: FriendshipStatus,
     userId: string
   ): Promise<Friendship> {
-    const existingFriendship = await this.friendshipRepository.getFriendshipById(id);
+    const existingFriendship =
+      await this.friendshipRepository.getFriendshipById(id);
 
     if (!existingFriendship)
       throw new BadRequestError("A solicitação de amizade não existe");
 
     if (existingFriendship.status === "ACCEPTED")
-      throw new BadRequestError("Uma solicitação de amizade ja foi enciada");
+      throw new BadRequestError("Uma solicitação de amizade ja foi enviada");
 
-      if (existingFriendship.addressedId !== userId)
-      throw new ForbiddenError("Você não tem permissão para aceitar esta solicitação de amizade");
+    if (existingFriendship.addressedId !== userId)
+      throw new ForbiddenError(
+        "Você não tem permissão para aceitar esta solicitação de amizade"
+      );
 
     const { requesterId, addressedId } = existingFriendship;
 
-    const acceptFriendship = await this.friendshipRepository.acceptFriendship(id, status);
+    const acceptFriendship = await this.friendshipRepository.acceptFriendship(
+      id,
+      status
+    );
 
     if (status === "ACCEPTED")
       await this.chatService.createChat(requesterId, addressedId);
-    
-      return acceptFriendship
+
+    return acceptFriendship;
   }
 
+  /* async blockFriendship(id: string, status: string): Promise<Friendship> {
+      return 
+  } */
+
   //implementação do método para deletar amizade entre dois usuários
-  async deleteFriendship(requesterId: string, addressedId: string): Promise<void> {
-    await this.friendshipRepository.deleteFriendship(requesterId, addressedId);
+  async deleteFriendship(requesterId: string, id: string): Promise<void> {
+    const friendship = await this.friendshipRepository.getFriendshipById(id);
+
+    if (
+      friendship?.requesterId !== requesterId &&
+      friendship?.addressedId !== requesterId
+    ) {
+      throw new ForbiddenError(
+        "Você não tem permissão para deletar esta amizade"
+      );
+    }
+
+    await this.friendshipRepository.deleteFriendship(id);
   }
 
   //implementação do método para retornar lista de usuários
