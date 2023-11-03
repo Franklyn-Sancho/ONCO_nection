@@ -76,17 +76,19 @@ export class MuralController implements IMuralController {
     });
 
     try {
-      /* const data = muralValidations.parse(request.body); */
+      const isValid = await validateRequest(request, reply, muralValidations);
 
-      const { muralId } = request.params as MuralParams;
-      const { body } = request.body as CreateMuralData;
+      if (isValid) {
+        const { muralId } = request.params as MuralParams;
+        const { body } = request.body as CreateMuralData;
 
-      const { userId } = request.user as UserParams;
+        const { userId } = request.user as UserParams;
 
-      await this.muralService.updateMural(muralId, body, userId);
-      reply.code(200).send({
-        message: "mural atualizado com sucesso",
-      });
+        await this.muralService.updateMural(muralId, body, userId);
+        reply.code(200).send({
+          message: "mural atualizado com sucesso",
+        });
+      }
     } catch (error) {
       reply.code(400).send(error);
     }

@@ -17,7 +17,6 @@ export interface IFriendshipService {
     status: FriendshipStatus,
     userId: string
   ): Promise<Friendship>;
-  /* blockFriendship(id: string, status: string): Promise<Friendship> */
   deleteFriendship(requesterId: string, addressedId: string): Promise<void>;
   getFriends(userId: string): Promise<User[] | null>;
 }
@@ -77,12 +76,13 @@ export class FriendshipService implements IFriendshipService {
         "Você não tem permissão para aceitar esta solicitação de amizade"
       );
 
-    const { requesterId, addressedId } = existingFriendship;
-
     const acceptFriendship = await this.friendshipRepository.acceptFriendship(
       id,
       status
     );
+
+    //create a chat 
+    const { requesterId, addressedId } = existingFriendship;
 
     if (status === "ACCEPTED")
       await this.chatService.createChat(requesterId, addressedId);
@@ -90,9 +90,6 @@ export class FriendshipService implements IFriendshipService {
     return acceptFriendship;
   }
 
-  /* async blockFriendship(id: string, status: string): Promise<Friendship> {
-      return 
-  } */
 
   //implementação do método para deletar amizade entre dois usuários
   async deleteFriendship(requesterId: string, id: string): Promise<void> {

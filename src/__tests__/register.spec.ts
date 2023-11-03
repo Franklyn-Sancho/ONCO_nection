@@ -21,7 +21,7 @@ describe("UserController", () => {
     server.close();
   });
 
-  //pass just with mail up
+  //This pass just if nodemailer is up (check utils/nodemailer.ts)
   it("Should create a user", async () => {
     const response = await request(server.server).post("/user/register").send({
       name: "Test User Register",
@@ -70,7 +70,7 @@ describe("UserController", () => {
     });
   });
 
-  it("Should to return email error", async () => {
+  it("should return an error if the email already exists", async () => {
     const response = await request(server.server).post("/user/register").send({
       name: "test1",
       email: "test1@email.com",

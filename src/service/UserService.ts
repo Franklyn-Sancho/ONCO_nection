@@ -1,8 +1,10 @@
-import { User } from "@prisma/client";
-import UserRepository from "../repository/UserRepository";
+import { PrismaClient, User } from "@prisma/client";
+import UserRepository, { UserName } from "../repository/UserRepository";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import EmailService, { IEmailService, transporter } from "../utils/nodemailer";
+import { BadRequestError } from "../errors/BadRequestError";
+import { getBlockedUsers } from "../utils/getBlockedUsers";
 
 export default class UserService {
   private userRepository: UserRepository;
@@ -25,6 +27,17 @@ export default class UserService {
     await this.emailService.sendConfirmationEmail(createdUser);
 
     return createdUser;
+  }
+
+  async findUserByName(
+    name: string,
+    userId: string
+  ): Promise<UserName[] | null> {
+    // Obtenha a lista de usuários que o usuário bloqueou
+    const allBlockedUsers = await getBlockedUsers(userId);
+
+    // Use a função findUserByName na camada de repositório, passando a lista de IDs de usuário bloqueados
+    return this.userRepository.findUserByName(name, allBlockedUsers);
   }
 
   async authenticate(
@@ -52,4 +65,13 @@ export default class UserService {
 
     return { success: true, message: token };
   }
+
+  async blockUser(blockerId: string, blockedId: string) {
+    if (blockedId == blockerId)
+      throw new BadRequestError("O usuário não pode bloquear a si mesmo");
+
+    await this.userRepository.blockUser(blockerId, blockedId);
+  }
+
+  
 }

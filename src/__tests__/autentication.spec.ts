@@ -54,7 +54,7 @@ describe("UserController", () => {
   it("should to return a authentication error", async () => {
     const response = await request(server.server).post("/user/login").send({
       email: "test-authentication@example.com",
-      password: "1234",
+      password: "1234", //12345
     });
   
     expect(response.status).toBe(401);

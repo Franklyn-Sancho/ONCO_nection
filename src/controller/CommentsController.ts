@@ -3,8 +3,6 @@ import { ICommentService } from "../service/CommentsService";
 import { z } from "zod";
 import { validateRequest } from "../utils/validateRequest";
 import { UnauthorizedError } from "../errors/UnauthorizedError";
-import { UserRequest } from "../types/userTypes";
-import { BodyParams } from "../types/bodyTypes";
 import { UserParams } from "../types/usersTypes";
 import { CommentParams, CommentTypes } from "../types/commentTypes";
 

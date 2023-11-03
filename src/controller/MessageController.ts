@@ -31,7 +31,6 @@ export class MessageController implements IMessageController {
         message: "Mensagem enviada com sucesso",
       });
     } catch (error) {
-      console.log(request.body, request.user)
       reply.code(500).send({
         message: "Ocorreu um erro, tente novamente mais tarde",
       });

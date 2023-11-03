@@ -73,12 +73,23 @@ model User {
   sentMessages     Message[] @relation(name: "Sender")
   receivedMessages Message[] @relation(name: "Recipient")
 
-  initiatedChats Chat[]     @relation(name: "ChatToInitiator")
-  receivedChats  Chat[]     @relation(name: "ChatToParticipant")
+  initiatedChats Chat[]       @relation(name: "ChatToInitiator")
+  receivedChats  Chat[]       @relation(name: "ChatToParticipant")
   Meetings       Meetings[]
   Comments       Comments[]
   Likes          Likes[]
   Mural          Mural[]
+  blockerUsers   UserBlocks[] @relation(name: "Blocker")
+  blockedByUsers UserBlocks[] @relation(name: "Blocked")
+}
+
+model UserBlocks {
+  id        String @id @default(cuid())
+  blockerId String
+  blockedId String
+
+  blocker User @relation(name: "Blocker", fields: [blockerId], references: [id])
+  blocked User @relation(name: "Blocked", fields: [blockedId], references: [id])
 }
 
 model Friendship {
@@ -98,12 +109,12 @@ model Visitor {
 }
 
 model Message {
-  id          String  @id @default(cuid())
+  id          String @id @default(cuid())
   content     String
   senderId    String
-  sender      User    @relation(fields: [senderId], references: [id], name: "Sender")
+  sender      User   @relation(fields: [senderId], references: [id], name: "Sender")
   recipientId String
-  recipient   User    @relation(fields: [recipientId], references: [id], name: "Recipient")
+  recipient   User   @relation(fields: [recipientId], references: [id], name: "Recipient")
   chatId      String
   Chat        Chat   @relation(fields: [chatId], references: [id])
 }
@@ -111,9 +122,9 @@ model Message {
 model Chat {
   id            String    @id @default(cuid())
   initiatorId   String
-  initiator     User      @relation(fields: [initiatorId], references: [id], name:"ChatToInitiator")
+  initiator     User      @relation(fields: [initiatorId], references: [id], name: "ChatToInitiator")
   participantId String
-  participant   User      @relation(fields: [participantId], references: [id], name:"ChatToParticipant")
+  participant   User      @relation(fields: [participantId], references: [id], name: "ChatToParticipant")
   messages      Message[]
 }
 

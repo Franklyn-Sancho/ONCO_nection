@@ -48,7 +48,6 @@ describe("MeetingController", () => {
   });
 
   it("Should update a meeting", async () => {
-    // Cria um novo meeting
     const createResponse = await request(server.server)
       .post("/meetings/create")
       .send({
@@ -58,7 +57,6 @@ describe("MeetingController", () => {
       })
       .set("Authorization", `Bearer ${token}`);
 
-    // Extrai o ID do meeting criado
     const meetingId = createResponse.body.meetingId;
 
     // Atualiza o meeting
@@ -88,10 +86,8 @@ describe("MeetingController", () => {
       })
       .set("Authorization", `Bearer ${token}`);
 
-    // Extrai o ID do meeting criado
     const meetingId = createResponse.body.meetingId;
 
-    // Atualiza o meeting
     const deleteResponse = await request(server.server)
       .delete(`/meetings/${meetingId}/delete`)
       .set("Authorization", `Bearer ${token}`);
@@ -107,7 +103,6 @@ describe("MeetingController", () => {
       .post("/meetings/create")
       .send({
         type: "type",
-        /* title: "title", */
         body: "body",
       })
       .set("Authorization", `Bearer ${token}`);
@@ -124,7 +119,6 @@ describe("MeetingController", () => {
       .send({
         type: "type",
         title: "title",
-        /* body: "body", */
       })
       .set("Authorization", `Bearer ${token}`);
 
@@ -140,9 +134,7 @@ describe("MeetingController", () => {
       .send({
         type: "type",
         title: "title",
-        /* body: "body", */
       });
-    /* .set("Authorization", `Bearer ${token}`);*/
 
     expect(response.status).toBe(401);
     expect(response.body).toStrictEqual({
@@ -169,7 +161,6 @@ describe("MeetingController", () => {
       .delete(`/meetings/${meetingId}/delete`)
       .set("Authorization", `Bearer ${token2}`);
 
-    // Verifica se a operação falhou
     expect(removeResponse.status).toBe(403);
     expect(removeResponse.body).toStrictEqual({
       error: "Forbidden",

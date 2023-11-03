@@ -1,10 +1,10 @@
 import { Mural } from "@prisma/client";
-import {
-  CreateMuralData,
-  IMuralRepository,
-} from "../repository/MuralRepository";
+
 import { NotFoundError } from "../errors/NotFoundError";
 import { ForbiddenError } from "../errors/ForbiddenError";
+import { CreateMuralData } from "../types/muralTypes";
+import { IMuralRepository } from "../repository/MuralRepository";
+import { getBlockedUsers } from "../utils/getBlockedUsers";
 
 export interface IMuralService {
   createMural(data: CreateMuralData): Promise<Mural>;
@@ -21,6 +21,7 @@ export class MuralService implements IMuralService {
   }
 
   async getMurals(userId: string): Promise<Mural[] | null> {
+
     return await this.muralRepository.getMuralsIfFriends(userId);
   }
 
@@ -36,7 +37,9 @@ export class MuralService implements IMuralService {
     }
 
     if (existingMural.userId !== userId) {
-      throw new ForbiddenError("Você não tem permissão para atualizar este mural");
+      throw new ForbiddenError(
+        "Você não tem permissão para atualizar este mural"
+      );
     }
 
     return await this.muralRepository.updateMural(muralId, body);

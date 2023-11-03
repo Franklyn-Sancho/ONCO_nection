@@ -16,7 +16,6 @@ export interface IFriendshipRepository {
     addressedId: string
   ): Promise<Friendship>;
   acceptFriendship(id: string, status: string): Promise<Friendship>;
-  blockFriendship(id: string, status: string): Promise<Friendship>;
   deleteFriendship(id: string): Promise<void>;
   getFriends(userId: string): Promise<User[] | null>;
 }
@@ -73,17 +72,6 @@ export class FriendshipRepository implements IFriendshipRepository {
         status,
       },
     });
-  }
-
-  async blockFriendship(id: string, status: string): Promise<Friendship> {
-      return await this.prisma.friendship.update({
-        where: {
-          id,
-        },
-        data: {
-          status,
-        }
-      })
   }
 
   //implementa o método deleteFriendship para deletar uma amizade

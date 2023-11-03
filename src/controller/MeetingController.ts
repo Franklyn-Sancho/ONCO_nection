@@ -92,9 +92,6 @@ export class MeetingController implements IMeetingController {
     });
 
     try {
-      /*  const isValid = await validateRequest(request, reply, meetingValidations); */
-
-      /* if (isValid) { */
       const data = meetingValidations.parse(request.body);
       const { meetingId } = request.params as MeetingParams;
       const { userId } = request.user as UserParams;
@@ -103,7 +100,6 @@ export class MeetingController implements IMeetingController {
       reply.code(200).send({
         message: "Meeting atualizado com sucesso",
       });
-      /* } */
     } catch (error) {
       reply.code(500).send(error);
     }

@@ -52,51 +52,30 @@ describe("FriendshipsController", () => {
       .set("Authorization", `Bearer ${token2}`);
   });
 
-  afterEach(async () => {
-    await prisma.friendship.deleteMany({});
-    await prisma.chat.deleteMany({})
-  });
-
   afterAll(async () => {
     await prisma.friendship.deleteMany({});
     await prisma.chat.deleteMany({})
     server.close();
   });
 
-  /* it("Should to send a friendship solicitation", async () => {
+  it("Should to send a friendship solicitation", async () => {
     const response = await request(server.server)
       .post("/friendships")
       .send({
-        addressedId: "cln8wl1bb0002c0ia18saphih",
+        addressedId: "cloegg7st0000c0rlhrhej8mx",
       })
       .set("Authorization", `Bearer ${token}`);
 
-    const friendshipId = response.body.friendshipId;
+    const friendship = response.body.friendshipId;
 
     expect(response.status).toBe(200);
     expect(response.body).toStrictEqual({
       message: "Solicitação de amizade enviada",
-      friendshipId: friendshipId,
+      friendshipId: friendship,
     });
 
     await prisma.friendship.deleteMany({});
   });
-
-  it("Should to accept a friendship solicitation", async () => {
-    const acceptFriendship = await request(server.server)
-      .put(`/friendships/${friendshipId}`)
-      .send({
-        status: "ACCEPTED",
-      })
-      .set("Authorization", `Bearer ${token2}`);
-
-    console.log(friendshipId);
-
-    expect(acceptFriendship.status).toBe(200);
-    expect(acceptFriendship.body).toStrictEqual({
-      message: "Solicitação de amizade aceita",
-    });
-  }); */
 
   it("addressed should to delete a friendship", async () => {
     const deleteFriendship = await request(server.server)

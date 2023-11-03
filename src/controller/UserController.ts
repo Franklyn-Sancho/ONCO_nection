@@ -6,6 +6,8 @@ import {
   userAutenticateValidade,
 } from "../utils/userValidations";
 import { validateRequest } from "../utils/validateRequest";
+import { UserParams } from "../types/usersTypes";
+import { BadRequestError } from "../errors/BadRequestError";
 
 const prisma = new PrismaClient();
 
@@ -31,6 +33,27 @@ export default class UserController {
     } catch {
       reply.status(500).send({
         message: "verifique seus dados",
+      });
+    }
+  }
+
+  async findUserByName(
+    request: FastifyRequest,
+    reply: FastifyReply
+  ): Promise<void> {
+    try {
+      const { name } = request.params as any;
+      const { userId } = request.user as UserParams;
+
+      const getUserByName = await this.userService.findUserByName(name, userId);
+
+      reply.send({
+        message: "usuários encontrados",
+        content: getUserByName,
+      });
+    } catch (error) {
+      reply.status(500).send({
+        error: `ocorreu um erro: ${error}`,
       });
     }
   }
@@ -86,6 +109,30 @@ export default class UserController {
       reply.send("Seu email foi confirmado com sucesso");
     } else {
       reply.send("O link de confirmação é inválido ou expirou");
+    }
+  }
+
+  async blockUser(request: FastifyRequest, reply: FastifyReply) {
+    try {
+      const { userId: blockerId } = request.user as UserParams;
+      const { blockedId } = request.params as any;
+
+      await this.userService.blockUser(blockerId, blockedId);
+
+      reply.status(200).send({
+        message: "Usuário bloqueado com sucesso",
+      });
+    } catch (error) {
+      if (error instanceof BadRequestError) {
+        reply.code(error.statusCode).send({
+          error: error.message,
+        });
+      } else {
+        console.log(request.body);
+        reply.code(500).send({
+          error: error,
+        });
+      }
     }
   }
 }

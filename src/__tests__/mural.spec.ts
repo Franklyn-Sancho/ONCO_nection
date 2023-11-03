@@ -54,12 +54,10 @@ describe("MuralController", () => {
       })
       .set("Authorization", `Bearer ${token}`);
 
-    // Extrai o ID do meeting criado
     const muralId = createResponse.body.muralId;
 
     console.log(muralId);
 
-    // Atualiza o meeting
     const updateResponse = await request(server.server)
       .put(`/mural/${muralId}/update`)
       .send({
@@ -74,7 +72,6 @@ describe("MuralController", () => {
   });
 
   it("Should delete a mural", async () => {
-    // Cria um novo meeting
     const createResponse = await request(server.server)
       .post("/mural/create")
       .send({
@@ -82,12 +79,10 @@ describe("MuralController", () => {
       })
       .set("Authorization", `Bearer ${token}`);
 
-    // Extrai o ID do meeting criado
     const muralId = createResponse.body.muralId;
 
     console.log(muralId);
 
-    // Atualiza o meeting
     const deleteResponse = await request(server.server)
       .delete(`/mural/${muralId}/delete`)
       .set("Authorization", `Bearer ${token}`);
@@ -103,7 +98,6 @@ describe("MuralController", () => {
     const response = await request(server.server)
       .post("/mural/create")
       .send({
-        /* body: "body", */
       })
       .set("Authorization", `Bearer ${token}`);
 
@@ -117,7 +111,6 @@ describe("MuralController", () => {
     const response = await request(server.server).post("/mural/create").send({
       body: "body",
     });
-    /* .set("Authorization", `Bearer ${token}`);*/
 
     expect(response.status).toBe(401);
     expect(response.body).toStrictEqual({
@@ -128,7 +121,6 @@ describe("MuralController", () => {
   });
 
   it("Should not allow user to delete another user's mural", async () => {
-    // Cria um novo comentário usando a primeira conta de usuário
     const createResponse = await request(server.server)
       .post("/mural/create")
       .send({
@@ -136,15 +128,12 @@ describe("MuralController", () => {
       })
       .set("Authorization", `Bearer ${token}`);
 
-    // Extrai o ID do meeting criado
     const muralId = createResponse.body.muralId;
 
-    // Tenta excluir o comentário usando a segunda conta de usuário
     const removeResponse = await request(server.server)
       .delete(`/mural/${muralId}/delete`)
       .set("Authorization", `Bearer ${token2}`);
 
-    // Verifica se a operação falhou
     expect(removeResponse.status).toBe(403);
     expect(removeResponse.body).toStrictEqual({
       error: "Forbidden",
