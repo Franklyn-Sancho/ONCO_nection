@@ -1,6 +1,5 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import { ILikeService } from "../service/LikeService";
-import { UserRequest } from "../types/userTypes";
 import { LikeParams, LikesTypes } from "../types/likesTypes";
 import { UserParams } from "../types/usersTypes";
 

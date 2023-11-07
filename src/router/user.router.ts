@@ -1,8 +1,7 @@
 import { FastifyInstance } from "fastify";
-import UserController from "../controller/UserController";
 import { authenticate } from "../plugins/authenticate";
+import { userController } from "../utils/providers";
 
-const userController = new UserController();
 
 //user router to register, login and test authentication router
 export default async function userRouter(fastify: FastifyInstance) {
@@ -18,11 +17,11 @@ export default async function userRouter(fastify: FastifyInstance) {
     userController.confirmEmail.bind(userController)
   );
 
-  fastify.get(
+  /* fastify.get(
     "/user/finduser/:name",
     { preHandler: [authenticate] },
     userController.findUserByName.bind(userController)
-  );
+  ); */
 
   fastify.post(
     "/user/blockuser/:blockedId",

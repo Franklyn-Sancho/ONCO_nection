@@ -1,25 +1,47 @@
-import { PrismaClient, User } from "@prisma/client";
-import UserRepository, { UserName } from "../repository/UserRepository";
+import { Prisma, PrismaClient, User, UserBlocks } from "@prisma/client";
+import UserRepository, {
+  IUserRepository,
+  UserName,
+} from "../repository/UserRepository";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import EmailService, { IEmailService, transporter } from "../utils/nodemailer";
 import { BadRequestError } from "../errors/BadRequestError";
 import { getBlockedUsers } from "../utils/getBlockedUsers";
+import { NotFoundError } from "../errors/NotFoundError";
+import { CreateUserData } from "../types/usersTypes";
 
-export default class UserService {
-  private userRepository: UserRepository;
+export interface IUserService {
+  register(user: CreateUserData): Promise<User>;
+  findUserByName(name: string, userId: string): Promise<UserName[] | null>;
+  authenticate(user: User): Promise<{ success: boolean; message: string }>;
+  blockUser(blockerId: string, blockedId: string): Promise<void>;
+}
+
+export default class UserService implements IUserService {
+  private userRepository: IUserRepository;
   private emailService: IEmailService;
 
-  constructor() {
-    this.userRepository = new UserRepository();
-    this.emailService = new EmailService(transporter, this.userRepository);
+  constructor(userRepository: IUserRepository, emailService: IEmailService) {
+    this.userRepository = userRepository;
+    this.emailService = emailService;
   }
 
   private async hashPassword(password: string): Promise<string> {
     return await bcrypt.hash(password, 10);
   }
 
-  async register(user: User): Promise<User> {
+  /* async register(user: User): Promise<User> {
+    user.password = await this.hashPassword(user.password);
+
+    const createdUser = await this.userRepository.create(user);
+
+    await this.emailService.sendConfirmationEmail(createdUser);
+
+    return createdUser;
+  } */
+
+  async register(user: CreateUserData): Promise<User> {
     user.password = await this.hashPassword(user.password);
 
     const createdUser = await this.userRepository.create(user);
@@ -34,10 +56,10 @@ export default class UserService {
     userId: string
   ): Promise<UserName[] | null> {
     // Obtenha a lista de usuários que o usuário bloqueou
-    const allBlockedUsers = await getBlockedUsers(userId);
+    const blockedUserIds = await getBlockedUsers(userId);
 
     // Use a função findUserByName na camada de repositório, passando a lista de IDs de usuário bloqueados
-    return this.userRepository.findUserByName(name, allBlockedUsers);
+    return this.userRepository.findUserByName(name, blockedUserIds);
   }
 
   async authenticate(
@@ -67,11 +89,22 @@ export default class UserService {
   }
 
   async blockUser(blockerId: string, blockedId: string) {
+    const existingUser = await this.userRepository.findUserById(blockedId);
+
+    if (!existingUser)
+      throw new NotFoundError("Nenhum usuário com esse ID foi encontrado");
+
+    const existingBlock = await this.userRepository.findUserBlockRecord(
+      blockerId,
+      blockedId
+    );
+
+    if (existingBlock)
+      throw new BadRequestError("Você já bloqueou esse usuário");
+
     if (blockedId == blockerId)
       throw new BadRequestError("O usuário não pode bloquear a si mesmo");
 
     await this.userRepository.blockUser(blockerId, blockedId);
   }
-
-  
 }

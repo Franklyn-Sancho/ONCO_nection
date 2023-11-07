@@ -1,6 +1,5 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import { IMessageService } from "../service/MessageService";
-import { Message } from "@prisma/client";
 import { UserRequest } from "../types/userTypes";
 
 export interface IMessageController {

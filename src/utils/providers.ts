@@ -24,11 +24,20 @@ import { MessageService } from "../service/MessageService";
 import { MessageController } from "../controller/MessageController";
 import { Server } from "http";
 import * as socketIo from "socket.io";
+import UserRepository from "../repository/UserRepository";
+import EmailService, { transporter } from "./nodemailer";
+import UserService from "../service/UserService";
+import UserController from "../controller/UserController";
 
 const httpServer = new Server();
 const io = new socketIo.Server(httpServer);
 
+
 const prisma = new PrismaClient();
+const userRepository = new UserRepository(prisma);
+const emailService = new EmailService(transporter, userRepository);
+const userService = new UserService(userRepository, emailService);
+const userController = new UserController(prisma, userService)
 
 const likeRepository = new LikeRepository(prisma);
 const likeService = new LikeService(likeRepository);
@@ -74,5 +83,6 @@ export {
   chatService,
   chatController,
   messageService,
-  messageController
+  messageController,
+  userController
 };

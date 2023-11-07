@@ -59,6 +59,7 @@ model Mural {
 
 model User {
   id                       String    @id @default(cuid())
+  imageProfile             String?
   name                     String
   email                    String    @unique
   password                 String

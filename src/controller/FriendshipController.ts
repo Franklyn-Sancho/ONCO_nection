@@ -1,7 +1,6 @@
 import { Friendship, User } from "@prisma/client";
 import { IFriendshipService } from "../service/FriendshipService";
 import { FastifyReply, FastifyRequest } from "fastify";
-import { UserRequest } from "../types/userTypes";
 import { UserParams } from "../types/usersTypes";
 import { FriendshipTypes } from "../types/friendshipTypes";
 

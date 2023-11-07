@@ -6,17 +6,12 @@ import { handleImageUpload } from "../service/FileService";
 import { ILikeController } from "./LikeController";
 import { IMeetingRepository } from "../repository/MeetingRepository";
 import { ICommentController } from "./CommentsController";
-import { BodyParams } from "../types/bodyTypes";
 import { CreateMeetingData, MeetingParams } from "../types/meetingTypes";
 import { UserParams } from "../types/usersTypes";
 import { CommentParams } from "../types/commentTypes";
 import { LikeParams } from "../types/likesTypes";
 
-/* interface MeetingLikeRequestBody {
-  meetingId: string;
-} */
 
-//interface de métodos da classe MeetingController
 export interface IMeetingController {
   createMeeting(request: FastifyRequest, reply: FastifyReply): Promise<void>;
   updateMeeting(request: FastifyRequest, reply: FastifyReply): Promise<void>;

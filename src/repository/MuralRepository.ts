@@ -1,7 +1,6 @@
 import { Mural, PrismaClient } from "@prisma/client";
 import { CreateMuralData } from "../types/muralTypes";
 
-//interface repository mural
 export interface IMuralRepository {
   createMural(data: CreateMuralData): Promise<Mural>;
   getMuralById(muralId: string): Promise<Mural | null>;
@@ -10,7 +9,6 @@ export interface IMuralRepository {
   deleteMural(muralId: string): Promise<Mural>;
 }
 
-//MeetingRepository class implement interface
 export class MuralRepository implements IMuralRepository {
   private prisma: PrismaClient;
 

@@ -1,6 +1,5 @@
 import { Friendship, PrismaClient, User } from "@prisma/client";
 
-//Friendship system repository
 
 export type FriendshipStatus = "ACCEPTED" | "DENIED" | "BLOCKED";
 

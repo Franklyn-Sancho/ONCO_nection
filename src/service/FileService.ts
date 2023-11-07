@@ -10,7 +10,7 @@ const uploadDir = "./upload";
 export async function uploadImage(fileBuffer: Buffer, filename: string) {
   const filePath = path.join(uploadDir, filename);
 
-  //o diretório uploadDir será criado se ele não existir
+  //o diretório upload será criado se ele não existir
   if (!fs.existsSync(uploadDir)) {
     fs.mkdirSync(uploadDir);
   }
@@ -45,7 +45,6 @@ export async function handleImageUpload(
     const filename = image[0].filename;
     const filePath = await handleMultipartFormData(imageBuffer, filename);
 
-    // Lê o arquivo e codifica em base64
     const fileContent = fs.readFileSync(filePath);
     const base64Image = fileContent.toString('base64');
 

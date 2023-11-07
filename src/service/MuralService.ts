@@ -4,7 +4,6 @@ import { NotFoundError } from "../errors/NotFoundError";
 import { ForbiddenError } from "../errors/ForbiddenError";
 import { CreateMuralData } from "../types/muralTypes";
 import { IMuralRepository } from "../repository/MuralRepository";
-import { getBlockedUsers } from "../utils/getBlockedUsers";
 
 export interface IMuralService {
   createMural(data: CreateMuralData): Promise<Mural>;

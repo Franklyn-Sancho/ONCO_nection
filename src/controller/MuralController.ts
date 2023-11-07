@@ -5,8 +5,6 @@ import { validateRequest } from "../utils/validateRequest";
 import { z } from "zod";
 import { ILikeController } from "./LikeController";
 import { ICommentController } from "./CommentsController";
-import { UserRequest } from "../types/userTypes";
-import { BodyParams } from "../types/bodyTypes";
 import { CreateMuralData, MuralParams } from "../types/muralTypes";
 import { UserParams } from "../types/usersTypes";
 import { LikeParams } from "../types/likesTypes";

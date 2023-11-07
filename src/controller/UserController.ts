@@ -1,30 +1,50 @@
 import { FastifyReply, FastifyRequest } from "fastify";
-import UserService from "../service/UserService";
+import UserService, { IUserService } from "../service/UserService";
 import { PrismaClient, User } from "@prisma/client";
 import {
   userRegisterValidade,
   userAutenticateValidade,
 } from "../utils/userValidations";
 import { validateRequest } from "../utils/validateRequest";
-import { UserParams } from "../types/usersTypes";
+import { CreateUserData, UserParams } from "../types/usersTypes";
 import { BadRequestError } from "../errors/BadRequestError";
+import { NotFoundError } from "../errors/NotFoundError";
+import { handleImageUpload } from "../service/FileService";
+import { getBlockedUsers } from "../utils/getBlockedUsers";
+import { UserName } from "../repository/UserRepository";
 
-const prisma = new PrismaClient();
+export interface IUserController {
+  register(request: FastifyRequest, reply: FastifyReply): Promise<void>;
+  /* findUserByName(
+    request: FastifyRequest,
+    reply: FastifyReply
+  ): Promise<UserName[] | null>; */
+  authenticate(
+    request: FastifyRequest<{ Body: User }>,
+    reply: FastifyReply
+  ): Promise<void>;
+  confirmEmail(request: FastifyRequest, reply: FastifyReply): Promise<void>;
+  blockUser(request: FastifyRequest, reply: FastifyReply): Promise<void>;
+}
 
 //class user controller
-export default class UserController {
-  private userService: UserService;
+export default class UserController implements IUserController {
+  private prisma: PrismaClient;
+  private userService: IUserService;
 
-  constructor() {
-    this.userService = new UserService();
+  constructor(prisma: PrismaClient, userService: IUserService) {
+    this.prisma = prisma;
+    this.userService = userService;
   }
 
   //createUser function
-  async register(
+  /* async register(
     request: FastifyRequest<{ Body: User }>,
     reply: FastifyReply
   ): Promise<void> {
     try {
+
+
       await validateRequest(request, reply, userRegisterValidade);
       await this.userService.register(request.body);
       reply.status(201).send({
@@ -35,9 +55,33 @@ export default class UserController {
         message: "verifique seus dados",
       });
     }
+  } */
+
+  async register(request: FastifyRequest, reply: FastifyReply): Promise<void> {
+    try {
+      await validateRequest(request, reply, userRegisterValidade);
+
+      const { name, email, password } = request.body as CreateUserData;
+
+      const base64Image = await handleImageUpload(request);
+
+      await this.userService.register({
+        name,
+        email,
+        password,
+        image: base64Image,
+      });
+      reply.status(201).send({
+        message: "Registro feito com sucesso",
+      });
+    } catch (error) {
+      reply.status(500).send({
+        message: "verifique seus dados",
+      });
+    }
   }
 
-  async findUserByName(
+  /* async findUserByName(
     request: FastifyRequest,
     reply: FastifyReply
   ): Promise<void> {
@@ -45,7 +89,13 @@ export default class UserController {
       const { name } = request.params as any;
       const { userId } = request.user as UserParams;
 
-      const getUserByName = await this.userService.findUserByName(name, userId);
+      // Obtenha a lista de usuários que o usuário bloqueou
+      const blockedUserIds = await getBlockedUsers(userId);
+
+      const getUserByName = await this.userService.findUserByName(
+        name,
+        blockedUserIds
+      );
 
       reply.send({
         message: "usuários encontrados",
@@ -56,7 +106,7 @@ export default class UserController {
         error: `ocorreu um erro: ${error}`,
       });
     }
-  }
+  } */
 
   async authenticate(
     request: FastifyRequest<{ Body: User }>,
@@ -88,7 +138,7 @@ export default class UserController {
     }
 
     // Busca o usuário pelo token de confirmação de email
-    const user = await prisma.user.findUnique({
+    const user = await this.prisma.user.findUnique({
       where: { emailConfirmationToken: token },
     });
 
@@ -97,7 +147,7 @@ export default class UserController {
       user.emailConfirmationExpires &&
       user.emailConfirmationExpires > new Date()
     ) {
-      await prisma.user.update({
+      await this.prisma.user.update({
         where: {
           id: user.id,
         },
@@ -123,7 +173,7 @@ export default class UserController {
         message: "Usuário bloqueado com sucesso",
       });
     } catch (error) {
-      if (error instanceof BadRequestError) {
+      if (error instanceof BadRequestError || error instanceof NotFoundError) {
         reply.code(error.statusCode).send({
           error: error.message,
         });
