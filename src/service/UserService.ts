@@ -1,11 +1,8 @@
-import { Prisma, PrismaClient, User, UserBlocks } from "@prisma/client";
-import UserRepository, {
-  IUserRepository,
-  UserName,
-} from "../repository/UserRepository";
+import { User } from "@prisma/client";
+import { IUserRepository, UserName } from "../repository/UserRepository";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import EmailService, { IEmailService, transporter } from "../utils/nodemailer";
+import { IEmailService } from "../utils/nodemailer";
 import { BadRequestError } from "../errors/BadRequestError";
 import { getBlockedUsers } from "../utils/getBlockedUsers";
 import { NotFoundError } from "../errors/NotFoundError";
@@ -31,16 +28,6 @@ export default class UserService implements IUserService {
     return await bcrypt.hash(password, 10);
   }
 
-  /* async register(user: User): Promise<User> {
-    user.password = await this.hashPassword(user.password);
-
-    const createdUser = await this.userRepository.create(user);
-
-    await this.emailService.sendConfirmationEmail(createdUser);
-
-    return createdUser;
-  } */
-
   async register(user: CreateUserData): Promise<User> {
     user.password = await this.hashPassword(user.password);
 
@@ -56,10 +43,10 @@ export default class UserService implements IUserService {
     userId: string
   ): Promise<UserName[] | null> {
     // Obtenha a lista de usuários que o usuário bloqueou
-    const blockedUserIds = await getBlockedUsers(userId);
+    const onlyNonBlockingUsers = await getBlockedUsers(userId);
 
     // Use a função findUserByName na camada de repositório, passando a lista de IDs de usuário bloqueados
-    return this.userRepository.findUserByName(name, blockedUserIds);
+    return this.userRepository.findUserByName(name, onlyNonBlockingUsers);
   }
 
   async authenticate(

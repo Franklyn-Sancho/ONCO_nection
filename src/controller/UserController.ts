@@ -1,5 +1,5 @@
 import { FastifyReply, FastifyRequest } from "fastify";
-import UserService, { IUserService } from "../service/UserService";
+import { IUserService } from "../service/UserService";
 import { PrismaClient, User } from "@prisma/client";
 import {
   userRegisterValidade,
@@ -10,15 +10,10 @@ import { CreateUserData, UserParams } from "../types/usersTypes";
 import { BadRequestError } from "../errors/BadRequestError";
 import { NotFoundError } from "../errors/NotFoundError";
 import { handleImageUpload } from "../service/FileService";
-import { getBlockedUsers } from "../utils/getBlockedUsers";
-import { UserName } from "../repository/UserRepository";
 
 export interface IUserController {
   register(request: FastifyRequest, reply: FastifyReply): Promise<void>;
-  /* findUserByName(
-    request: FastifyRequest,
-    reply: FastifyReply
-  ): Promise<UserName[] | null>; */
+  findUserByName(request: FastifyRequest, reply: FastifyReply): Promise<void>;
   authenticate(
     request: FastifyRequest<{ Body: User }>,
     reply: FastifyReply
@@ -36,26 +31,6 @@ export default class UserController implements IUserController {
     this.prisma = prisma;
     this.userService = userService;
   }
-
-  //createUser function
-  /* async register(
-    request: FastifyRequest<{ Body: User }>,
-    reply: FastifyReply
-  ): Promise<void> {
-    try {
-
-
-      await validateRequest(request, reply, userRegisterValidade);
-      await this.userService.register(request.body);
-      reply.status(201).send({
-        message: "Registro feito com sucesso",
-      });
-    } catch {
-      reply.status(500).send({
-        message: "verifique seus dados",
-      });
-    }
-  } */
 
   async register(request: FastifyRequest, reply: FastifyReply): Promise<void> {
     try {
@@ -81,7 +56,7 @@ export default class UserController implements IUserController {
     }
   }
 
-  /* async findUserByName(
+  async findUserByName(
     request: FastifyRequest,
     reply: FastifyReply
   ): Promise<void> {
@@ -89,13 +64,7 @@ export default class UserController implements IUserController {
       const { name } = request.params as any;
       const { userId } = request.user as UserParams;
 
-      // Obtenha a lista de usuários que o usuário bloqueou
-      const blockedUserIds = await getBlockedUsers(userId);
-
-      const getUserByName = await this.userService.findUserByName(
-        name,
-        blockedUserIds
-      );
+      const getUserByName = await this.userService.findUserByName(name, userId);
 
       reply.send({
         message: "usuários encontrados",
@@ -106,7 +75,7 @@ export default class UserController implements IUserController {
         error: `ocorreu um erro: ${error}`,
       });
     }
-  } */
+  }
 
   async authenticate(
     request: FastifyRequest<{ Body: User }>,

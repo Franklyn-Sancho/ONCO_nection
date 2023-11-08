@@ -17,11 +17,11 @@ export default async function userRouter(fastify: FastifyInstance) {
     userController.confirmEmail.bind(userController)
   );
 
-  /* fastify.get(
+  fastify.get(
     "/user/finduser/:name",
     { preHandler: [authenticate] },
     userController.findUserByName.bind(userController)
-  ); */
+  );
 
   fastify.post(
     "/user/blockuser/:blockedId",

@@ -4,6 +4,7 @@ import { NotFoundError } from "../errors/NotFoundError";
 import { ForbiddenError } from "../errors/ForbiddenError";
 import { CreateMuralData } from "../types/muralTypes";
 import { IMuralRepository } from "../repository/MuralRepository";
+import { getBlockedUsers } from "../utils/getBlockedUsers";
 
 export interface IMuralService {
   createMural(data: CreateMuralData): Promise<Mural>;
@@ -20,6 +21,8 @@ export class MuralService implements IMuralService {
   }
 
   async getMurals(userId: string): Promise<Mural[] | null> {
+
+    /* const onlyNonBlockingUsers = await getBlockedUsers(userId); */
 
     return await this.muralRepository.getMuralsIfFriends(userId);
   }

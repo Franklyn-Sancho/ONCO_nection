@@ -10,7 +10,7 @@ export interface IUserRepository {
   create(user: CreateUserData): Promise<User>;
   findByEmail(email: string): Promise<User | null>;
   findUserById(id: string): Promise<User | null>;
-  findUserByName(name: string,  blockedUserIds: string[]): Promise<UserName[] | null>;
+  findUserByName(name: string,  userId: string[]): Promise<UserName[] | null>;
   updateUser(id: string, data: Partial<User>): Promise<User>
   blockUser(blockerId: string, blockedId: string): Promise<void>
   findUserBlockRecord(blockerId: string, blockedId: string): Promise<UserBlocks | null>
@@ -48,13 +48,15 @@ export default class UserRepository implements IUserRepository {
 
   async findUserByName(
     name: string,
-    userId: string[]
+    blockedUserIds: string[]
   ): Promise<UserName[] | null> {
     return await this.prisma.user.findMany({
       where: {
-        name,
+        name: {
+          contains: name
+        },
         id: {
-          notIn: userId,
+          notIn: blockedUserIds,
         },
       },
       select: {
