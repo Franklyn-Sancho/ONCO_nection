@@ -10,6 +10,7 @@ import { CreateUserData, UserParams } from "../types/usersTypes";
 import { BadRequestError } from "../errors/BadRequestError";
 import { NotFoundError } from "../errors/NotFoundError";
 import { handleImageUpload } from "../service/FileService";
+import { UnauthorizedError } from "../errors/UnauthorizedError";
 
 export interface IUserController {
   register(request: FastifyRequest, reply: FastifyReply): Promise<void>;
@@ -78,23 +79,32 @@ export default class UserController implements IUserController {
   }
 
   async authenticate(
-    request: FastifyRequest<{ Body: User }>,
+    request: FastifyRequest,
     reply: FastifyReply
   ): Promise<void> {
     try {
       await validateRequest(request, reply, userAutenticateValidade);
-      const result = await this.userService.authenticate(request.body);
-      if (result.success) {
-        reply.send({ token: result.message });
+
+      const { email, password } = request.body as CreateUserData;
+
+      const result = await this.userService.authenticate(email, password);
+
+      reply.status(200).send({
+        token: result.token,
+      });
+    } catch (error) {
+      if (
+        error instanceof UnauthorizedError ||
+        error instanceof NotFoundError
+      ) {
+        reply.code(error.statusCode).send({
+          error: error.message,
+        });
       } else {
-        reply.status(401).send({
-          message: result.message,
+        reply.code(500).send({
+          error: error,
         });
       }
-    } catch (error) {
-      reply.status(401).send({
-        message: "email ou senha inválidos",
-      });
     }
   }
 
@@ -147,7 +157,6 @@ export default class UserController implements IUserController {
           error: error.message,
         });
       } else {
-        console.log(request.body);
         reply.code(500).send({
           error: error,
         });

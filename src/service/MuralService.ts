@@ -21,9 +21,6 @@ export class MuralService implements IMuralService {
   }
 
   async getMurals(userId: string): Promise<Mural[] | null> {
-
-    /* const onlyNonBlockingUsers = await getBlockedUsers(userId); */
-
     return await this.muralRepository.getMuralsIfFriends(userId);
   }
 

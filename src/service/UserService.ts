@@ -7,11 +7,12 @@ import { BadRequestError } from "../errors/BadRequestError";
 import { getBlockedUsers } from "../utils/getBlockedUsers";
 import { NotFoundError } from "../errors/NotFoundError";
 import { CreateUserData } from "../types/usersTypes";
+import { UnauthorizedError } from "../errors/UnauthorizedError";
 
 export interface IUserService {
   register(user: CreateUserData): Promise<User>;
   findUserByName(name: string, userId: string): Promise<UserName[] | null>;
-  authenticate(user: User): Promise<{ success: boolean; message: string }>;
+  authenticate(email: string, password: string): Promise<User>;
   blockUser(blockerId: string, blockedId: string): Promise<void>;
 }
 
@@ -42,37 +43,30 @@ export default class UserService implements IUserService {
     name: string,
     userId: string
   ): Promise<UserName[] | null> {
-    // Obtenha a lista de usuários que o usuário bloqueou
+    // Obtenha a lista de usuários bloqueados
     const onlyNonBlockingUsers = await getBlockedUsers(userId);
 
-    // Use a função findUserByName na camada de repositório, passando a lista de IDs de usuário bloqueados
     return this.userRepository.findUserByName(name, onlyNonBlockingUsers);
   }
 
-  async authenticate(
-    user: User
-  ): Promise<{ success: boolean; message: string }> {
-    const findUser = await this.userRepository.findByEmail(user.email);
+  async authenticate(email: string, password: string): Promise<User> {
+    const findUser = await this.userRepository.findByEmail(email);
 
     if (!findUser) {
-      return { success: false, message: "email não encontrado" };
+      throw new NotFoundError("Email não encontrado");
     }
 
-    const ValidPassword = await bcrypt.compare(
-      user.password,
-      findUser.password
-    );
+    const ValidPassword = await bcrypt.compare(password, findUser.password);
 
     if (!ValidPassword) {
-      return { success: false, message: "email ou senha inválidos" };
+      throw new UnauthorizedError("Email ou senha inválidos");
     }
 
-    //return a token by jwt.sign
     const token = jwt.sign({ userId: findUser.id }, process.env.TOKEN_KEY, {
       expiresIn: "1h",
     });
 
-    return { success: true, message: token };
+    return { ...findUser, token };
   }
 
   async blockUser(blockerId: string, blockedId: string) {

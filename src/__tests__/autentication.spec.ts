@@ -59,7 +59,7 @@ describe("UserController", () => {
   
     expect(response.status).toBe(401);
     expect(response.body).toStrictEqual({
-      message: "email ou senha inválidos",
+      error: "Email ou senha inválidos",
     });
   });
 
