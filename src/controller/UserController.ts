@@ -68,7 +68,7 @@ export default class UserController implements IUserController {
       const getUserByName = await this.userService.findUserByName(name, userId);
 
       reply.send({
-        message: "usuários encontrados",
+        message: "Users found",
         content: getUserByName,
       });
     } catch (error) {

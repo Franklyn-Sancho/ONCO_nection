@@ -2,13 +2,16 @@ import nodemailer from "nodemailer";
 import UserRepository from "../repository/UserRepository";
 import { randomBytes } from "crypto";
 import { User } from "@prisma/client";
+import Mail from "nodemailer/lib/mailer";
 
-//test: ~/go/bin/MailHog 
+//test: ~/go/bin/MailHog
 
 export interface IEmailService {
   generateEmailConfirmationToken(user: User): Promise<string>;
   confirmationEmailTemplate(name: string, confirmationLink: string): string;
-  sendConfirmationEmail(user: User): Promise<void>,
+  sendConfirmationEmail(
+    user: User
+  ): Promise<{ success: boolean; message: string }>;
 }
 
 export const transporter = nodemailer.createTransport({
@@ -19,6 +22,7 @@ export const transporter = nodemailer.createTransport({
 export default class EmailService implements IEmailService {
   private transporter: nodemailer.Transporter;
   private userRepository: UserRepository;
+  private emailQueue: Mail.Options[] = [];
 
   constructor(
     transporter: nodemailer.Transporter,
@@ -26,6 +30,20 @@ export default class EmailService implements IEmailService {
   ) {
     this.transporter = transporter;
     this.userRepository = userRepository;
+    this.startEmailServiceCheck();
+  }
+
+  private startEmailServiceCheck() {
+    setInterval(this.tryProcessEmailQueue.bind(this), 60000);
+  }
+
+  private async tryProcessEmailQueue() {
+    try {
+      await this.transporter.verify();
+      await this.processEmailQueue();
+    } catch (error) {
+      console.error("the email service is unavailable");
+    }
   }
 
   async generateEmailConfirmationToken(user: User): Promise<string> {
@@ -39,7 +57,7 @@ export default class EmailService implements IEmailService {
       emailConfirmationExpires: expires,
     });
 
-    return token
+    return token;
   }
 
   confirmationEmailTemplate(name: string, confirmationLink: string): string {
@@ -51,17 +69,49 @@ export default class EmailService implements IEmailService {
   }
 
   async sendConfirmationEmail(user: User) {
-    const token = await this.generateEmailConfirmationToken(user)
+    const token = await this.generateEmailConfirmationToken(user);
 
-    const confirmationLink = `http://localhost:3000/confirm-email/${token}`
+    const confirmationLink = `http://localhost:3000/confirm-email/${token}`;
 
     const mailOptions = {
       from: "test@test.com",
       to: user.email,
       subject: "Confirmação de registro",
-      text: this.confirmationEmailTemplate(user.name, confirmationLink)
+      text: this.confirmationEmailTemplate(user.name, confirmationLink),
     };
 
-    await this.transporter.sendMail(mailOptions);
+    try {
+      await this.transporter.sendMail(mailOptions);
+      return {
+        success: true,
+        message: "confirmation email was sent successfully",
+      };
+    } catch (error) {
+      this.emailQueue.push(mailOptions);
+      console.log(mailOptions);
+      return {
+        success: false,
+        message:
+          "User registered successfully, but confirmation email could not be sent",
+      };
+    }
+  }
+
+  async processEmailQueue() {
+    while (this.emailQueue.length > 0) {
+      const mailOptions = this.emailQueue.shift();
+      if (mailOptions !== undefined) {
+        try {
+          await this.transporter.sendMail(mailOptions);
+          console.log("Email successfully sent!");
+        } catch (error) {
+          console.error(error);
+          this.emailQueue.unshift(mailOptions);
+          break;
+        }
+      } else {
+        console.log("mailOptions é undefined");
+      }
+    }
   }
 }
