@@ -10,7 +10,7 @@ import { CreateUserData } from "../types/usersTypes";
 import { UnauthorizedError } from "../errors/UnauthorizedError";
 
 export interface IUserService {
-  register(user: CreateUserData): Promise<User>;
+  register(user: CreateUserData): Promise<{user: User, emailResult: any}>;
   findUserByName(name: string, userId: string): Promise<UserName[] | null>;
   authenticate(email: string, password: string): Promise<User>;
   blockUser(blockerId: string, blockedId: string): Promise<void>;
@@ -29,14 +29,14 @@ export default class UserService implements IUserService {
     return await bcrypt.hash(password, 10);
   }
 
-  async register(user: CreateUserData): Promise<User> {
+  async register(user: CreateUserData): Promise<{user: User, emailResult: any}> {
     user.password = await this.hashPassword(user.password);
 
     const createdUser = await this.userRepository.create(user);
 
-    await this.emailService.sendConfirmationEmail(createdUser);
+    const emailResult = await this.emailService.sendConfirmationEmail(createdUser);
 
-    return createdUser;
+    return { user: createdUser, emailResult };
   }
 
   async findUserByName(

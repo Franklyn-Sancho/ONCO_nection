@@ -88,7 +88,6 @@ export default class EmailService implements IEmailService {
       };
     } catch (error) {
       this.emailQueue.push(mailOptions);
-      console.log(mailOptions);
       return {
         success: false,
         message:
@@ -103,9 +102,8 @@ export default class EmailService implements IEmailService {
       if (mailOptions !== undefined) {
         try {
           await this.transporter.sendMail(mailOptions);
-          console.log("Email successfully sent!");
+          console.log("confirmation email was sent successfully");
         } catch (error) {
-          console.error(error);
           this.emailQueue.unshift(mailOptions);
           break;
         }

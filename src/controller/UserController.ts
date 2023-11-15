@@ -36,20 +36,21 @@ export default class UserController implements IUserController {
   async register(request: FastifyRequest, reply: FastifyReply): Promise<void> {
     try {
       await validateRequest(request, reply, userRegisterValidade);
-
       const { name, email, password } = request.body as CreateUserData;
-
       const base64Image = await handleImageUpload(request);
 
-      await this.userService.register({
+      const { emailResult } = await this.userService.register({
         name,
         email,
         password,
         image: base64Image,
       });
-      reply.status(201).send({
-        message: "Registro feito com sucesso",
-      });
+
+      const message = emailResult.success
+        ? "Registro feito com sucesso, verifique seu email"
+        : "Registro feito com sucesso, o email de confirmação será enviado assim que o sistema normalizar";
+
+      reply.status(201).send({ message });
     } catch (error) {
       reply.status(500).send({
         message: "verifique seus dados",
