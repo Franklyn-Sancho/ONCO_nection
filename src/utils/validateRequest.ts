@@ -13,7 +13,7 @@ export async function validateRequest(
     if (error instanceof z.ZodError) {
       const validationError = error.errors.map((e) => e.message).join(", ");
       reply.code(400).send({
-        message: `Ocorreu um erro: ${validationError}`,
+        message: `an error has occurred : ${validationError}`,
       });
       return false;
     }

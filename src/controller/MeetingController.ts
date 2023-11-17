@@ -67,7 +67,7 @@ export class MeetingController implements IMeetingController {
           image: base64Image,
         });
         reply.send({
-          message: "Meeting criado com sucesso",
+          message: "meeting created successfullyo",
           meetingId: meeting.id,
         });
       }
@@ -93,7 +93,7 @@ export class MeetingController implements IMeetingController {
 
       await this.meetingService.updateMeeting(meetingId, data, userId);
       reply.code(200).send({
-        message: "Meeting atualizado com sucesso",
+        message: "meeting updated successfully",
       });
     } catch (error) {
       reply.code(500).send(error);
@@ -111,7 +111,7 @@ export class MeetingController implements IMeetingController {
       await this.meetingService.deleteMeeting(meetingId, userId);
 
       reply.code(200).send({
-        message: "meeting deletado com sucesso",
+        message: "meeting deleted successfully",
       });
     } catch (error) {
       reply.code(500).send(error);
@@ -128,13 +128,13 @@ export class MeetingController implements IMeetingController {
       const meeting = await this.meetingRepository.getMeetingById(meetingId);
 
       if (!meeting) {
-        throw new Error("Meeting não encontrado");
+        throw new Error("Meeting was not found");
       }
 
       await this.likeController.createLike(request, reply);
     } catch (error) {
       reply.code(500).send({
-        error: `Ocorreu um erro na camada de controle: ${error}`,
+        error: `An error occurred in the control layer: ${error}`,
       });
     }
   }
@@ -170,7 +170,7 @@ export class MeetingController implements IMeetingController {
       }
     } catch (error) {
       reply.code(500).send({
-        error: `Ocorreu um erro na camada controller: ${error}`,
+        error: `An error occurred in the control layer: ${error}`,
       });
     }
   }

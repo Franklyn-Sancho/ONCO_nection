@@ -43,14 +43,14 @@ export class ChatController implements IChatController {
 
       const messages = await this.chatService.getChatById(id);
       reply.send({
-        message: "mensagens do chat retornadas com sucesso",
+        message: "messages returned successfully",
         content: messages,
       });
 
       return messages;
     } catch (error) {
       reply.status(500).send({
-        message: "ocorreu um erro, tente novamente mais tarde",
+        message: "An error occurred, try again later",
       });
     }
 

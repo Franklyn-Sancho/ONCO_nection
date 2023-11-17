@@ -54,13 +54,13 @@ export class MuralController implements IMuralController {
           image: base64Image,
         });
         reply.send({
-          message: "Mural publicado com sucesso",
+          message: "Mural was published successfully",
           muralId: mural.id,
         });
       }
     } catch (error) {
       reply.status(500).send({
-        error: `ocorreu o seguinte erro ${error}`,
+        error: `an error has occurred: ${error}`,
       });
     }
   }
@@ -84,7 +84,7 @@ export class MuralController implements IMuralController {
 
         await this.muralService.updateMural(muralId, body, userId);
         reply.code(200).send({
-          message: "mural atualizado com sucesso",
+          message: "mural was updated successfully",
         });
       }
     } catch (error) {
@@ -102,7 +102,7 @@ export class MuralController implements IMuralController {
 
       const mural = await this.muralService.deleteMural(muralId, userId);
       reply.code(200).send({
-        message: "mural deletado com sucesso",
+        message: "mural was deleted successfully",
         muralId: mural.id,
       });
     } catch (error) {
@@ -132,7 +132,7 @@ export class MuralController implements IMuralController {
       await this.likeController.createLike(request, reply);
     } catch (error) {
       reply.code(500).send({
-        error: `Ocorreu um erro na camada de controle: ${error}`,
+        error: `an error occurred in the control layer: ${error}`,
       });
     }
   }
@@ -167,7 +167,7 @@ export class MuralController implements IMuralController {
       }
     } catch (error) {
       reply.code(500).send({
-        error: `Ocorreu um erro na camada controller: ${error}`,
+        error: `an error occurred in the control layer: ${error}`,
       });
     }
   }

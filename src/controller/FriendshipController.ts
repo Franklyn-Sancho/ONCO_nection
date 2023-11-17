@@ -38,7 +38,7 @@ export class FriendshipController implements IFriendshipController {
 
     const friendship = await this.friendshipService.sendFriendRequest(requesterId, addressedId);
     return reply.code(200).send({
-      message: "Solicitação de amizade enviada",
+      message: "friend request sent successfully",
       friendshipId: friendship.id 
     });
   }
@@ -54,7 +54,7 @@ export class FriendshipController implements IFriendshipController {
 
     if (!["ACCEPTED", "DENIED"].includes(status))
       return reply.status(400).send({
-        error: "Valor de status inválido",
+        error: "invalid status value",
       });
 
     await this.friendshipService.acceptFriendRequest(
@@ -64,8 +64,8 @@ export class FriendshipController implements IFriendshipController {
     );
 
     reply.send({
-      message: `Solicitação de amizade ${
-        status === "ACCEPTED" ? "aceita" : "negada"
+      message: `friend request solicitation ${
+        status === "ACCEPTED" ? "accepted" : "denied"
       }`,
     });
   }
@@ -80,7 +80,7 @@ export class FriendshipController implements IFriendshipController {
 
     await this.friendshipService.deleteFriendship(requesterId, id);
     return reply.send({
-      message: "Amizade desfeita com sucesso",
+      message: "friendship successfully broken",
     });
   }
 

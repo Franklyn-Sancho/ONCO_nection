@@ -9,9 +9,7 @@ import Mail from "nodemailer/lib/mailer";
 export interface IEmailService {
   generateEmailConfirmationToken(user: User): Promise<string>;
   confirmationEmailTemplate(name: string, confirmationLink: string): string;
-  sendConfirmationEmail(
-    user: User
-  ): Promise<{ success: boolean; message: string }>;
+  sendConfirmationEmail(user: User): Promise<{ success: boolean; message: string }>;
 }
 
 export const transporter = nodemailer.createTransport({

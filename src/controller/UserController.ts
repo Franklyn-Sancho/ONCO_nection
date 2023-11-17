@@ -47,13 +47,13 @@ export default class UserController implements IUserController {
       });
 
       const message = emailResult.success
-        ? "Registro feito com sucesso, verifique seu email"
-        : "Registro feito com sucesso, o email de confirmação será enviado assim que o sistema normalizar";
+        ? "Registration successful, check your email"
+        : "Registration successful, confirmation email will be sent as soon as the system returns to normal";
 
       reply.status(201).send({ message });
     } catch (error) {
       reply.status(500).send({
-        message: "verifique seus dados",
+        message: "chedk your datas",
       });
     }
   }
@@ -74,7 +74,7 @@ export default class UserController implements IUserController {
       });
     } catch (error) {
       reply.status(500).send({
-        error: `ocorreu um erro: ${error}`,
+        error: `an error has occurred: ${error}`,
       });
     }
   }
@@ -113,7 +113,7 @@ export default class UserController implements IUserController {
     const token = (request.params as any).token;
 
     if (typeof token !== "string") {
-      reply.send("O link de confirmação é inválido ou expirou");
+      reply.send("Invalid or expired confirmation link");
       return;
     }
 
@@ -136,9 +136,9 @@ export default class UserController implements IUserController {
         },
       });
 
-      reply.send("Seu email foi confirmado com sucesso");
+      reply.send("email confirmed successfully");
     } else {
-      reply.send("O link de confirmação é inválido ou expirou");
+      reply.send("Invalid or expired confirmation link");
     }
   }
 
@@ -150,7 +150,7 @@ export default class UserController implements IUserController {
       await this.userService.blockUser(blockerId, blockedId);
 
       reply.status(200).send({
-        message: "Usuário bloqueado com sucesso",
+        message: "User was blocked successfully",
       });
     } catch (error) {
       if (error instanceof BadRequestError || error instanceof NotFoundError) {

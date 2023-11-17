@@ -20,7 +20,7 @@ export class LikeService implements ILikeService {
     );
 
     if (existingLike) {
-      throw new Error("Você já deu like nesse conteúdo");
+      throw new Error("You already have a like on this content");
     }
 
     return await this.likeRepository.createLike(data);
@@ -30,11 +30,11 @@ export class LikeService implements ILikeService {
     const like = await this.likeRepository.getLikeById(id);
 
     if (!like) {
-      throw new NotFoundError("Like não encontrado");
+      throw new NotFoundError("Like not found");
     }
 
     if (like.author !== userId) {
-      throw new ForbiddenError("Você não tem permissão para excluir este like");
+      throw new ForbiddenError("you do not have permission to delete this like");
     }
 
     await this.likeRepository.deleteLike(id);

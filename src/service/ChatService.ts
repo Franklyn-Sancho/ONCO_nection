@@ -21,7 +21,7 @@ export class ChatService implements IChatService {
     );
 
     if (existingChat) {
-      throw new BadRequestError("Já existe um chat entre esses usuários");
+      throw new BadRequestError("There is already a chat between these users");
     }
 
     return this.chatRepository.createChat(initiatorId, participantId);

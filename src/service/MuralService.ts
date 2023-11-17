@@ -4,7 +4,6 @@ import { NotFoundError } from "../errors/NotFoundError";
 import { ForbiddenError } from "../errors/ForbiddenError";
 import { CreateMuralData } from "../types/muralTypes";
 import { IMuralRepository } from "../repository/MuralRepository";
-import { getBlockedUsers } from "../utils/getBlockedUsers";
 
 export interface IMuralService {
   createMural(data: CreateMuralData): Promise<Mural>;
@@ -32,12 +31,12 @@ export class MuralService implements IMuralService {
     const existingMural = await this.muralRepository.getMuralById(muralId);
 
     if (!existingMural) {
-      throw new NotFoundError("Nenhum mural com este ID foi encontrado");
+      throw new NotFoundError("No mural with this ID was found");
     }
 
     if (existingMural.userId !== userId) {
       throw new ForbiddenError(
-        "Você não tem permissão para atualizar este mural"
+        "You do not have permission to update this mural"
       );
     }
 
@@ -48,12 +47,12 @@ export class MuralService implements IMuralService {
     const existingMural = await this.muralRepository.getMuralById(muralId);
 
     if (!existingMural) {
-      throw new NotFoundError("Nenhum mural com este ID foi encontrado");
+      throw new NotFoundError("No mural with this ID was found");
     }
 
     if (existingMural.userId !== userId) {
       throw new ForbiddenError(
-        "Você não tem permissão para excluir este mural"
+        "You do not have permission to delete this mural"
       );
     }
 

@@ -66,14 +66,14 @@ export class FriendshipService implements IFriendshipService {
       await this.friendshipRepository.getFriendshipById(id);
 
     if (!existingFriendship)
-      throw new BadRequestError("A solicitação de amizade não existe");
+      throw new BadRequestError("the friend request does not exist");
 
     if (existingFriendship.status === "ACCEPTED")
-      throw new BadRequestError("Uma solicitação de amizade ja foi enviada");
+      throw new BadRequestError("The friendship request has already been sent");
 
     if (existingFriendship.addressedId !== userId)
       throw new ForbiddenError(
-        "Você não tem permissão para aceitar esta solicitação de amizade"
+        "You do not have permission to accept this friendship solicitation"
       );
 
     const acceptFriendship = await this.friendshipRepository.acceptFriendship(
@@ -100,7 +100,7 @@ export class FriendshipService implements IFriendshipService {
       friendship?.addressedId !== requesterId
     ) {
       throw new ForbiddenError(
-        "Você não tem permissão para deletar esta amizade"
+        "You do not have permission to delete this friendship"
       );
     }
 

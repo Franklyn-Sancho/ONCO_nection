@@ -12,8 +12,8 @@ export const userRegisterValidade = z.object({
     .refine(async (e) => {
       const result = !(await checkIfEmailIsValid(e)); 
       return result;
-    }, "verifique seus dados"),
-  password: z.string({ required_error: "senha requerida" }),
+    }, "vcheck your datas"),
+  password: z.string({ required_error: "password is required" }),
 });
 
 //Zod authentications user validations 
@@ -24,6 +24,6 @@ export const userAutenticateValidade = z.object({
     .refine(async (e) => {
       //this refine call the checkIfEmailIsValid => ./checkIfEmailIsValid.ts
       return await checkIfEmailIsValid(e);
-    }, "verifique seus dados"),
-  password: z.string({ required_error: "senha requerida" }),
+    }, "check your datas"),
+  password: z.string({ required_error: "password is required" }),
 });

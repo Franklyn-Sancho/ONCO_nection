@@ -32,11 +32,11 @@ export class MeetingService implements IMeetingService {
     const existMeeting = await this.meetingRepository.getMeetingById(meetingId);
 
     if (!existMeeting) {
-      throw new NotFoundError("Nenhum meeting com esse ID foi encontrado");
+      throw new NotFoundError("no meeting with this ID was found");
     }
 
     if (existMeeting.userId !== userId) {
-      throw new ForbiddenError("Você não tem permissão para excluir esse meeting");
+      throw new ForbiddenError("you do not have permission to update this meeting");
     }
 
     return await this.meetingRepository.updateMeeting(meetingId, data);
@@ -46,11 +46,11 @@ export class MeetingService implements IMeetingService {
     const existMeeting = await this.meetingRepository.getMeetingById(meetingId);
 
     if (!existMeeting) {
-      throw new NotFoundError("Nenhum meeting com este ID foi encontrado");
+      throw new NotFoundError("No meeting with this ID was found");
     }
 
     if (existMeeting.userId !== userId) {
-      throw new ForbiddenError("Você não tem permissão para excluir esse conteúdo");
+      throw new ForbiddenError("You do not have permission to delete this content");
     }
 
     return await this.meetingRepository.deleteMeeting(meetingId);

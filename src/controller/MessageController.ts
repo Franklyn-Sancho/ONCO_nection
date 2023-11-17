@@ -13,13 +13,16 @@ export class MessageController implements IMessageController {
     this.messageService = messageService;
   }
 
-  async createMessage(request: UserRequest, reply: FastifyReply): Promise<void> {
+  async createMessage(
+    request: UserRequest,
+    reply: FastifyReply
+  ): Promise<void> {
     try {
       const { content, recipientId } = request.body as any;
-      const { chatId } = request.params as any
+      const { chatId } = request.params as any;
       const { userId: senderId } = request.user;
 
-      await this.messageService.createMessage(
+      const message = await this.messageService.createMessage(
         content,
         senderId,
         recipientId,
@@ -27,11 +30,12 @@ export class MessageController implements IMessageController {
       );
 
       reply.send({
-        message: "Mensagem enviada com sucesso",
+        message: "message was sent successfully",
+        chatId: message.chatId,
       });
     } catch (error) {
       reply.code(500).send({
-        message: "Ocorreu um erro, tente novamente mais tarde",
+        message: `an error has occurred, try again later: ${error}`,
       });
     }
   }

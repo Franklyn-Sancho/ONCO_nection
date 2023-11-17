@@ -37,7 +37,7 @@ export class CommentController implements ICommentController {
           userId,
         });
         reply.code(201).send({
-          message: "Comentário adicionado com sucesso",
+          message: "comment added successfully",
           commentId: comment.id,
         });
       }

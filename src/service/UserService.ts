@@ -2,7 +2,7 @@ import { User } from "@prisma/client";
 import { IUserRepository, UserName } from "../repository/UserRepository";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import { IEmailService } from "../utils/nodemailer";
+import { IEmailService } from "./nodemailer";
 import { BadRequestError } from "../errors/BadRequestError";
 import { getBlockedUsers } from "../utils/getBlockedUsers";
 import { NotFoundError } from "../errors/NotFoundError";
@@ -53,13 +53,13 @@ export default class UserService implements IUserService {
     const findUser = await this.userRepository.findByEmail(email);
 
     if (!findUser) {
-      throw new NotFoundError("Email não encontrado");
+      throw new NotFoundError("Email not found");
     }
 
     const ValidPassword = await bcrypt.compare(password, findUser.password);
 
     if (!ValidPassword) {
-      throw new UnauthorizedError("Email ou senha inválidos");
+      throw new UnauthorizedError("Invalid email or password");
     }
 
     const token = jwt.sign({ userId: findUser.id }, process.env.TOKEN_KEY, {
@@ -73,7 +73,7 @@ export default class UserService implements IUserService {
     const existingUser = await this.userRepository.findUserById(blockedId);
 
     if (!existingUser)
-      throw new NotFoundError("Nenhum usuário com esse ID foi encontrado");
+      throw new NotFoundError("no user with this id was found");
 
     const existingBlock = await this.userRepository.findUserBlockRecord(
       blockerId,
@@ -81,10 +81,10 @@ export default class UserService implements IUserService {
     );
 
     if (existingBlock)
-      throw new BadRequestError("Você já bloqueou esse usuário");
+      throw new BadRequestError("this user is already blocked");
 
     if (blockedId == blockerId)
-      throw new BadRequestError("O usuário não pode bloquear a si mesmo");
+      throw new BadRequestError("you can not to block yourself");
 
     await this.userRepository.blockUser(blockerId, blockedId);
   }
