@@ -6,7 +6,7 @@ import { LikesTypes } from "../types/likesTypes";
 
 //interface de métodos da classe LikesService
 export interface ILikeService {
-  createLike(data: LikesTypes): Promise<Likes>;
+  createLike(data: LikesTypes): Promise<any>;
   deleteLike(id: string, userId: string): Promise<void>;
 }
 
@@ -14,17 +14,16 @@ export interface ILikeService {
 export class LikeService implements ILikeService {
   constructor(private likeRepository: ILikeRepository) {}
 
-  async createLike(data: LikesTypes): Promise<Likes> {
-    const existingLike = await this.likeRepository.getLikeByUserAndContent(
-      data
-    );
+  async createLike(data: LikesTypes): Promise<Likes | null> {
+    const existingLike = await this.likeRepository.getLikeByUserAndContent(data);
 
     if (existingLike) {
-      throw new Error("You already have a like on this content");
+        await this.likeRepository.deleteLike(existingLike.id);
+        return null; // Retorne null ou algum outro valor para indicar que um like foi removido
+    } else {
+        return await this.likeRepository.createLike(data);
     }
-
-    return await this.likeRepository.createLike(data);
-  }
+}
 
   async deleteLike(id: string, userId: string): Promise<void> {
     const like = await this.likeRepository.getLikeById(id);
@@ -34,7 +33,9 @@ export class LikeService implements ILikeService {
     }
 
     if (like.author !== userId) {
-      throw new ForbiddenError("you do not have permission to delete this like");
+      throw new ForbiddenError(
+        "you do not have permission to delete this like"
+      );
     }
 
     await this.likeRepository.deleteLike(id);

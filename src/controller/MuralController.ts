@@ -14,7 +14,27 @@ export interface IMuralController {
   createMural(request: FastifyRequest, reply: FastifyReply): Promise<void>;
   updateMural(request: FastifyRequest, reply: FastifyReply): Promise<void>;
   deleteMural(request: FastifyRequest, reply: FastifyReply): Promise<void>;
-  getMurals(request: FastifyRequest, reply: FastifyReply): Promise<void>;
+  getMuralByIdIfFriends(
+    request: FastifyRequest,
+    reply: FastifyReply
+  ): Promise<void>;
+  getMuralsIfFriends(
+    request: FastifyRequest,
+    reply: FastifyReply
+  ): Promise<void>;
+  getLikeByMural(request: FastifyRequest, reply: FastifyReply): Promise<void>;
+  countLikesByMural(
+    request: FastifyRequest,
+    reply: FastifyReply
+  ): Promise<void>;
+  countCommentsByMural(
+    request: FastifyRequest,
+    reply: FastifyReply
+  ): Promise<void>;
+  getCommentByMural(
+    request: FastifyRequest,
+    reply: FastifyReply
+  ): Promise<void>;
   addLikeMural(request: FastifyRequest, reply: FastifyReply): Promise<void>;
   removeLikeMural(request: FastifyRequest, reply: FastifyReply): Promise<void>;
   addCommentMural(request: FastifyRequest, reply: FastifyReply): Promise<void>;
@@ -65,6 +85,23 @@ export class MuralController implements IMuralController {
     }
   }
 
+  async getMuralByIdIfFriends(
+    request: FastifyRequest,
+    reply: FastifyReply
+  ): Promise<void> {
+    try {
+      const { muralId } = request.params as MuralParams;
+      const { userId } = request.user as UserParams;
+
+      const result = await this.muralService.getMuralByIdIfFriends(
+        muralId,
+        userId
+      );
+
+      reply.code(200).send(result);
+    } catch (error) {}
+  }
+
   async updateMural(
     request: FastifyRequest,
     reply: FastifyReply
@@ -111,15 +148,115 @@ export class MuralController implements IMuralController {
   }
 
   //método que retorna os murais de amigos
-  async getMurals(request: FastifyRequest, reply: FastifyReply): Promise<void> {
+  async getMuralsIfFriends(
+    request: FastifyRequest,
+    reply: FastifyReply
+  ): Promise<void> {
     try {
       const { userId } = request.user as UserParams;
-      const murals = await this.muralService.getMurals(userId);
+      const murals = await this.muralService.getMuralsIfFriends(userId);
       reply.send(murals);
     } catch (error) {
       reply.code(500).send({
         error,
       });
+    }
+  }
+
+  async getLikeByMural(request: FastifyRequest, reply: FastifyReply) {
+    try {
+      const { muralId } = request.params as MuralParams;
+      const { userId } = request.user as UserParams;
+
+      const like = await this.muralService.getLikeByMural(muralId, userId);
+
+      if (like) {
+        reply.code(200).send({
+          message: "Like encontrado com sucesso",
+          like: like,
+        });
+      } else {
+        reply.code(200).send({
+          message: "Like não encontrado",
+          like: false,
+        });
+      }
+    } catch (error) {
+      reply.code(500).send({
+        error: `Erro ao buscar like no LikeController: ${error}`,
+      });
+    }
+  }
+
+  async countLikesByMural(
+    request: FastifyRequest,
+    reply: FastifyReply
+  ): Promise<void> {
+    try {
+      const { muralId } = request.params as MuralParams;
+      const { userId: author } = request.user as UserParams;
+
+      const likes = await this.muralService.countLikesByMural(muralId, author);
+
+      if (likes) {
+        reply.code(200).send({
+          like: likes,
+        });
+      } else {
+        reply.code(200).send({
+          like: 0,
+        });
+      }
+    } catch (error) {
+      reply.code(500).send({
+        error: `Erro ao buscar like no LikeController: ${error}`,
+      });
+    }
+  }
+
+  async countCommentsByMural(
+    request: FastifyRequest,
+    reply: FastifyReply
+  ): Promise<void> {
+    try {
+      const { muralId } = request.params as MuralParams;
+      const { userId } = request.user as UserParams;
+
+      const comments = await this.muralService.countCommentsByMural(
+        muralId,
+        userId
+      );
+
+      if (comments) {
+        reply.code(200).send({
+          comments: comments,
+        });
+      } else {
+        reply.code(200).send({
+          comments: 0,
+        });
+      }
+    } catch (error) {
+      reply.code(500).send({
+        error: `Erro ao buscar like no LikeController: ${error}`,
+      });
+    }
+  }
+
+  async getCommentByMural(
+    request: FastifyRequest,
+    reply: FastifyReply
+  ): Promise<void> {
+    try {
+      const { muralId } = request.params as MuralParams;
+
+      const comment = await this.muralService.getCommentByMural(muralId);
+
+      reply.code(200).send({
+        results: comment,
+      });
+    } catch (error) {
+      console.error("ocorreu um erro", error);
     }
   }
 
@@ -140,10 +277,11 @@ export class MuralController implements IMuralController {
   async removeLikeMural(request: FastifyRequest, reply: FastifyReply) {
     try {
       const { likesId } = request.params as LikeParams;
+      const { userId } = request.user as UserParams;
 
-      (request.body as MuralParams).muralId = likesId;
+      /* (request.body as MuralParams).muralId = likesId; */
 
-      await this.likeController.deleteLike(request, reply);
+      await this.likeController.deleteLike(likesId, userId);
     } catch (error) {
       reply.code(500).send({
         error: `error removing like from mural: ${error}`,

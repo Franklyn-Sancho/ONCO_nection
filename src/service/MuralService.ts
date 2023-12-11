@@ -1,4 +1,4 @@
-import { Mural } from "@prisma/client";
+import { Comments, Likes, Mural } from "@prisma/client";
 
 import { NotFoundError } from "../errors/NotFoundError";
 import { ForbiddenError } from "../errors/ForbiddenError";
@@ -7,7 +7,12 @@ import { IMuralRepository } from "../repository/MuralRepository";
 
 export interface IMuralService {
   createMural(data: CreateMuralData): Promise<Mural>;
-  getMurals(userId: string): Promise<Mural[] | null>;
+  getMuralByIdIfFriends(muralId: string, userId: string): Promise<Mural | null>;
+  getMuralsIfFriends(userId: string): Promise<Mural[] | null>;
+  getLikeByMural(muralId: string, author: string): Promise<Likes | null>;
+  countLikesByMural(muralId: string, author: string): Promise<Number | null>;
+  countCommentsByMural(muralId: string, userId: string): Promise<Number | null>;
+  getCommentByMural(muralId: string): Promise<Comments[] | null>;
   updateMural(muralId: string, body: string, userId: string): Promise<Mural>;
   deleteMural(muralId: string, userId: string): Promise<Mural>;
 }
@@ -19,7 +24,14 @@ export class MuralService implements IMuralService {
     return await this.muralRepository.createMural(data);
   }
 
-  async getMurals(userId: string): Promise<Mural[] | null> {
+  async getMuralByIdIfFriends(
+    muralId: string,
+    userId: string
+  ): Promise<Mural | null> {
+    return await this.muralRepository.getMuralByIdIfFriends(muralId, userId);
+  }
+
+  async getMuralsIfFriends(userId: string): Promise<Mural[] | null> {
     return await this.muralRepository.getMuralsIfFriends(userId);
   }
 
@@ -41,6 +53,28 @@ export class MuralService implements IMuralService {
     }
 
     return await this.muralRepository.updateMural(muralId, body);
+  }
+
+  async getCommentByMural(muralId: string): Promise<Comments[] | null> {
+    return await this.muralRepository.getCommentByMural(muralId);
+  }
+
+  async getLikeByMural(muralId: string, author: string): Promise<Likes | null> {
+    return await this.muralRepository.getLikeByMural(muralId, author);
+  }
+
+  async countLikesByMural(
+    muralId: string,
+    author: string
+  ): Promise<Number | null> {
+    return await this.muralRepository.countLikeByMural(muralId, author);
+  }
+
+  async countCommentsByMural(
+    muralId: string,
+    userId: string
+  ): Promise<Number | null> {
+    return await this.muralRepository.countCommentsByMural(muralId, userId);
   }
 
   async deleteMural(muralId: string, userId: string): Promise<Mural> {

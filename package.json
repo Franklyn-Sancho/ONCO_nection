@@ -19,9 +19,11 @@
   },
   "dependencies": {
     "@babel/preset-env": "^7.22.2",
+    "@fastify/cookie": "^9.2.0",
     "@fastify/cors": "^8.1.1",
     "@fastify/jwt": "^6.3.2",
     "@fastify/multipart": "^7.7.3",
+    "@fastify/static": "^6.12.0",
     "@prisma/client": "^4.15.0",
     "@types/bcryptjs": "^2.4.2",
     "@types/fastify-multipart": "^0.7.0",

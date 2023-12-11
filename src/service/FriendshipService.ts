@@ -17,7 +17,16 @@ export interface IFriendshipService {
     status: FriendshipStatus,
     userId: string
   ): Promise<Friendship>;
+  getFriendshipSolicitation(
+    requesterId: string,
+    addressedId: string
+  ): Promise<Friendship | null>;
   deleteFriendship(requesterId: string, addressedId: string): Promise<void>;
+  listPendingFriendships(userId: string): Promise<Friendship[]>;
+  checkPendingFriendship(
+    userId1: string,
+    userId2: string
+  ): Promise<Friendship | null>;
   getFriends(userId: string): Promise<User[] | null>;
 }
 
@@ -38,11 +47,12 @@ export class FriendshipService implements IFriendshipService {
     requesterId: string,
     addressedId: string
   ): Promise<Friendship> {
-    const existingFriendship = await this.friendshipRepository.getFriendship(
-      requesterId,
-      addressedId
-    );
-    //teste para controlar o número de solicitação, já existindo, retorna erro
+    const existingFriendship =
+      await this.friendshipRepository.getFriendshipSolicitations(
+        requesterId,
+        addressedId
+      );
+
     if (
       existingFriendship &&
       (existingFriendship.status === "PENDING" ||
@@ -52,8 +62,23 @@ export class FriendshipService implements IFriendshipService {
         "Já existe uma solicitação de amizade pendente ou aceita"
       );
     }
+
+    if (requesterId == addressedId) {
+      throw new BadRequestError("O usuário não pode enviar solicitação para si mesmo");
+    }
+
     //se não existe, o método do repositório é chamado
     return this.friendshipRepository.createFriendship(requesterId, addressedId);
+  }
+
+  async getFriendshipSolicitation(
+    requesterId: string,
+    addressedId: string
+  ): Promise<Friendship | null> {
+    return await this.friendshipRepository.getFriendshipSolicitations(
+      requesterId,
+      addressedId
+    );
   }
 
   //implementação do método para aceitar ou negar uma solicitação
@@ -81,7 +106,7 @@ export class FriendshipService implements IFriendshipService {
       status
     );
 
-    //create a chat 
+    //create a chat
     const { requesterId, addressedId } = existingFriendship;
 
     if (status === "ACCEPTED")
@@ -89,7 +114,6 @@ export class FriendshipService implements IFriendshipService {
 
     return acceptFriendship;
   }
-
 
   //implementação do método para deletar amizade entre dois usuários
   async deleteFriendship(requesterId: string, id: string): Promise<void> {
@@ -105,6 +129,20 @@ export class FriendshipService implements IFriendshipService {
     }
 
     await this.friendshipRepository.deleteFriendship(id);
+  }
+
+  async listPendingFriendships(userId: string): Promise<Friendship[]> {
+      return await this.friendshipRepository.listPendingFriendships(userId)
+  }
+
+  async checkPendingFriendship(
+    userId1: string,
+    userId2: string
+  ): Promise<Friendship | null> {
+    return await this.friendshipRepository.checkPendingFriendship(
+      userId1,
+      userId2
+    );
   }
 
   //implementação do método para retornar lista de usuários

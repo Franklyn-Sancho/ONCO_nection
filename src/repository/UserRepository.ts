@@ -26,7 +26,10 @@ export default class UserRepository implements IUserRepository {
 
   async create(user: CreateUserData): Promise<User> {
     return await this.prisma.user.create({
-      data: user,
+      data: {
+        ...user,
+        imageProfile: user.imageProfile?.toString(),
+      },
     });
   }
 

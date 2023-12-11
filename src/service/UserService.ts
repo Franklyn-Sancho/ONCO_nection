@@ -12,7 +12,8 @@ import { UnauthorizedError } from "../errors/UnauthorizedError";
 export interface IUserService {
   register(user: CreateUserData): Promise<{user: User, emailResult: any}>;
   findUserByName(name: string, userId: string): Promise<UserName[] | null>;
-  authenticate(email: string, password: string): Promise<User>;
+  findUserById(id: string): Promise<User | null>
+  authenticate(email: string, password: string): Promise<{ user: User, token: string }>;
   blockUser(blockerId: string, blockedId: string): Promise<void>;
 }
 
@@ -39,6 +40,10 @@ export default class UserService implements IUserService {
     return { user: createdUser, emailResult };
   }
 
+  async findUserById(id: string) {
+    return await this.userRepository.findUserById(id)
+  }
+
   async findUserByName(
     name: string,
     userId: string
@@ -49,7 +54,7 @@ export default class UserService implements IUserService {
     return this.userRepository.findUserByName(name, onlyNonBlockingUsers);
   }
 
-  async authenticate(email: string, password: string): Promise<User> {
+  async authenticate(email: string, password: string): Promise<{ user: User, token: string }> {
     const findUser = await this.userRepository.findByEmail(email);
 
     if (!findUser) {
@@ -66,7 +71,7 @@ export default class UserService implements IUserService {
       expiresIn: "1h",
     });
 
-    return { ...findUser, token };
+    return { user: { ...findUser }, token };
   }
 
   async blockUser(blockerId: string, blockedId: string) {

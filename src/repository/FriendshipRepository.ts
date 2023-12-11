@@ -1,12 +1,11 @@
 import { Friendship, PrismaClient, User } from "@prisma/client";
 
-
 export type FriendshipStatus = "ACCEPTED" | "DENIED" | "BLOCKED";
 
 //interface para descrever os métodos que o repositório deve implementar
 export interface IFriendshipRepository {
   getFriendshipById(id: string): Promise<Friendship | null>;
-  getFriendship(
+  getFriendshipSolicitations(
     requesterId: string,
     addressedId: string
   ): Promise<Friendship | null>;
@@ -16,6 +15,11 @@ export interface IFriendshipRepository {
   ): Promise<Friendship>;
   acceptFriendship(id: string, status: string): Promise<Friendship>;
   deleteFriendship(id: string): Promise<void>;
+  listPendingFriendships(userId: string): Promise<Friendship[]>
+  checkPendingFriendship(
+    userId1: string,
+    userId2: string
+  ): Promise<Friendship | null>;
   getFriends(userId: string): Promise<User[] | null>;
 }
 
@@ -35,7 +39,7 @@ export class FriendshipRepository implements IFriendshipRepository {
   }
 
   //implementa o método getFriendship para recuperar uma solicitação de amizade
-  async getFriendship(
+  async getFriendshipSolicitations(
     requesterId: string,
     addressedId: string
   ): Promise<Friendship | null> {
@@ -80,7 +84,53 @@ export class FriendshipRepository implements IFriendshipRepository {
         id: id,
       },
     });
-}
+  }
+
+  async listPendingFriendships(userId: string): Promise<Friendship[]> {
+    return this.prisma.friendship.findMany({
+      where: {
+        AND: [
+          { addressedId: userId },
+          { status: "PENDING" },
+        ],
+      },
+      include: {
+        requester: {
+          select: {
+            id: true,
+            name: true,
+            imageProfile: true
+          }
+        }
+      }
+    });
+  }
+
+  async checkPendingFriendship(
+    userId1: string,
+    userId2: string
+  ): Promise<Friendship | null> {
+    return this.prisma.friendship.findFirst({
+      where: {
+        OR: [
+          {
+            AND: [
+              { requesterId: userId1 },
+              { addressedId: userId2 },
+              { status: "PENDING" },
+            ],
+          },
+          {
+            AND: [
+              { requesterId: userId2 },
+              { addressedId: userId1 },
+              { status: "PENDING" },
+            ],
+          },
+        ],
+      },
+    });
+  }
 
   //implementa o método que retorna a lista de amizades;
   async getFriends(userId: string): Promise<User[] | null> {

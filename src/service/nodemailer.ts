@@ -28,10 +28,10 @@ export default class EmailService implements IEmailService {
   ) {
     this.transporter = transporter;
     this.userRepository = userRepository;
-    this.startEmailServiceCheck();
+    /* this.startEmailServiceCheck(); */
   }
 
-  private startEmailServiceCheck() {
+  /* private startEmailServiceCheck() {
     setInterval(this.tryProcessEmailQueue.bind(this), 60000);
   }
 
@@ -42,7 +42,7 @@ export default class EmailService implements IEmailService {
     } catch (error) {
       console.error("the email service is unavailable");
     }
-  }
+  } */
 
   async generateEmailConfirmationToken(user: User): Promise<string> {
     const token = randomBytes(20).toString("hex");

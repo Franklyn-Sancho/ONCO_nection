@@ -9,7 +9,7 @@ export function registerFriendshipRoutes(
 ) {
   // Registra a rota POST /friendships para enviar uma nova solicitação de amizade
   fastify.post(
-    "/friendships",
+    "/friendships/:addressedId",
     { preHandler: [authenticate] },
     friendshipController.sendFriendRequest.bind(friendshipController)
   );
@@ -20,16 +20,28 @@ export function registerFriendshipRoutes(
     friendshipController.acceptFriendRequest.bind(friendshipController)
   );
 
-  // Registra a rota GET /friends/:userId para recuperar a lista de amigos de um usuário
+
   fastify.get(
     "/friends/:userId",
     { preHandler: [authenticate] },
     friendshipController.getFriends.bind(friendshipController)
   );
 
+  fastify.get(
+    "/friends/solicitation/:addressedId",
+    { preHandler: [authenticate] },
+    friendshipController.checkPendingFriendship.bind(friendshipController)
+  );
+
+  fastify.get(
+    "/friendship/solicitations/:addressedId",
+    /* { preHandler: [authenticate] } */
+    friendshipController.listPendingFriendship.bind(friendshipController)
+  );
+
   //rota responsável por deletar uma amizade por seu ID
   fastify.delete(
-    "/friendship/:id",
+    "/friendships/:id",
     { preHandler: [authenticate] },
     friendshipController.deleteFriendship.bind(friendshipController)
   );

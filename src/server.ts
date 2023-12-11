@@ -8,20 +8,35 @@ import { setupSocket } from "./socket";
 import { chatService, io, messageService } from "./utils/providers";
 import { meetingRouter } from "./router/meeting.router";
 import { muralRouter } from "./router/mural.router";
+import { FastifyCookieOptions, fastifyCookie } from "@fastify/cookie";
 import { registerFriendshipRoutes } from "./router/friendship.router";
+import fastifyStatic from "@fastify/static";
+import path from "path";
 
 import("dotenv").then((dotenv) => dotenv.config());
 
-//app function
 async function main() {
+  const __dirname = path.resolve();
+
   const fastify = Fastify({
     logger: true,
   });
+
+  /* fastify.register(fastifyCookie, {
+    secret: process.env.TOKEN_KEY,
+    parseOptions: {},
+  } as FastifyCookieOptions); */
 
   setupSocket(io, messageService, chatService);
 
   await fastify.register(cors, {
     origin: true,
+    credentials: true,
+  });
+
+  fastify.register(fastifyStatic, {
+    root: path.join(__dirname, "upload"),
+    prefix: "/upload/",
   });
 
   await fastify.register(jwt, {
@@ -45,7 +60,7 @@ async function main() {
     reply.code(404).send({ error: "Página não encontrada" });
   });
 
-  await fastify.listen({ port: 3000, host: "0.0.0.0" });
+  await fastify.listen({ port: 3333, host: "0.0.0.0" });
 
   return fastify;
 }

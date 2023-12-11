@@ -4,8 +4,9 @@ import { Image } from "./meetingTypes";
 export interface CreateUserData {
     name: string, 
     email: string, 
+    description: string | null,
     password: string,
-    image?: string | Image[] | undefined;
+    imageProfile?: string | Image[] | undefined;
 }
 
 export interface UserParams {

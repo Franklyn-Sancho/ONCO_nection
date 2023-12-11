@@ -143,10 +143,11 @@ export class MeetingController implements IMeetingController {
   async removeLikeMeeting(request: FastifyRequest, reply: FastifyReply) {
     try {
       const { likesId } = request.params as LikeParams;
+      const {userId} = request.user as UserParams
 
-      (request.body as MeetingParams).meetingId = likesId;
+      /* (request.body as MeetingParams).meetingId = likesId; */
 
-      await this.likeController.deleteLike(request, reply);
+      await this.likeController.deleteLike(likesId, userId);
     } catch (error) {
       reply.code(500).send({
         error: `error removing like from meeting: ${error}`,

@@ -38,16 +38,38 @@ export async function handleImageUpload(
   request: FastifyRequest
 ): Promise<string | undefined> {
   const contentType = request.headers["content-type"];
-  const {image} = request.body as {image?: Image[]}
+  const { image, imageProfile } = request.body as {
+    image?: Image[];
+    imageProfile?: Image[];
+  };
 
-  if (image && contentType && contentType.startsWith("multipart/form-data")) {
-    const imageBuffer = image[0].data;
-    const filename = image[0].filename;
+  const imageToUpload = image || imageProfile;
+
+  //se não funcionar, apagar daqui até o comentário 
+  if(
+    imageToUpload && 
+    contentType &&
+    contentType.startsWith("multipart/form-data")
+  ) {
+    const imageBuffer = imageToUpload[0].data;
+    const filename = imageToUpload[0].filename
+    const filepath = await handleMultipartFormData(imageBuffer,filename)
+
+    return filepath
+  }
+
+  /* if (
+    imageToUpload &&
+    contentType &&
+    contentType.startsWith("multipart/form-data")
+  ) {
+    const imageBuffer = imageToUpload[0].data;
+    const filename = imageToUpload[0].filename;
     const filePath = await handleMultipartFormData(imageBuffer, filename);
 
     const fileContent = fs.readFileSync(filePath);
-    const base64Image = fileContent.toString('base64');
+    const base64Image = fileContent.toString("base64");
 
     return base64Image;
-  }
+  } */
 }

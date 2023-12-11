@@ -15,6 +15,7 @@ import { UnauthorizedError } from "../errors/UnauthorizedError";
 export interface IUserController {
   register(request: FastifyRequest, reply: FastifyReply): Promise<void>;
   findUserByName(request: FastifyRequest, reply: FastifyReply): Promise<void>;
+  findUserById(request: FastifyRequest, reply: FastifyReply): Promise<void>;
   authenticate(
     request: FastifyRequest<{ Body: User }>,
     reply: FastifyReply
@@ -36,14 +37,17 @@ export default class UserController implements IUserController {
   async register(request: FastifyRequest, reply: FastifyReply): Promise<void> {
     try {
       await validateRequest(request, reply, userRegisterValidade);
-      const { name, email, password } = request.body as CreateUserData;
-      const base64Image = await handleImageUpload(request);
+      const { name, email, description, password } = request.body as CreateUserData;
+      /* const base64Image = await handleImageUpload(request); */
+
+      const filePath = await handleImageUpload(request);
 
       const { emailResult } = await this.userService.register({
         name,
         email,
+        description,
         password,
-        image: base64Image,
+        imageProfile: filePath,
       });
 
       const message = emailResult.success
@@ -53,7 +57,30 @@ export default class UserController implements IUserController {
       reply.status(201).send({ message });
     } catch (error) {
       reply.status(500).send({
-        message: "chedk your datas",
+        message: "check your datas",
+      });
+    }
+  }
+
+  async findUserById(
+    request: FastifyRequest,
+    reply: FastifyReply
+  ): Promise<void> {
+    try {
+      const { id } = request.params as any;
+
+      const getUserById = await this.userService.findUserById(id);
+
+      reply.send({
+        message: "Users found",
+        id: getUserById?.id,
+        name: getUserById?.name,
+        imageProfile: getUserById?.imageProfile,
+        description: getUserById?.description
+      });
+    } catch (error) {
+      reply.status(500).send({
+        error: `an error has occurred: ${error}`,
       });
     }
   }
@@ -90,8 +117,21 @@ export default class UserController implements IUserController {
 
       const result = await this.userService.authenticate(email, password);
 
+      /* if (result.token) {
+        reply.setCookie("token", result.token, {
+          path: "/",
+          httpOnly: true,
+          sameSite: 'none',
+          secure: true
+        });
+      } else {
+        throw new Error("ocorreu um erro");
+      } */
+
       reply.status(200).send({
+        id: result.user.id,
         token: result.token,
+        imageProfile: result.user.imageProfile,
       });
     } catch (error) {
       if (
