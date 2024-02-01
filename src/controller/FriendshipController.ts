@@ -39,7 +39,8 @@ export interface IFriendshipController {
     request: FastifyRequest,
     reply: FastifyReply
   ): Promise<void>;
-  getFriends(request: FastifyRequest, reply: FastifyReply): Promise<User[]>;
+  getFriends(request: FastifyRequest, reply: FastifyReply): Promise<void>;
+  getAllFriends(request: FastifyRequest, reply: FastifyReply): Promise<void>;
 }
 
 //a classe controladora implementa a interface
@@ -185,9 +186,35 @@ export class FriendshipController implements IFriendshipController {
   async getFriends(
     request: FastifyRequest,
     reply: FastifyReply
-  ): Promise<User[]> {
-    const { userId } = request.params as any;
-    const result = await this.friendshipService.getFriends(userId);
-    return reply.send(result);
+  ): Promise<void> {
+    try {
+      const { userId } = request.params as any;
+      const result = await this.friendshipService.getFriends(userId);
+      return reply.code(200).send({
+        content: result
+      });
+    } catch (error) {
+      reply.code(500).send({
+        error: error,
+      });
+    }
+  }
+
+  async getAllFriends(request: FastifyRequest, reply: FastifyReply): Promise<void> {
+    try {
+      const { userId } = request.params as UserParams;
+
+      const result = await this.friendshipService.getAllFriends(
+        userId
+      );
+
+      reply.code(200).send({
+        content: result,
+      });
+    } catch (error) {
+      reply.code(500).send({
+        error: error,
+      });
+    }
   }
 }

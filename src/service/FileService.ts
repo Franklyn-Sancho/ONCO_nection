@@ -3,6 +3,7 @@ import { FastifyRequest } from "fastify";
 import * as fs from "fs";
 import * as path from "path";
 import { Image } from "../types/meetingTypes";
+import { randomBytes } from "crypto";
 
 //pasta onde estarão as pastas de upload
 const uploadDir = "./upload";
@@ -26,7 +27,10 @@ export async function handleMultipartFormData(
   filename: string
 ): Promise<string> {
   try {
-    const imageData = await uploadImage(imageBuffer, filename);
+
+    const hash = randomBytes(16).toString('hex');
+    const newFilename = `${hash}${path.extname(filename)}`
+    const imageData = await uploadImage(imageBuffer, newFilename);
     return imageData;
   } catch (error) {
     console.error(error);

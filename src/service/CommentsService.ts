@@ -23,12 +23,12 @@ export class CommentsService implements ICommentService {
     const comment = await this.commentsRepository.getCommentById(id);
 
     if (!comment) {
-      throw new NotFoundError("no comments with this id were found");
+      throw new NotFoundError("No comments were found");
     }
 
     if (comment.userId !== userId) {
       throw new ForbiddenError(
-        "You do not have permission to delete this comment"
+        "You don't have permission to delete this comment"
       );
     }
 

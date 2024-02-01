@@ -11,6 +11,15 @@ export interface IMessageService {
   ): Promise<Message>;
 }
 
+export interface IMessageService {
+  createMessage(
+    content: string,
+    senderId: string,
+    recipientId: string,
+    chatId: string
+  ): Promise<Message>;
+}
+
 export class MessageService implements IMessageService {
   private messageRepository: IMessageRepository;
   private io: socketIo.Server;

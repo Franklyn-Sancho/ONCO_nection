@@ -28,6 +28,7 @@ export interface IFriendshipService {
     userId2: string
   ): Promise<Friendship | null>;
   getFriends(userId: string): Promise<User[] | null>;
+  getAllFriends(userId: string): Promise<Friendship[] | null>;
 }
 
 //classe da camada de serviço do sistema de amizade implementa a interface
@@ -64,7 +65,9 @@ export class FriendshipService implements IFriendshipService {
     }
 
     if (requesterId == addressedId) {
-      throw new BadRequestError("O usuário não pode enviar solicitação para si mesmo");
+      throw new BadRequestError(
+        "O usuário não pode enviar solicitação para si mesmo"
+      );
     }
 
     //se não existe, o método do repositório é chamado
@@ -132,7 +135,7 @@ export class FriendshipService implements IFriendshipService {
   }
 
   async listPendingFriendships(userId: string): Promise<Friendship[]> {
-      return await this.friendshipRepository.listPendingFriendships(userId)
+    return await this.friendshipRepository.listPendingFriendships(userId);
   }
 
   async checkPendingFriendship(
@@ -148,5 +151,9 @@ export class FriendshipService implements IFriendshipService {
   //implementação do método para retornar lista de usuários
   async getFriends(userId: string): Promise<User[] | null> {
     return this.friendshipRepository.getFriends(userId);
+  }
+
+  getAllFriends(userId: string): Promise<Friendship[] | null> {
+    return this.friendshipRepository.getAllFriends(userId);
   }
 }

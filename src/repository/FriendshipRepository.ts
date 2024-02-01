@@ -21,6 +21,7 @@ export interface IFriendshipRepository {
     userId2: string
   ): Promise<Friendship | null>;
   getFriends(userId: string): Promise<User[] | null>;
+  getAllFriends(userId: string): Promise<Friendship[] | null> ;
 }
 
 //a classe de repositório implementa a interface com os métodos
@@ -144,11 +145,31 @@ export class FriendshipRepository implements IFriendshipRepository {
         addressed: true,
       },
     });
-
+  
     return friendships.map((friendship) =>
       friendship.requesterId === userId
         ? friendship.addressed
         : friendship.requester
     );
+  }
+
+  async getAllFriends(userId: string): Promise<Friendship[] | null> {
+    return this.prisma.friendship.findMany({
+      where: {
+        AND: [
+          { addressedId: userId },
+          { status: "ACCEPTED" },
+        ],
+      },
+      include: {
+        requester: {
+          select: {
+            id: true,
+            name: true,
+            imageProfile: true
+          }
+        }
+      }
+    });
   }
 }

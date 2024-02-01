@@ -1,11 +1,10 @@
 import { Comments, PrismaClient } from "@prisma/client";
-import { CommentTypes} from "../types/commentTypes";
-
+import { CommentTypes } from "../types/commentTypes";
 
 export interface ICommentRepository {
   createComment(data: CommentTypes): Promise<Comments>;
   getCommentById(id: string): Promise<Comments | null>;
-  deleteComment(id: string): Promise<Comments>;
+  deleteComment(id: string): Promise<Comments | null>;
 }
 
 export class CommentsRepository implements ICommentRepository {
@@ -29,7 +28,7 @@ export class CommentsRepository implements ICommentRepository {
     });
   }
 
-  async deleteComment(id: string): Promise<Comments> {
+  async deleteComment(id: string): Promise<Comments | null> {
     return await this.prisma.comments.delete({
       where: { id },
     });

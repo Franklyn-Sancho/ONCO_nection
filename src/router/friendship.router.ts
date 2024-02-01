@@ -22,9 +22,9 @@ export function registerFriendshipRoutes(
 
 
   fastify.get(
-    "/friends/:userId",
-    { preHandler: [authenticate] },
-    friendshipController.getFriends.bind(friendshipController)
+    "/friends/:addressedId",
+    /* { preHandler: [authenticate] }, */
+    friendshipController.getAllFriends.bind(friendshipController)
   );
 
   fastify.get(
