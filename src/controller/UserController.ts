@@ -40,7 +40,9 @@ export default class UserController implements IUserController {
       const { name, email, description, password } = request.body as CreateUserData;
       /* const base64Image = await handleImageUpload(request); */
 
-      const filePath = await handleImageUpload(request);
+      const subDir = "user_profile"
+
+      const filePath = await handleImageUpload(request, subDir);
 
       const { emailResult } = await this.userService.register({
         name,

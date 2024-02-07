@@ -67,7 +67,7 @@ export default class UserService implements IUserService {
       throw new UnauthorizedError("Invalid email or password");
     }
 
-    const token = jwt.sign({ userId: findUser.id }, process.env.TOKEN_KEY, {
+    const token = jwt.sign({ userId: findUser.id }, process.env.SECRET_KEY, {
       expiresIn: "1h",
     });
 

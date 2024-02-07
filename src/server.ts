@@ -12,8 +12,10 @@ import { FastifyCookieOptions, fastifyCookie } from "@fastify/cookie";
 import { registerFriendshipRoutes } from "./router/friendship.router";
 import fastifyStatic from "@fastify/static";
 import path from "path";
+import dotenv from 'dotenv'
 
-import("dotenv").then((dotenv) => dotenv.config());
+/* import("dotenv").then((dotenv) => dotenv.config()); */
+dotenv.config()
 
 async function main() {
   const __dirname = path.resolve();
@@ -40,7 +42,7 @@ async function main() {
   });
 
   await fastify.register(jwt, {
-    secret: process.env.TOKEN_KEY,
+    secret: process.env.SECRET_KEY,
     decode: { complete: true },
   });
 

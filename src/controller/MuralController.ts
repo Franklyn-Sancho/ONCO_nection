@@ -66,7 +66,9 @@ export class MuralController implements IMuralController {
         const { userId } = request.user as UserParams;
         const { body } = request.body as CreateMuralData;
 
-        const base64Image = await handleImageUpload(request);
+        const subDir = "mural"
+
+        const base64Image = await handleImageUpload(request, subDir);
 
         const mural = await this.muralService.createMural({
           body,

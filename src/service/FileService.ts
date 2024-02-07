@@ -4,16 +4,18 @@ import * as fs from "fs";
 import * as path from "path";
 import { Image } from "../types/meetingTypes";
 import { randomBytes } from "crypto";
+import { v4 as uuidv4 } from 'uuid'
 
 //pasta onde estarão as pastas de upload
 const uploadDir = "./upload";
 
-export async function uploadImage(fileBuffer: Buffer, filename: string) {
-  const filePath = path.join(uploadDir, filename);
+export async function uploadImage(fileBuffer: Buffer, filename: string, subDir: string) {
+  const dirPath = path.join(uploadDir, subDir)
+  const filePath = path.join(dirPath, filename);
 
   //o diretório upload será criado se ele não existir
-  if (!fs.existsSync(uploadDir)) {
-    fs.mkdirSync(uploadDir);
+  if (!fs.existsSync(dirPath)) {
+    fs.mkdirSync(dirPath, { recursive: true });
   }
 
   await fs.promises.writeFile(filePath, fileBuffer);
@@ -21,16 +23,16 @@ export async function uploadImage(fileBuffer: Buffer, filename: string) {
   return filePath;
 }
 
-//
 export async function handleMultipartFormData(
   imageBuffer: Buffer,
-  filename: string
+  filename: string,
+  subDir: string
 ): Promise<string> {
   try {
 
     const hash = randomBytes(16).toString('hex');
     const newFilename = `${hash}${path.extname(filename)}`
-    const imageData = await uploadImage(imageBuffer, newFilename);
+    const imageData = await uploadImage(imageBuffer, newFilename, subDir);
     return imageData;
   } catch (error) {
     console.error(error);
@@ -39,7 +41,8 @@ export async function handleMultipartFormData(
 }
 
 export async function handleImageUpload(
-  request: FastifyRequest
+  request: FastifyRequest,
+  subDir: string
 ): Promise<string | undefined> {
   const contentType = request.headers["content-type"];
   const { image, imageProfile } = request.body as {
@@ -49,31 +52,16 @@ export async function handleImageUpload(
 
   const imageToUpload = image || imageProfile;
 
-  //se não funcionar, apagar daqui até o comentário 
-  if(
-    imageToUpload && 
-    contentType &&
-    contentType.startsWith("multipart/form-data")
-  ) {
-    const imageBuffer = imageToUpload[0].data;
-    const filename = imageToUpload[0].filename
-    const filepath = await handleMultipartFormData(imageBuffer,filename)
-
-    return filepath
-  }
-
-  /* if (
+  if (
     imageToUpload &&
-    contentType &&
-    contentType.startsWith("multipart/form-data")
+    request.isMultipart()
+    /* contentType &&
+    contentType.startsWith("multipart/form-data") */
   ) {
     const imageBuffer = imageToUpload[0].data;
-    const filename = imageToUpload[0].filename;
-    const filePath = await handleMultipartFormData(imageBuffer, filename);
+    const filename = uuidv4() + path.extname(imageToUpload[0].filename);
+    const filepath = await handleMultipartFormData(imageBuffer, filename, subDir)
 
-    const fileContent = fs.readFileSync(filePath);
-    const base64Image = fileContent.toString("base64");
-
-    return base64Image;
-  } */
+    return path.basename(filepath)
+  }
 }

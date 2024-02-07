@@ -57,7 +57,9 @@ export class MeetingController implements IMeetingController {
 
         const { userId } = request.user as UserParams;
 
-        const base64Image = await handleImageUpload(request);
+        const subDir = "meetings"
+
+        const base64Image = await handleImageUpload(request, subDir);
 
         const meeting = await this.meetingService.createMeeting({
           type,
