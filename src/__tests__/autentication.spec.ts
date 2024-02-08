@@ -47,7 +47,7 @@ describe("UserController", () => {
   
     expect(response.status).toBe(400);
     expect(response.body).toStrictEqual({
-      message: "Ocorreu um erro: email requerido",
+      message: "an error has occurred: email is required",
     });
   });
   

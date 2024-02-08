@@ -30,6 +30,13 @@ export async function handleMultipartFormData(
 ): Promise<string> {
   try {
 
+    const extension = path.extname(filename)
+    const validExtensions = [".jpg", ".jpeg", ".png", ".gif"]
+
+    if (!validExtensions.includes(extension)) {
+      throw new Error(`Invalid image file format. Only ${validExtensions.join(', ')} are allowed.`)
+    }
+
     const hash = randomBytes(16).toString('hex');
     const newFilename = `${hash}${path.extname(filename)}`
     const imageData = await uploadImage(imageBuffer, newFilename, subDir);
@@ -65,3 +72,4 @@ export async function handleImageUpload(
     return path.basename(filepath)
   }
 }
+

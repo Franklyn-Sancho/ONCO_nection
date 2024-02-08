@@ -44,7 +44,7 @@ describe("MeetingController", () => {
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty("meetingId");
     expect(response.body).toHaveProperty("message");
-    expect(response.body.message).toBe("Meeting criado com sucesso");
+    expect(response.body.message).toBe("meeting created successfully");
   });
 
   it("Should update a meeting", async () => {
@@ -71,7 +71,7 @@ describe("MeetingController", () => {
 
     expect(updateResponse.status).toBe(200);
     expect(updateResponse.body).toStrictEqual({
-      message: "Meeting atualizado com sucesso",
+      message: "meeting updated successfully",
     });
   });
 
@@ -94,7 +94,7 @@ describe("MeetingController", () => {
 
     expect(deleteResponse.status).toBe(200);
     expect(deleteResponse.body).toStrictEqual({
-      message: "meeting deletado com sucesso",
+      message: "meeting deleted successfully",
     });
   });
 
@@ -109,7 +109,7 @@ describe("MeetingController", () => {
 
     expect(response.status).toBe(400);
     expect(response.body).toStrictEqual({
-      message: "Ocorreu um erro: title is required",
+      message: "an error has occurred : title is required",
     });
   });
 
@@ -124,7 +124,7 @@ describe("MeetingController", () => {
 
     expect(response.status).toBe(400);
     expect(response.body).toStrictEqual({
-      message: "Ocorreu um erro: body is required",
+      message: "an error has occurred : body is required",
     });
   });
 
@@ -164,7 +164,7 @@ describe("MeetingController", () => {
     expect(removeResponse.status).toBe(403);
     expect(removeResponse.body).toStrictEqual({
       error: "Forbidden",
-      message: "Você não tem permissão para excluir esse conteúdo",
+      message: "You do not have permission to delete this content",
       statusCode: 403,
     });
   });

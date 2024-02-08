@@ -42,7 +42,7 @@ describe("MuralController", () => {
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty("muralId");
     expect(response.body).toHaveProperty("message");
-    expect(response.body.message).toBe("Mural publicado com sucesso");
+    expect(response.body.message).toBe("Mural was published successfully");
   });
 
   it("Should update a mural", async () => {
@@ -67,7 +67,7 @@ describe("MuralController", () => {
 
     expect(updateResponse.status).toBe(200);
     expect(updateResponse.body).toStrictEqual({
-      message: "mural atualizado com sucesso",
+      message: "mural was updated successfully",
     });
   });
 
@@ -89,7 +89,7 @@ describe("MuralController", () => {
 
     expect(deleteResponse.status).toBe(200);
     expect(deleteResponse.body).toStrictEqual({
-      message: "mural deletado com sucesso",
+      message: "mural was deleted successfully",
       muralId: muralId,
     });
   });
@@ -103,7 +103,7 @@ describe("MuralController", () => {
 
     expect(response.status).toBe(400);
     expect(response.body).toStrictEqual({
-      message: "Ocorreu um erro: body is required",
+      message: "an error has occurred : body is required",
     });
   });
 
@@ -137,7 +137,7 @@ describe("MuralController", () => {
     expect(removeResponse.status).toBe(403);
     expect(removeResponse.body).toStrictEqual({
       error: "Forbidden",
-      message: "Você não tem permissão para excluir este mural",
+      message: "You do not have permission to delete this mural",
       statusCode: 403,
     });
   });

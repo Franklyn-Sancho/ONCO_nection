@@ -38,7 +38,7 @@ export class MeetingController implements IMeetingController {
     private likeController: ILikeController,
     private meetingRepository: IMeetingRepository,
     private commentController: ICommentController
-  ) {}
+  ) { }
 
   async createMeeting(
     request: FastifyRequest,
@@ -141,11 +141,10 @@ export class MeetingController implements IMeetingController {
     }
   }
 
-  //método da camada de controle para remover like do meeting
   async removeLikeMeeting(request: FastifyRequest, reply: FastifyReply) {
     try {
       const { likesId } = request.params as LikeParams;
-      const {userId} = request.user as UserParams
+      const { userId } = request.user as UserParams
 
       /* (request.body as MeetingParams).meetingId = likesId; */
 

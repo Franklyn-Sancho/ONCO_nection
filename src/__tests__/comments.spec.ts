@@ -57,7 +57,7 @@ describe("CommentsController", () => {
     expect(commentResponse.status).toBe(201);
     expect(commentResponse.body).toStrictEqual({
       commentId: commentResponse.body.commentId,
-      message: "Comentário adicionado com sucesso",
+      message: "comment added successfully",
     });
   });
 
@@ -83,7 +83,7 @@ describe("CommentsController", () => {
     expect(commentResponse.status).toBe(201);
     expect(commentResponse.body).toStrictEqual({
       commentId: commentResponse.body.commentId,
-      message: "Comentário adicionado com sucesso",
+      message: "comment added successfully",
     });
   });
 
@@ -110,7 +110,7 @@ describe("CommentsController", () => {
 
     expect(commentResponse.status).toBe(400);
     expect(commentResponse.body).toStrictEqual({
-      message: "Ocorreu um erro: content is required",
+      message: "an error has occurred : content is required",
     });
   });
 
@@ -137,7 +137,7 @@ describe("CommentsController", () => {
 
     expect(commentResponse.status).toBe(400);
     expect(commentResponse.body).toStrictEqual({
-      message: "Ocorreu um erro: content is required",
+      message: "an error has occurred : content is required",
     });
   });
 
@@ -288,7 +288,7 @@ describe("CommentsController", () => {
 
     expect(removeResponse.status).toBe(500);
     expect(removeResponse.body).toStrictEqual({
-      "error": "Error removing comment: Error: Você não tem permissão para excluir esse comentário"
+      "error": "Error removing comment: Error: You don't have permission to delete this comment"
     })
   });
 
@@ -321,7 +321,7 @@ describe("CommentsController", () => {
 
     expect(removeResponse.status).toBe(500);
     expect(removeResponse.body).toStrictEqual({
-      "error": "Error removing comment: Error: Você não tem permissão para excluir esse comentário"
+      "error": "Error removing comment: Error: You don't have permission to delete this comment"
     })
   });
 });
