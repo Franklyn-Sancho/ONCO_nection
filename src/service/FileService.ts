@@ -5,12 +5,14 @@ import * as path from "path";
 import { Image } from "../types/meetingTypes";
 import { randomBytes } from "crypto";
 import { v4 as uuidv4 } from 'uuid'
+import * as fileType from 'file-type'
 
 //pasta onde estarão as pastas de upload
-const uploadDir = "./upload";
+const UPLOAD_DIRECTORY = "./upload";
+
 
 export async function uploadImage(fileBuffer: Buffer, filename: string, subDir: string) {
-  const dirPath = path.join(uploadDir, subDir)
+  const dirPath = path.join(UPLOAD_DIRECTORY, subDir)
   const filePath = path.join(dirPath, filename);
 
   //o diretório upload será criado se ele não existir
@@ -23,7 +25,9 @@ export async function uploadImage(fileBuffer: Buffer, filename: string, subDir: 
   return filePath;
 }
 
-export async function handleMultipartFormData(
+
+
+/* export async function handleMultipartFormData(
   imageBuffer: Buffer,
   filename: string,
   subDir: string
@@ -44,6 +48,33 @@ export async function handleMultipartFormData(
   } catch (error) {
     console.error(error);
     throw error;
+  }
+} */
+
+
+export async function handleMultipartFormData(
+  imageBuffer: Buffer,
+  filename: string,
+  subDir: string,
+): Promise<string> {
+
+  try {
+    const type = await fileType.fileTypeFromBuffer(imageBuffer)
+
+    const validMimeTypes = ["image/jpeg", "image/png", "image/gif", "image/svg+xml"];
+
+    if (!type || !validMimeTypes.includes(type.mime)) {
+      throw new Error(`Invalid image file format. Only ${validMimeTypes.join(', ')} are allowed.`);
+    }
+
+    const hash = randomBytes(16).toString('hex');
+    const newFilename = `${hash}${path.extname(filename)}`
+    const imageData = await uploadImage(imageBuffer, newFilename, subDir);
+    return imageData;
+  }
+  catch (error) {
+    console.error(error)
+    throw error
   }
 }
 

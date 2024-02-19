@@ -8,11 +8,11 @@ import { setupSocket } from "./socket";
 import { chatService, io, messageService } from "./utils/providers";
 import { meetingRouter } from "./router/meeting.router";
 import { muralRouter } from "./router/mural.router";
-import { FastifyCookieOptions, fastifyCookie } from "@fastify/cookie";
 import { registerFriendshipRoutes } from "./router/friendship.router";
 import fastifyStatic from "@fastify/static";
 import path from "path";
 import dotenv from 'dotenv'
+
 
 /* import("dotenv").then((dotenv) => dotenv.config()); */
 dotenv.config()
@@ -36,17 +36,17 @@ async function main() {
     credentials: true,
   });
 
+
   fastify.register(fastifyStatic, {
     root: path.join(__dirname, "upload"),
     prefix: "/upload/",
   });
 
+
   await fastify.register(jwt, {
     secret: process.env.SECRET_KEY,
     decode: { complete: true },
   });
-
-  /* fastify.register(fastifyMultipart); */
 
   fastify.register(fastifyMultipart, {
     addToBody: true, // Isso permite adicionar os campos ao objeto `request.body`
