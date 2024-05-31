@@ -1,4 +1,4 @@
-import Fastify from "fastify";
+import Fastify, { FastifyReply, FastifyRequest } from "fastify";
 import cors from "@fastify/cors";
 import jwt from "@fastify/jwt";
 import userRouter from "./router/user.router";
@@ -12,9 +12,10 @@ import { registerFriendshipRoutes } from "./router/friendship.router";
 import fastifyStatic from "@fastify/static";
 import path from "path";
 import dotenv from 'dotenv'
+import { setupSwagger } from "./swagger";
 
 
-/* import("dotenv").then((dotenv) => dotenv.config()); */
+
 dotenv.config()
 
 async function main() {
@@ -24,10 +25,7 @@ async function main() {
     logger: true,
   });
 
-  /* fastify.register(fastifyCookie, {
-    secret: process.env.TOKEN_KEY,
-    parseOptions: {},
-  } as FastifyCookieOptions); */
+  setupSwagger(fastify)
 
   setupSocket(io, messageService, chatService);
 
@@ -52,6 +50,8 @@ async function main() {
     addToBody: true, // Isso permite adicionar os campos ao objeto `request.body`
   });
 
+
+
   fastify.register(userRouter); //register to userRouter
   fastify.register(meetingRouter); //register to meetingRouter
   fastify.register(registerFriendshipRoutes);
@@ -65,6 +65,8 @@ async function main() {
   await fastify.listen({ port: 3333, host: "0.0.0.0" });
 
   return fastify;
+
+
 }
 
 export default main();

@@ -8,7 +8,10 @@ export default async function userRouter(fastify: FastifyInstance) {
     reply.send("bem vindo");
   });
 
-  fastify.post("/user/register", userController.register.bind(userController)); //register
+  fastify.post(
+    "/user/register", userController.register.bind(userController)
+  );
+
   fastify.post("/user/login", userController.authenticate.bind(userController)); //login
 
   fastify.get(
@@ -24,7 +27,7 @@ export default async function userRouter(fastify: FastifyInstance) {
 
   fastify.get(
     "/user/:id",
-   /*  { preHandler: [authenticate] }, */
+    /*  { preHandler: [authenticate] }, */
     userController.findUserById.bind(userController)
   );
 
