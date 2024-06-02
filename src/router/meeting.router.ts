@@ -2,6 +2,8 @@ import { FastifyInstance } from "fastify";
 import { authenticate } from "../plugins/authenticate";
 import { meetingController } from "../utils/providers";
 import { UserRequest } from "../types/userTypes";
+import { commentMeetingCreate, createMeetingSchema, updateMeetingSchema } from "../schema/meeting.schema";
+import { errorResponse, successResponse } from "../schema/commonResponse";
 
 export function meetingRouter(
   fastify: FastifyInstance,
@@ -9,25 +11,49 @@ export function meetingRouter(
   done: () => void
 ) {
 
-
-
   fastify.post(
     "/meetings/create",
-    { preHandler: authenticate },
+    {
+      schema: {
+        body: createMeetingSchema,
+        response: {
+          '200': successResponse, // Reference common response object
+          '400': errorResponse, // Reference common response object
+        },
+      },
+      preHandler: authenticate, // Pre-handler included within options
+    },
     meetingController.createMeeting.bind(meetingController)
   );
 
   fastify.put(
     "/meetings/:meetingId/update",
-    {preHandler: authenticate},
+    {
+      schema: {
+        body: updateMeetingSchema,
+        response: {
+          '200': successResponse, // Reference common response object
+          '400': errorResponse, // Reference common response object
+        },
+      },
+      preHandler: authenticate, // Pre-handler included within options
+    },
     meetingController.updateMeeting.bind(meetingController)
   )
 
   fastify.delete(
     "/meetings/:meetingId/delete",
-    {preHandler: authenticate},
+    {
+      schema: {
+        response: {
+          '204': { type: 'object' }, // No content (204) for successful deletion
+          '404': errorResponse, // Reference error response schema for meeting not found
+        },
+      },
+      preHandler: authenticate,
+    },
     meetingController.deleteMeeting.bind(meetingController)
-  )
+  );
 
   fastify.post(
     "/meetings/:meetingId/likes",
@@ -37,7 +63,16 @@ export function meetingRouter(
 
   fastify.post(
     "/meetings/:meetingId/comments",
-    { preHandler: authenticate },
+    {
+      schema: {
+        body: commentMeetingCreate, // Reference the commentSchema for comment details
+        response: {
+          '201': { type: 'object', properties: { message: { type: 'comment added successfully' } } }, // Successful comment creation
+          '400': errorResponse, // Reference error response schema
+        },
+      },
+      preHandler: authenticate,
+    },
     meetingController.addCommentMeeting.bind(meetingController)
   );
 

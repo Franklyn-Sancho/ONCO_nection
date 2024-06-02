@@ -1,6 +1,8 @@
 import { FastifyInstance } from "fastify";
 import { authenticate } from "../plugins/authenticate";
 import { userController } from "../utils/providers";
+import { loginSchema, registerSchema, userSchema } from "../schema/user.schema";
+import { errorResponse, successResponse } from "../schema/commonResponse";
 
 //user router to register, login and test authentication router
 export default async function userRouter(fastify: FastifyInstance) {
@@ -9,10 +11,29 @@ export default async function userRouter(fastify: FastifyInstance) {
   });
 
   fastify.post(
-    "/user/register", userController.register.bind(userController)
+    "/user/register",
+    {
+      schema: {
+        body: registerSchema,
+        response: {
+          '200': successResponse, // Reference common response object
+          '400': errorResponse, // Reference common response object
+        },
+      },
+    },
+    userController.register.bind(userController)
   );
 
-  fastify.post("/user/login", userController.authenticate.bind(userController)); //login
+  fastify.post("/user/login",
+    {
+      schema: {
+        body: loginSchema,
+        response: {
+          '200': successResponse, // Reference common response object
+          '400': errorResponse, // Reference common response object
+        },
+      },
+    }, userController.authenticate.bind(userController)); //login
 
   fastify.get(
     "/confirm-email/:token",
@@ -21,6 +42,7 @@ export default async function userRouter(fastify: FastifyInstance) {
 
   fastify.get(
     "/user/finduser/:name",
+
     { preHandler: [authenticate] },
     userController.findUserByName.bind(userController)
   );
