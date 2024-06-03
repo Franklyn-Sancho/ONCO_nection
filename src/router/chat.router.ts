@@ -9,7 +9,7 @@ export function messageRouter(
 ) {
 
   fastify.post(
-    "/chat/:chatId/message",
+    "/chat/:chatId/message/:recipientId",
     { preHandler: authenticate },
     messageController.createMessage.bind(messageController)
   );

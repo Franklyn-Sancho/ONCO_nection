@@ -1,19 +1,10 @@
-import { Friendship, User } from "@prisma/client";
 import { IFriendshipService } from "../service/FriendshipService";
-import {
-  FastifyBaseLogger,
-  FastifyReply,
-  FastifyRequest,
-  FastifySchema,
-  FastifyTypeProviderDefault,
-  RawServerDefault,
-  RouteGenericInterface,
-} from "fastify";
+import {FastifyReply, FastifyRequest,} from "fastify";
 import { UserParams } from "../types/usersTypes";
-import { FriendshipTypes } from "../types/friendshipTypes";
+import { FriendshipParams, FriendshipTypes } from "../types/friendshipTypes";
 import { BadRequestError } from "../errors/BadRequestError";
-import { ResolveFastifyRequestType } from "fastify/types/type-provider";
-import { IncomingMessage, ServerResponse } from "http";
+import { FriendshipStatus } from "../repository/FriendshipRepository";
+
 
 //camada controladora para o sistema de amizades
 
@@ -41,6 +32,10 @@ export interface IFriendshipController {
   ): Promise<void>;
   getFriends(request: FastifyRequest, reply: FastifyReply): Promise<void>;
   getAllFriends(request: FastifyRequest, reply: FastifyReply): Promise<void>;
+}
+
+interface FriendshipStatusRequest {
+  status: FriendshipStatus
 }
 
 //a classe controladora implementa a interface
@@ -88,21 +83,20 @@ export class FriendshipController implements IFriendshipController {
     request: FastifyRequest,
     reply: FastifyReply
   ): Promise<void> {
-    const { id } = request.params as any;
+    const { friendshipId } = request.params as FriendshipParams;
     const { status } = request.body as any;
-    const { userId: addressedId } = request.user as any;
+    const { userId: addressedId } = request.user as UserParams;
 
     if (!["ACCEPTED", "DENIED"].includes(status))
       return reply.status(400).send({
         error: "invalid status value",
       });
 
-    await this.friendshipService.acceptFriendRequest(id, status, addressedId);
+    await this.friendshipService.acceptFriendRequest(friendshipId, status, addressedId);
 
     reply.send({
-      message: `friend request solicitation ${
-        status === "ACCEPTED" ? "accepted" : "denied"
-      }`,
+      message: `friend request solicitation ${status === "ACCEPTED" ? "accepted" : "denied"
+        }`,
     });
   }
 

@@ -12,7 +12,7 @@ export interface ICommentController {
 }
 
 export class CommentController implements ICommentController {
-  constructor(private commentService: ICommentService) {}
+  constructor(private commentService: ICommentService) { }
 
   async addComment(
     request: FastifyRequest,
@@ -42,16 +42,10 @@ export class CommentController implements ICommentController {
         });
       }
     } catch (error) {
-      if (error instanceof UnauthorizedError) {
-        reply.code(error.statusCode).send({
-          error: error.message,
-        });
-      } else {
-        console.log(request.body);
-        reply.code(500).send({
-          error: error,
-        });
-      }
+      console.log(request.user);
+      reply.code(500).send({
+        error: error,
+      });
     }
   }
 

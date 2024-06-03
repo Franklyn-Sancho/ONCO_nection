@@ -67,7 +67,7 @@ export function meetingRouter(
       schema: {
         body: commentMeetingCreate, // Reference the commentSchema for comment details
         response: {
-          '201': { type: 'object', properties: { message: { type: 'comment added successfully' } } }, // Successful comment creation
+          '201': { type: 'object', properties: { message: { type: 'string' } } }, // Successful comment creation
           '400': errorResponse, // Reference error response schema
         },
       },

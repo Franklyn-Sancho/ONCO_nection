@@ -5,7 +5,7 @@ export const successResponse = {
             schema: {
                 type: 'object',
                 properties: {
-                    message: { type: 'string' }, // Add properties as needed
+                    message: { type: 'string' },
                 },
             },
         },
@@ -20,7 +20,7 @@ export const errorResponse = {
                 type: 'object',
                 properties: {
                     error: { type: 'string' },
-                    message: { type: 'string' }, // Add properties as needed
+                    message: { type: 'string' },
                 },
             },
         },

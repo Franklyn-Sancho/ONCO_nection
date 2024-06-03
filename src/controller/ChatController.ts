@@ -1,6 +1,7 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import { IChatService } from "../service/ChatService";
 import { Chat } from "@prisma/client";
+import { ChatParams } from "../types/chatTypes";
 
 export interface IChatController {
   /* createChat(request: FastifyRequest, reply: FastifyReply): any; */ //!unused function
@@ -39,9 +40,9 @@ export class ChatController implements IChatController {
     reply: FastifyReply
   ): Promise<Chat | null> {
     try {
-      const { id } = request.params as any;
+      const { chatId } = request.params as ChatParams;
 
-      const messages = await this.chatService.getChatById(id);
+      const messages = await this.chatService.getChatById(chatId);
       reply.send({
         message: "messages returned successfully",
         content: messages,

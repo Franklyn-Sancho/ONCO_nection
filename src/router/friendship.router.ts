@@ -15,7 +15,7 @@ export function registerFriendshipRoutes(
   );
 
   fastify.put(
-    "/friendships/:id",
+    "/friendships/:friendshipId",
     { preHandler: [authenticate] },
     friendshipController.acceptFriendRequest.bind(friendshipController)
   );
