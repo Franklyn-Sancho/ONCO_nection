@@ -2,10 +2,11 @@
 import { FastifyRequest } from "fastify";
 import * as fs from "fs";
 import * as path from "path";
+import * as fileType from 'file-type';
 import { Image } from "../types/meetingTypes";
 import { randomBytes } from "crypto";
-import { v4 as uuidv4 } from 'uuid'
-import * as fileType from 'file-type'
+import { v4 as uuidv4 } from 'uuid';
+
 
 //pasta onde estarão as pastas de upload
 const UPLOAD_DIRECTORY = "./upload";
@@ -24,32 +25,6 @@ export async function uploadImage(fileBuffer: Buffer, filename: string, subDir: 
 
   return filePath;
 }
-
-
-
-/* export async function handleMultipartFormData(
-  imageBuffer: Buffer,
-  filename: string,
-  subDir: string
-): Promise<string> {
-  try {
-
-    const extension = path.extname(filename)
-    const validExtensions = [".jpg", ".jpeg", ".png", ".gif"]
-
-    if (!validExtensions.includes(extension)) {
-      throw new Error(`Invalid image file format. Only ${validExtensions.join(', ')} are allowed.`)
-    }
-
-    const hash = randomBytes(16).toString('hex');
-    const newFilename = `${hash}${path.extname(filename)}`
-    const imageData = await uploadImage(imageBuffer, newFilename, subDir);
-    return imageData;
-  } catch (error) {
-    console.error(error);
-    throw error;
-  }
-} */
 
 
 export async function handleMultipartFormData(

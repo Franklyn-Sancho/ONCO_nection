@@ -2,6 +2,7 @@ import request from "supertest";
 import serverPromise from "../server";
 import { FastifyInstance } from "fastify";
 import { PrismaClient } from "@prisma/client";
+import { describe } from "node:test";
 
 const prisma = new PrismaClient();
 

@@ -3,6 +3,7 @@ import serverPromise from "../server";
 import { FastifyInstance } from "fastify";
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
+import { describe } from "node:test";
 
 let server: FastifyInstance;
 
@@ -75,5 +76,6 @@ describe("UserController", () => {
     });
   });
 });
+
 
 
