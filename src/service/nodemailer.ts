@@ -31,18 +31,7 @@ export default class EmailService implements IEmailService {
     /* this.startEmailServiceCheck(); */
   }
 
-  /* private startEmailServiceCheck() {
-    setInterval(this.tryProcessEmailQueue.bind(this), 60000);
-  }
-
-  private async tryProcessEmailQueue() {
-    try {
-      await this.transporter.verify();
-      await this.processEmailQueue();
-    } catch (error) {
-      console.error("the email service is unavailable");
-    }
-  } */
+  
 
   async generateEmailConfirmationToken(user: User): Promise<string> {
     const token = randomBytes(20).toString("hex");
@@ -69,7 +58,7 @@ export default class EmailService implements IEmailService {
   async sendConfirmationEmail(user: User) {
     const token = await this.generateEmailConfirmationToken(user);
 
-    const confirmationLink = `http://localhost:3000/confirm-email/${token}`;
+    const confirmationLink = `http://localhost:3333/confirm-email/${token}`;
 
     const mailOptions = {
       from: "test@test.com",

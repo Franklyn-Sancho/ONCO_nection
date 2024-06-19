@@ -2,6 +2,7 @@ import { Chat, PrismaClient } from "@prisma/client";
 
 export interface IChatRepository {
   createChat(initiatorId: string, participantId: string): Promise<Chat>;
+  getChatsByUserId(userId: string): Promise<Chat[] | null>
   getChatById(id: string): Promise<Chat | null>;
   getChatByUsers(user1Id: string, user2Id: string): Promise<Chat | null>;
 }
@@ -18,6 +19,17 @@ export class ChatRepository implements IChatRepository {
       data: {
         initiatorId,
         participantId,
+      },
+    });
+  }
+
+  async getChatsByUserId(userId: string): Promise<Chat[] | null> {
+    return this.prisma.chat.findMany({
+      where: {
+        OR: [
+          { initiatorId: userId },
+          { participantId: userId },
+        ],
       },
     });
   }

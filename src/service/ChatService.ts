@@ -5,6 +5,7 @@ import { NotFoundError } from "../errors/NotFoundError";
 
 export interface IChatService {
   createChat(initiatorId: string, participantId: string): Promise<Chat>;
+  getChatsByUserId(userId: string): Promise<Chat[] | null>
   getChatById(id: string): Promise<Chat | null>;
 }
 
@@ -27,6 +28,12 @@ export class ChatService implements IChatService {
 
     return this.chatRepository.createChat(initiatorId, participantId);
   }
+
+  async getChatsByUserId(userId: string): Promise<Chat[] | null> {
+    return this.chatRepository.getChatsByUserId(userId)
+  }
+
+
 
   async getChatById(id: string): Promise<Chat | null> {
     return this.chatRepository.getChatById(id);
