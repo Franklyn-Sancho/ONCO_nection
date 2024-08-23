@@ -69,9 +69,9 @@ export default class UserController implements IUserController {
     reply: FastifyReply
   ): Promise<void> {
     try {
-      const { id } = request.params as any;
+      const { userId } = request.params as UserParams;
 
-      const getUserById = await this.userService.findUserById(id);
+      const getUserById = await this.userService.findUserById(userId);
 
       reply.send({
         message: "Users found",
