@@ -32,7 +32,7 @@ export default async function userRouter(fastify: FastifyInstance) {
 
   fastify.get(
     "/user/:id",
-    /*  { preHandler: [authenticate] }, */
+    { preHandler: [authenticate] }, 
     userController.findUserById.bind(userController)
   );
 

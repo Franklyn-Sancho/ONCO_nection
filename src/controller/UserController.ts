@@ -75,10 +75,7 @@ export default class UserController implements IUserController {
 
       reply.send({
         message: "Users found",
-        id: getUserById?.id,
         name: getUserById?.name,
-        imageProfile: getUserById?.imageProfile,
-        description: getUserById?.description
       });
     } catch (error) {
       reply.status(500).send({

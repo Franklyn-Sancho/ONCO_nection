@@ -79,3 +79,8 @@ export async function handleImageUpload(
   }
 }
 
+export function processImage(image: string | Image[] | undefined): string | null {
+  return typeof image === 'string' ? image : null;
+}
+
+

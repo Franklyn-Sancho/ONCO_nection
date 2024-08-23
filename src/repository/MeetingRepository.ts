@@ -1,5 +1,6 @@
 import { Meetings, PrismaClient } from "@prisma/client";
 import { CreateMeetingData } from "../types/meetingTypes";
+import { processImage } from "../service/FileService";
 
 export interface UpdateMeetingData {
   type?: string;
@@ -26,13 +27,15 @@ export class MeetingRepository implements IMeetingRepository {
 
   //função responsável por criar um novo meeting
   async createMeeting(data: CreateMeetingData): Promise<Meetings> {
+
     return await this.prisma.meetings.create({
       data: {
         ...data,
-        image: data.image?.toString(), 
-      }, 
+        image: processImage(data.image),
+      },
     });
   }
+
 
 
   async getMeetingById(meetingId: string): Promise<Meetings | null> {

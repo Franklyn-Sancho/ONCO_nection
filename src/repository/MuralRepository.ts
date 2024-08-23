@@ -1,5 +1,6 @@
 import { Comments, Likes, Mural, PrismaClient } from "@prisma/client";
 import { CreateMuralData } from "../types/muralTypes";
+import { processImage } from "../service/FileService";
 
 export interface IMuralRepository {
   createMural(data: CreateMuralData): Promise<Mural>;
@@ -24,13 +25,15 @@ export class MuralRepository implements IMuralRepository {
 
   //função responsável por criar um novo mural
   async createMural(data: CreateMuralData) {
+
     return await this.prisma.mural.create({
-      data: {
-        ...data,
-        image: data.image?.toString(),
-      },
+        data: {
+            ...data,
+            image: processImage(data.image),
+        },
     });
-  }
+}
+
 
   async getMuralById(muralId: string): Promise<Mural | null> {
     return await this.prisma.mural.findFirst({

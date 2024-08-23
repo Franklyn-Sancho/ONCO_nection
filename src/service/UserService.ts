@@ -12,7 +12,7 @@ import { UnauthorizedError } from "../errors/UnauthorizedError";
 export interface IUserService {
   register(user: CreateUserData): Promise<{user: User, emailResult: any}>;
   findUserByName(name: string, userId: string): Promise<UserName[] | null>;
-  findUserById(id: string): Promise<User | null>
+  findUserById(id: string): Promise<UserName | null>
   authenticate(email: string, password: string): Promise<{ user: User, token: string }>;
   blockUser(blockerId: string, blockedId: string): Promise<void>;
 }
