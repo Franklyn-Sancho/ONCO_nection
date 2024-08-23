@@ -20,7 +20,7 @@ export function setupSocket(
   chatService: ChatService
 ) {
   io.on("connection", (socket) => {
-    console.log("The user has been connected");
+    console.log("The User Has Been Connected");
 
     socket.on("new message", async (message: IMessage) => {
       const newMessage = await messageService.createMessage(

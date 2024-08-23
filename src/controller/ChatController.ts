@@ -1,6 +1,5 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import { IChatService } from "../service/ChatService";
-import { Chat } from "@prisma/client";
 import { ChatParams } from "../types/chatTypes";
 import { UserParams } from "../types/usersTypes";
 
@@ -9,11 +8,11 @@ export interface IChatController {
   getChatById(
     request: FastifyRequest,
     reply: FastifyReply
-  ): Promise<Chat | null>;
+  ): Promise<void>;
   getChatsByUserId(
     request: FastifyRequest,
     reply: FastifyReply
-  ): Promise<Chat | null>
+  ): Promise<void>
 }
 
 export class ChatController implements IChatController {
@@ -40,45 +39,37 @@ export class ChatController implements IChatController {
     }
   } */
 
-    async getChatsByUserId(request: FastifyRequest, reply: FastifyReply): Promise<Chat | null> {
+    async getChatsByUserId(request: FastifyRequest, reply: FastifyReply): Promise<void> {
       try {
         const { userId } = request.params as UserParams;
   
-        const chats = await this.chatService.getChatsByUserId(userId);
+        const result = await this.chatService.getChatsByUserId(userId);
         reply.send({
-          message: "chats returned successfully",
-          content: chats,
+          content: result,
         });
       } catch (error) {
         reply.status(500).send({
           message: "An error occurred, try again later",
         });
       }
-  
-      return null;
     }
 
 
   async getChatById(
     request: FastifyRequest,
     reply: FastifyReply
-  ): Promise<Chat | null> {
+  ): Promise<void> {
     try {
       const { chatId } = request.params as ChatParams;
 
       const messages = await this.chatService.getChatById(chatId);
       reply.send({
-        message: "messages returned successfully",
         content: messages,
       });
-
-      return messages;
     } catch (error) {
       reply.status(500).send({
         message: "An error occurred, try again later",
       });
     }
-
-    return null;
   }
 }

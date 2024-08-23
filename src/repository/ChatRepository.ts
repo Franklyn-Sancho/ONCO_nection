@@ -24,15 +24,33 @@ export class ChatRepository implements IChatRepository {
   }
 
   async getChatsByUserId(userId: string): Promise<Chat[] | null> {
-    return this.prisma.chat.findMany({
+    const chats = await this.prisma.chat.findMany({
       where: {
         OR: [
           { initiatorId: userId },
           { participantId: userId },
         ],
       },
+      include: {
+        initiator: {
+          select: {
+            id: true,
+            name: true,
+            imageProfile: true,
+          },
+        },
+        participant: {
+          select: {
+            id: true,
+            name: true,
+            imageProfile: true,
+          },
+        },
+      },
     });
+    return chats;
   }
+  
 
   async getChatById(id: string): Promise<Chat | null> {
     return this.prisma.chat.findUnique({

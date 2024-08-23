@@ -14,8 +14,6 @@ import path from "path";
 import dotenv from 'dotenv'
 import { setupSwagger } from "./swagger";
 
-
-
 dotenv.config()
 
 async function main() {
@@ -59,7 +57,7 @@ async function main() {
   fastify.register(messageRouter);
 
   fastify.setNotFoundHandler((request, reply) => {
-    reply.code(404).send({ error: "Página não encontrada" });
+    reply.code(404).send({ error: "Page Not Found" });
   });
 
   await fastify.listen({ port: 3333, host: "0.0.0.0" });

@@ -12,28 +12,11 @@ export default async function userRouter(fastify: FastifyInstance) {
 
   fastify.post(
     "/user/register",
-    {
-      schema: {
-        body: registerSchema,
-        response: {
-          '200': successResponse, // Reference common response object
-          '400': errorResponse, // Reference common response object
-        },
-      },
-    },
     userController.register.bind(userController)
   );
 
   fastify.post("/user/login",
-    /* {
-      schema: {
-        body: loginSchema,
-        response: {
-          '200': successResponse, // Reference common response object
-          '400': errorResponse, // Reference common response object
-        },
-      },
-    }, */ userController.authenticate.bind(userController)); //login
+    userController.authenticate.bind(userController)); //login
 
   fastify.get(
     "/confirm-email/:token",

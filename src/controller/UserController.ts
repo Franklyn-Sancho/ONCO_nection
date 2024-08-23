@@ -92,7 +92,7 @@ export default class UserController implements IUserController {
     reply: FastifyReply
   ): Promise<void> {
     try {
-      const { name } = request.params as any;
+      const { name } = request.params as CreateUserData;
       const { userId } = request.user as UserParams;
 
       const getUserByName = await this.userService.findUserByName(name, userId);

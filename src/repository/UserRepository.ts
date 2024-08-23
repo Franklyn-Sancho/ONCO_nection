@@ -9,7 +9,7 @@ export interface UserName {
 export interface IUserRepository {
   create(user: CreateUserData): Promise<User>;
   findByEmail(email: string): Promise<User | null>;
-  findUserById(id: string): Promise<User | null>;
+  findUserById(id: string): Promise<UserName | null>;
   findUserByName(name: string,  userId: string[]): Promise<UserName[] | null>;
   updateUser(id: string, data: Partial<User>): Promise<User>
   blockUser(blockerId: string, blockedId: string): Promise<void>
@@ -41,11 +41,14 @@ export default class UserRepository implements IUserRepository {
     });
   }
 
-  async findUserById(id: string): Promise<User | null> {
+  async findUserById(id: string): Promise<UserName | null> {
     return await this.prisma.user.findUnique({
       where: {
         id,
       },
+      select: {
+        name: true,
+      }
     });
   }
 
