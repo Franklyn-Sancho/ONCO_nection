@@ -11,70 +11,56 @@ export interface IUserRepository {
   create(user: CreateUserData): Promise<User>;
   findByEmail(email: string): Promise<User | null>;
   findUserById(id: string): Promise<UserName | null>;
-  findUserByName(name: string, userId: string[]): Promise<UserName[] | null>;
-  updateUser(id: string, data: Partial<User>): Promise<User>
-  blockUser(blockerId: string, blockedId: string): Promise<void>
-  findUserBlockRecord(blockerId: string, blockedId: string): Promise<UserBlocks | null>
+  findUserByName(name: string, blockedUserIds: string[]): Promise<UserName[]>;
+  updateUser(id: string, data: Partial<User>): Promise<User>;
+  blockUser(blockerId: string, blockedId: string): Promise<void>;
+  findUserBlockRecord(blockerId: string, blockedId: string): Promise<UserBlocks | null>;
 }
 
 export default class UserRepository implements IUserRepository {
-  private prisma: PrismaClient;
+  private readonly prisma: PrismaClient;
 
-  //instancia do Prisma Client no constructor
   constructor(prisma: PrismaClient) {
     this.prisma = prisma;
   }
 
   async create(user: CreateUserData): Promise<User> {
-    return await this.prisma.user.create({
+    const processedImage = processImage(user.imageProfile);
+
+    return this.prisma.user.create({
       data: {
         ...user,
-        imageProfile: processImage(user.imageProfile), // null para remover qualquer imagem anterior se `imageProfile` não for fornecido
+        imageProfile: processedImage,
       },
     });
   }
 
+  findByEmail(email: string): Promise<User | null> {
+    return this.prisma.user.findUnique({
+      where: { email },
+    });
+  }
 
-  async findByEmail(email: string): Promise<User | null> {
-    return await this.prisma.user.findUnique({
+  findUserById(id: string): Promise<UserName | null> {
+    return this.prisma.user.findUnique({
+      where: { id },
+      select: { name: true },
+    });
+  }
+  
+
+  findUserByName(name: string, blockedUserIds: string[]): Promise<UserName[]> {
+    return this.prisma.user.findMany({
       where: {
-        email,
+        name: { contains: name },
+        id: { notIn: blockedUserIds },
       },
+      select: { name: true },
     });
   }
 
-  async findUserById(id: string): Promise<UserName | null> {
-    return await this.prisma.user.findUnique({
-      where: {
-        id,
-      },
-      select: {
-        name: true,
-      }
-    });
-  }
-
-  async findUserByName(
-    name: string,
-    blockedUserIds: string[]
-  ): Promise<UserName[] | null> {
-    return await this.prisma.user.findMany({
-      where: {
-        name: {
-          contains: name
-        },
-        id: {
-          notIn: blockedUserIds,
-        },
-      },
-      select: {
-        name: true,
-      },
-    });
-  }
-
-  async updateUser(id: string, data: Partial<User>): Promise<User> {
-    return await this.prisma.user.update({
+  updateUser(id: string, data: Partial<User>): Promise<User> {
+    return this.prisma.user.update({
       where: { id },
       data,
     });
@@ -89,15 +75,10 @@ export default class UserRepository implements IUserRepository {
     });
   }
 
-  async findUserBlockRecord(
-    blockerId: string,
-    blockedId: string
-  ): Promise<UserBlocks | null> {
-    return await this.prisma.userBlocks.findFirst({
-      where: {
-        blockerId,
-        blockedId,
-      },
+  findUserBlockRecord(blockerId: string, blockedId: string): Promise<UserBlocks | null> {
+    return this.prisma.userBlocks.findFirst({
+      where: { blockerId, blockedId },
     });
   }
 }
+
