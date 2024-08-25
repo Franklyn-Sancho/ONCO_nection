@@ -1,0 +1,10 @@
+LOAD DATABASE
+    FROM sqlite:///home/franklyn/Documentos/ONCO_nection/prisma/dev.db
+    INTO postgresql://postgres:123456789@localhost:5432/onconection;
+
+-- Converta o esquema do SQLite para PostgreSQL
+TRANSFORM SCHEMA;
+
+-- Mapeie todos os dados do SQLite para o PostgreSQL
+MIGRATE DATA;
+

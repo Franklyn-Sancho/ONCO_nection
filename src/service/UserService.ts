@@ -31,6 +31,7 @@ export default class UserService implements IUserService {
   }
 
   async register(user: CreateUserData): Promise<{user: User, emailResult: any}> {
+
     user.password = await this.hashPassword(user.password);
 
     const createdUser = await this.userRepository.create(user);

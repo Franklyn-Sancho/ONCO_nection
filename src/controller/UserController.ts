@@ -62,7 +62,7 @@ export default class UserController implements IUserController {
         reply.status(error.statusCode).send({ message: error.message });
       } else {
         reply.status(500).send({
-          message: "An error occurred while registering",
+          error: `An error occurred: ${error}`
         });
       }
     }
