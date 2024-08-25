@@ -58,9 +58,13 @@ export default class UserController implements IUserController {
 
       reply.status(201).send({ message });
     } catch (error) {
-      reply.status(500).send({
-        message: "check your datas",
-      });
+      if (error instanceof BadRequestError) {
+        reply.status(error.statusCode).send({ message: error.message });
+      } else {
+        reply.status(500).send({
+          message: "An error occurred while registering",
+        });
+      }
     }
   }
 
