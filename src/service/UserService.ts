@@ -27,71 +27,71 @@ export default class UserService implements IUserService {
   }
 
   private async hashPassword(password: string): Promise<string> {
-    return await bcrypt.hash(password, 10);
+    return bcrypt.hash(password, 10);
   }
 
-  async register(user: CreateUserData): Promise<{user: User, emailResult: any}> {
+  private generateToken(userId: string): string {
+    return jwt.sign({ userId }, process.env.SECRET_KEY, { expiresIn: "1h" });
+  }
 
+  private async validatePassword(
+    inputPassword: string,
+    storedPassword: string
+  ): Promise<boolean> {
+    return bcrypt.compare(inputPassword, storedPassword);
+  }
+
+  async register(user: CreateUserData): Promise<{ user: User; emailResult: any }> {
     user.password = await this.hashPassword(user.password);
 
     const createdUser = await this.userRepository.create(user);
-
     const emailResult = await this.emailService.sendConfirmationEmail(createdUser);
 
     return { user: createdUser, emailResult };
   }
 
-  async findUserById(id: string) {
-    return await this.userRepository.findUserById(id)
+  findUserById(id: string): Promise<UserName | null> {
+    return this.userRepository.findUserById(id);
   }
 
-  async findUserByName(
-    name: string,
-    userId: string
-  ): Promise<UserName[] | null> {
-    // Obtenha a lista de usuários bloqueados
-    const onlyNonBlockingUsers = await getBlockedUsers(userId);
-
-    return this.userRepository.findUserByName(name, onlyNonBlockingUsers);
+  async findUserByName(name: string, userId: string): Promise<UserName[] | null> {
+    const blockedUsers = await getBlockedUsers(userId);
+    return this.userRepository.findUserByName(name, blockedUsers);
   }
 
-  async authenticate(email: string, password: string): Promise<{ user: User, token: string }> {
-    const findUser = await this.userRepository.findByEmail(email);
+  async authenticate(email: string, password: string): Promise<{ user: User; token: string }> {
+    const user = await this.userRepository.findByEmail(email);
 
-    if (!findUser) {
+    if (!user) {
       throw new NotFoundError("Email not found");
     }
 
-    const ValidPassword = await bcrypt.compare(password, findUser.password);
+    const isValidPassword = await this.validatePassword(password, user.password);
 
-    if (!ValidPassword) {
+    if (!isValidPassword) {
       throw new UnauthorizedError("Invalid email or password");
     }
 
-    const token = jwt.sign({ userId: findUser.id }, process.env.SECRET_KEY, {
-      expiresIn: "1h",
-    });
-
-    return { user: { ...findUser }, token };
+    const token = this.generateToken(user.id);
+    return { user, token };
   }
 
-  async blockUser(blockerId: string, blockedId: string) {
-    const existingUser = await this.userRepository.findUserById(blockedId);
+  async blockUser(blockerId: string, blockedId: string): Promise<void> {
+    if (blockerId === blockedId) {
+      throw new BadRequestError("You cannot block yourself");
+    }
 
-    if (!existingUser)
-      throw new NotFoundError("no user with this id was found");
+    const user = await this.userRepository.findUserById(blockedId);
+    if (!user) {
+      throw new NotFoundError("User not found");
+    }
 
-    const existingBlock = await this.userRepository.findUserBlockRecord(
-      blockerId,
-      blockedId
-    );
-
-    if (existingBlock)
-      throw new BadRequestError("this user is already blocked");
-
-    if (blockedId == blockerId)
-      throw new BadRequestError("you can not to block yourself");
+    const blockRecord = await this.userRepository.findUserBlockRecord(blockerId, blockedId);
+    if (blockRecord) {
+      throw new BadRequestError("User is already blocked");
+    }
 
     await this.userRepository.blockUser(blockerId, blockedId);
   }
 }
+
