@@ -1,17 +1,17 @@
 import { PrismaClient, User, UserBlocks } from "@prisma/client";
-import { CreateUserData } from "../types/usersTypes";
 import { processImage } from "../service/FileService";
+import { UserBodyData } from "../types/usersTypes";
 
 
-export interface UserName {
+export interface UserProfile {
   name: string;
 }
 
 export interface IUserRepository {
-  create(user: CreateUserData): Promise<User>;
+  create(user: UserBodyData): Promise<User>;
   findByEmail(email: string): Promise<User | null>;
-  findUserById(id: string): Promise<UserName | null>;
-  findUserByName(name: string, blockedUserIds: string[]): Promise<UserName[]>;
+  findUserById(id: string): Promise<UserProfile | null>;
+  findUserByName(name: string, blockedUserIds: string[]): Promise<UserProfile[] | null>;
   updateUser(id: string, data: Partial<User>): Promise<User>;
   blockUser(blockerId: string, blockedId: string): Promise<void>;
   findUserBlockRecord(blockerId: string, blockedId: string): Promise<UserBlocks | null>;
@@ -24,7 +24,7 @@ export default class UserRepository implements IUserRepository {
     this.prisma = prisma;
   }
 
-  async create(user: CreateUserData): Promise<User> {
+  async create(user: UserBodyData): Promise<User> {
     const processedImage = processImage(user.imageProfile);
 
     return this.prisma.user.create({
@@ -41,23 +41,28 @@ export default class UserRepository implements IUserRepository {
     });
   }
 
-  findUserById(id: string): Promise<UserName | null> {
+  findUserById(id: string): Promise<UserProfile | null> {
     return this.prisma.user.findUnique({
       where: { id },
-      select: { name: true },
+      select: {
+        name: true,
+      },
     });
   }
   
-
-  findUserByName(name: string, blockedUserIds: string[]): Promise<UserName[]> {
+  
+  findUserByName(name: string, blockedUserIds: string[]): Promise<UserProfile[] | null> {
     return this.prisma.user.findMany({
       where: {
         name: { contains: name },
         id: { notIn: blockedUserIds },
       },
-      select: { name: true },
+      select: {
+        name: true,
+      },
     });
   }
+  
 
   updateUser(id: string, data: Partial<User>): Promise<User> {
     return this.prisma.user.update({

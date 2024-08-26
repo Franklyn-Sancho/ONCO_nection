@@ -6,7 +6,7 @@ import {
   userAutenticateValidade,
 } from "../utils/userValidations";
 import { validateRequest } from "../utils/validateRequest";
-import { CreateUserData, UserParams } from "../types/usersTypes";
+import { FindUserByIdParams, FindUserByNameParams, UserBodyData, UserParams } from "../types/usersTypes";
 import { BadRequestError } from "../errors/BadRequestError";
 import { NotFoundError } from "../errors/NotFoundError";
 import { handleImageUpload } from "../service/FileService";
@@ -37,7 +37,7 @@ export default class UserController implements IUserController {
   async register(request: FastifyRequest, reply: FastifyReply): Promise<void> {
     try {
       await validateRequest(request, reply, userRegisterValidade);
-      const { name, email, description, password } = request.body as CreateUserData;
+      const { name, email, description, password } = request.body as UserBodyData;
       /* const base64Image = await handleImageUpload(request); */
 
       const subDir = "user_profile"
@@ -73,7 +73,7 @@ export default class UserController implements IUserController {
     reply: FastifyReply
   ): Promise<void> {
     try {
-      const { id } = request.params as any;
+      const { id } = request.params as FindUserByIdParams;
 
       const getUserById = await this.userService.findUserById(id);
 
@@ -93,7 +93,7 @@ export default class UserController implements IUserController {
     reply: FastifyReply
   ): Promise<void> {
     try {
-      const { name } = request.params as CreateUserData;
+      const { name } = request.params as FindUserByNameParams;
       const { userId } = request.user as UserParams;
 
       const getUserByName = await this.userService.findUserByName(name, userId);
@@ -116,7 +116,7 @@ export default class UserController implements IUserController {
     try {
       await validateRequest(request, reply, userAutenticateValidade);
 
-      const { email, password } = request.body as CreateUserData;
+      const { email, password } = request.body as UserBodyData;
 
       const result = await this.userService.authenticate(email, password);
 
