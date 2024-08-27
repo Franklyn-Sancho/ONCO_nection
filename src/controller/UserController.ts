@@ -16,6 +16,7 @@ export interface IUserController {
   register(request: FastifyRequest, reply: FastifyReply): Promise<void>;
   findUserByName(request: FastifyRequest, reply: FastifyReply): Promise<void>;
   findUserById(request: FastifyRequest, reply: FastifyReply): Promise<void>;
+  findUserProfile(request: FastifyRequest, reply: FastifyReply): Promise<void>;
   authenticate(
     request: FastifyRequest<{ Body: User }>,
     reply: FastifyReply
@@ -79,7 +80,7 @@ export default class UserController implements IUserController {
 
       reply.send({
         message: "Users found",
-        name: getUserById?.name,
+        name: getUserById,
       });
     } catch (error) {
       reply.status(500).send({
@@ -101,6 +102,24 @@ export default class UserController implements IUserController {
       reply.send({
         message: "Users found",
         content: getUserByName,
+      });
+    } catch (error) {
+      reply.status(500).send({
+        error: `an error has occurred: ${error}`,
+      });
+    }
+  }
+
+  async findUserProfile(request: FastifyRequest, reply: FastifyReply): Promise<void> {
+    try {
+      const { name } = request.params as FindUserByNameParams;
+      const { userId } = request.user as UserParams;
+
+      const getUserProfile = await this.userService.findProfileUser(name, userId);
+
+      reply.send({
+        message: "Profiles found",
+        content: getUserProfile,
       });
     } catch (error) {
       reply.status(500).send({

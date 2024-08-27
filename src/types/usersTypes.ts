@@ -34,3 +34,9 @@ export interface FindUserByIdParams {
 export interface FindUserByEmailParams {
     email: string;
 }
+
+export interface UserProfile {
+    name: string;
+    description: string | null;
+    imageProfile: string | null;
+  }

@@ -1,5 +1,5 @@
 import { User } from "@prisma/client";
-import { IUserRepository, UserProfile } from "../repository/UserRepository";
+import { IUserRepository } from "../repository/UserRepository";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { IEmailService } from "./nodemailer";
@@ -8,13 +8,14 @@ import { getBlockedUsers } from "../utils/getBlockedUsers";
 import { NotFoundError } from "../errors/NotFoundError";
 
 import { UnauthorizedError } from "../errors/UnauthorizedError";
-import { UserBodyData } from "../types/usersTypes";
+import { FindUserByIdParams, FindUserByNameParams, UserBodyData, UserProfile } from "../types/usersTypes";
 
 export interface IUserService {
   register(user: UserBodyData): Promise<{user: User, emailResult: any}>;
-  findUserByName(name: string, userId: string): Promise<UserProfile[] | null>;
-  findUserById(id: string): Promise<UserProfile | null>
+  findUserByName(name: string, userId: string): Promise<FindUserByNameParams[] | null>;
+  findUserById(id: string): Promise<FindUserByIdParams | null>
   authenticate(email: string, password: string): Promise<{ user: User, token: string }>;
+  findProfileUser(name: string, userId: string): Promise<UserProfile[] | null>
   blockUser(blockerId: string, blockedId: string): Promise<void>;
 }
 
@@ -45,19 +46,24 @@ export default class UserService implements IUserService {
   async register(user: UserBodyData): Promise<{ user: User; emailResult: any }> {
     user.password = await this.hashPassword(user.password);
 
-    const createdUser = await this.userRepository.create(user);
+    const createdUser = await this.userRepository.createUserDatabase(user);
     const emailResult = await this.emailService.sendConfirmationEmail(createdUser);
 
     return { user: createdUser, emailResult };
   }
 
-  findUserById(id: string): Promise<UserProfile | null> {
+  findUserById(id: string): Promise<FindUserByIdParams | null> {
     return this.userRepository.findUserById(id);
   }
 
-  async findUserByName(name: string, userId: string): Promise<UserProfile[] | null> {
+  async findUserByName(name: string, userId: string): Promise<FindUserByNameParams[] | null> {
     const blockedUsers = await getBlockedUsers(userId);
     return this.userRepository.findUserByName(name, blockedUsers);
+  }
+
+  async findProfileUser(name: string, userId: string): Promise<UserProfile[] | null> {
+    const blockedUsers = await getBlockedUsers(userId);
+    return this.userRepository.findProfileUser(name, blockedUsers);
   }
 
   async authenticate(email: string, password: string): Promise<{ user: User; token: string }> {

@@ -1,8 +1,6 @@
 import { FastifyInstance } from "fastify";
 import { authenticate } from "../plugins/authenticate";
 import { userController } from "../utils/providers";
-import { loginSchema, registerSchema, userSchema } from "../schema/user.schema";
-import { errorResponse, successResponse } from "../schema/commonResponse";
 
 //user router to register, login and test authentication router
 export default async function userRouter(fastify: FastifyInstance) {
@@ -34,6 +32,13 @@ export default async function userRouter(fastify: FastifyInstance) {
     "/user/:id",
     /*{ preHandler: [authenticate] } */
     userController.findUserById.bind(userController)
+  );
+
+  fastify.get(
+    "/user/profile/:name",
+
+    { preHandler: [authenticate] },
+    userController.findUserProfile.bind(userController)
   );
 
   fastify.post(

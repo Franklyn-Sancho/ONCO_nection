@@ -1,17 +1,14 @@
 import { PrismaClient, User, UserBlocks } from "@prisma/client";
 import { processImage } from "../service/FileService";
-import { UserBodyData } from "../types/usersTypes";
+import { FindUserByIdParams, FindUserByNameParams, UserBodyData, UserProfile } from "../types/usersTypes";
 
-
-export interface UserProfile {
-  name: string;
-}
 
 export interface IUserRepository {
-  create(user: UserBodyData): Promise<User>;
+  createUserDatabase(user: UserBodyData): Promise<User>;
   findByEmail(email: string): Promise<User | null>;
-  findUserById(id: string): Promise<UserProfile | null>;
-  findUserByName(name: string, blockedUserIds: string[]): Promise<UserProfile[] | null>;
+  findUserById(id: string): Promise<FindUserByIdParams | null>;
+  findUserByName(name: string, blockedUserIds: string[]): Promise<FindUserByNameParams[] | null>;
+  findProfileUser(name: string, blockedUserIds: string[]): Promise<UserProfile[] | null>
   updateUser(id: string, data: Partial<User>): Promise<User>;
   blockUser(blockerId: string, blockedId: string): Promise<void>;
   findUserBlockRecord(blockerId: string, blockedId: string): Promise<UserBlocks | null>;
@@ -24,7 +21,7 @@ export default class UserRepository implements IUserRepository {
     this.prisma = prisma;
   }
 
-  async create(user: UserBodyData): Promise<User> {
+  async createUserDatabase(user: UserBodyData): Promise<User> {
     const processedImage = processImage(user.imageProfile);
 
     return this.prisma.user.create({
@@ -35,23 +32,34 @@ export default class UserRepository implements IUserRepository {
     });
   }
 
+  findProfileUser(name: string, blockedUserIds: string[]): Promise<UserProfile[] | null> {
+      return this.prisma.user.findMany({
+        where: {
+          name: {contains: name},
+          id: { notIn: blockedUserIds }
+        },
+        select: {
+          name: true,
+          description: true, 
+          imageProfile: true,
+        }
+      })
+  }
+
   findByEmail(email: string): Promise<User | null> {
     return this.prisma.user.findUnique({
       where: { email },
     });
   }
 
-  findUserById(id: string): Promise<UserProfile | null> {
+  findUserById(id: string): Promise<FindUserByIdParams | null> {
     return this.prisma.user.findUnique({
       where: { id },
-      select: {
-        name: true,
-      },
     });
   }
   
   
-  findUserByName(name: string, blockedUserIds: string[]): Promise<UserProfile[] | null> {
+  findUserByName(name: string, blockedUserIds: string[]): Promise<FindUserByNameParams[] | null> {
     return this.prisma.user.findMany({
       where: {
         name: { contains: name },
