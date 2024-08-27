@@ -85,6 +85,16 @@ model User {
   blockedByUsers UserBlocks[] @relation(name: "Blocked")
 }
 
+model EmailQueue {
+  id        Int      @id @default(autoincrement())
+  fromEmail String
+  toEmail   String
+  subject   String
+  text      String
+  createdAt DateTime @default(now())
+  sent      Boolean  @default(false)
+}
+
 model UserBlocks {
   id        String @id @default(cuid())
   blockerId String
