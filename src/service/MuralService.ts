@@ -20,19 +20,32 @@ export interface IMuralService {
 export class MuralService implements IMuralService {
   constructor(private muralRepository: IMuralRepository) {}
 
-  async createMural(data: CreateMuralData): Promise<Mural> {
-    return await this.muralRepository.createMural(data);
+  createMural(data: CreateMuralData): Promise<Mural> {
+    return this.muralRepository.createMural(data);
   }
-
-  async getMuralByIdIfFriends(
-    muralId: string,
-    userId: string
-  ): Promise<Mural | null> {
-    return await this.muralRepository.getMuralByIdIfFriends(muralId, userId);
+  
+  getMuralByIdIfFriends(muralId: string, userId: string): Promise<Mural | null> {
+    return this.muralRepository.getMuralByIdIfFriends(muralId, userId);
   }
-
-  async getMuralsIfFriends(userId: string): Promise<Mural[] | null> {
-    return await this.muralRepository.getMuralsIfFriends(userId);
+  
+  getMuralsIfFriends(userId: string): Promise<Mural[] | null> {
+    return this.muralRepository.getMuralsIfFriends(userId);
+  }
+  
+  getCommentByMural(muralId: string): Promise<Comments[] | null> {
+    return this.muralRepository.getCommentByMural(muralId);
+  }
+  
+  getLikeByMural(muralId: string, author: string): Promise<Likes | null> {
+    return this.muralRepository.getLikeByMural(muralId, author);
+  }
+  
+  countLikesByMural(muralId: string, author: string): Promise<Number | null> {
+    return this.muralRepository.countLikeByMural(muralId, author);
+  }
+  
+  countCommentsByMural(muralId: string, userId: string): Promise<Number | null> {
+    return this.muralRepository.countCommentsByMural(muralId, userId);
   }
 
   async updateMural(
@@ -41,55 +54,31 @@ export class MuralService implements IMuralService {
     userId: string
   ): Promise<Mural> {
     const existingMural = await this.muralRepository.getMuralById(muralId);
-
+  
     if (!existingMural) {
       throw new NotFoundError("No mural with this ID was found");
     }
-
+  
     if (existingMural.userId !== userId) {
-      throw new ForbiddenError(
-        "You do not have permission to update this mural"
-      );
+      throw new ForbiddenError("You do not have permission to update this mural");
     }
-
-    return await this.muralRepository.updateMural(muralId, body);
+  
+    return this.muralRepository.updateMural(muralId, body);
   }
-
-  async getCommentByMural(muralId: string): Promise<Comments[] | null> {
-    return await this.muralRepository.getCommentByMural(muralId);
-  }
-
-  async getLikeByMural(muralId: string, author: string): Promise<Likes | null> {
-    return await this.muralRepository.getLikeByMural(muralId, author);
-  }
-
-  async countLikesByMural(
-    muralId: string,
-    author: string
-  ): Promise<Number | null> {
-    return await this.muralRepository.countLikeByMural(muralId, author);
-  }
-
-  async countCommentsByMural(
-    muralId: string,
-    userId: string
-  ): Promise<Number | null> {
-    return await this.muralRepository.countCommentsByMural(muralId, userId);
-  }
-
+  
   async deleteMural(muralId: string, userId: string): Promise<Mural> {
     const existingMural = await this.muralRepository.getMuralById(muralId);
-
+  
     if (!existingMural) {
       throw new NotFoundError("No mural with this ID was found");
     }
-
+  
     if (existingMural.userId !== userId) {
-      throw new ForbiddenError(
-        "You do not have permission to delete this mural"
-      );
+      throw new ForbiddenError("You do not have permission to delete this mural");
     }
-
-    return await this.muralRepository.deleteMural(muralId);
+  
+    return this.muralRepository.deleteMural(muralId);
   }
+  
+  
 }

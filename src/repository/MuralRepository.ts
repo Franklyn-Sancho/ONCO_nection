@@ -24,19 +24,17 @@ export class MuralRepository implements IMuralRepository {
   }
 
   //função responsável por criar um novo mural
-  async createMural(data: CreateMuralData) {
-
-    return await this.prisma.mural.create({
-        data: {
-            ...data,
-            image: processImage(data.image),
-        },
+  createMural(data: CreateMuralData) {
+    return this.prisma.mural.create({
+      data: {
+        ...data,
+        image: processImage(data.image),
+      },
     });
-}
+  }
 
-
-  async getMuralById(muralId: string): Promise<Mural | null> {
-    return await this.prisma.mural.findFirst({
+  getMuralById(muralId: string): Promise<Mural | null> {
+    return this.prisma.mural.findFirst({
       where: {
         id: muralId,
       },
@@ -64,7 +62,7 @@ export class MuralRepository implements IMuralRepository {
         : friendship.requesterId
     );
 
-    return await this.prisma.mural.findFirst({
+    return this.prisma.mural.findFirst({
       where: {
         id: muralId,
         userId: {
@@ -104,7 +102,7 @@ export class MuralRepository implements IMuralRepository {
     return this.prisma.mural.findMany({
       where: {
         userId: {
-          in: friendIds, //retorna os murais postados pelos amigos do requesterId
+          in: friendIds,
         },
       },
       include: {
@@ -119,8 +117,8 @@ export class MuralRepository implements IMuralRepository {
     });
   }
 
-  async getLikeByMural(muralId: string, author: string) {
-    return await this.prisma.likes.findFirst({
+  getLikeByMural(muralId: string, author: string) {
+    return this.prisma.likes.findFirst({
       where: {
         muralId,
         author,
@@ -128,28 +126,28 @@ export class MuralRepository implements IMuralRepository {
     });
   }
 
-  async countLikeByMural(muralId: string, author: string) {
-    return await this.prisma.likes.count({
+  countLikeByMural(muralId: string, author: string) {
+    return this.prisma.likes.count({
       where: {
         muralId,
         author,
-      }
-    })
+      },
+    });
   }
 
-  async countCommentsByMural(muralId: string, userId: string) {
-    return await this.prisma.comments.count({
+  countCommentsByMural(muralId: string, userId: string) {
+    return this.prisma.comments.count({
       where: {
         muralId,
         userId,
-      }
-    })
+      },
+    });
   }
 
-  async getCommentByMural(muralId: string) {
-    return await this.prisma.comments.findMany({
+  getCommentByMural(muralId: string) {
+    return this.prisma.comments.findMany({
       where: {
-        muralId
+        muralId,
       },
       include: {
         author: {
@@ -159,11 +157,11 @@ export class MuralRepository implements IMuralRepository {
           },
         },
       },
-    })
+    });
   }
 
-  async updateMural(muralId: string, body: string): Promise<Mural> {
-    return await this.prisma.mural.update({
+  updateMural(muralId: string, body: string): Promise<Mural> {
+    return this.prisma.mural.update({
       where: {
         id: muralId,
       },
@@ -173,8 +171,8 @@ export class MuralRepository implements IMuralRepository {
     });
   }
 
-  async deleteMural(muralId: string): Promise<Mural> {
-    return await this.prisma.mural.delete({
+  deleteMural(muralId: string): Promise<Mural> {
+    return this.prisma.mural.delete({
       where: {
         id: muralId,
       },
