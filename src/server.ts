@@ -13,6 +13,7 @@ import fastifyStatic from "@fastify/static";
 import path from "path";
 import dotenv from 'dotenv'
 import { setupSwagger } from "./swagger";
+import { initRabbitMQ } from "./service/rabbitmqConfig";
 
 dotenv.config()
 
@@ -22,6 +23,8 @@ async function main() {
   const fastify = Fastify({
     logger: true,
   });
+
+  await initRabbitMQ();
 
   setupSwagger(fastify)
 
