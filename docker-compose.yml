@@ -5,12 +5,10 @@ services:
       - "3333:3333"  
     environment:
       DATABASE_URL: ${DATABASE_URL}
-      RABBITMQ_URL: amqp://rabbitmq
+      RABBITMQ_URL: ${RABBITMQ_URL}
     depends_on:
       - db
       - rabbitmq
-    network_mode: "host"
-
 
   db:
     image: "postgres:latest"
@@ -31,8 +29,8 @@ services:
       - "5672:5672"   # Porta para conexão com o RabbitMQ
       - "15672:15672" # Porta para o painel de gerenciamento do RabbitMQ
     environment:
-      RABBITMQ_DEFAULT_USER: guest
-      RABBITMQ_DEFAULT_PASS: guest
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
 
@@ -41,3 +39,4 @@ volumes:
     driver: local
   rabbitmq_data:
     driver: local
+
