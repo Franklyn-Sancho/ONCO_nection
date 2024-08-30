@@ -1,15 +1,14 @@
+import nodemailer, { Transporter } from 'nodemailer';
 import { randomBytes } from "crypto";
 import { User } from "@prisma/client";
 import UserRepository from "../repository/UserRepository";
 import { getRabbitChannel, initRabbitMQ, RABBITMQ_QUEUE_NAME } from '../config/rabbitmqConfig';
-import nodemailer, { Transporter } from 'nodemailer'
-
-
 
 export interface IEmailService {
   generateEmailConfirmationToken(user: User): Promise<string>;
   confirmationEmailTemplate(name: string, confirmationLink: string): string;
   sendConfirmationEmail(user: User): Promise<{ success: boolean; message: string }>;
+  sendWelcomeEmail(user: User): Promise<{ success: boolean; message: string }>; // Adicione essa função na interface
 }
 
 export const transporter = nodemailer.createTransport({
@@ -27,12 +26,12 @@ export default class EmailService {
   ) {
     this.transporter = transporter;
     this.userRepository = userRepository;
-    this.initialize(); // Inicialize RabbitMQ e comece a processar a fila
+    this.initialize();
   }
 
   private async initialize() {
-    await initRabbitMQ(); // Inicializa RabbitMQ
-    this.processEmailQueue(); // Começa a processar a fila
+    await initRabbitMQ();
+    this.processEmailQueue();
   }
 
   async generateEmailConfirmationToken(user: User): Promise<string> {
@@ -56,15 +55,25 @@ export default class EmailService {
     `;
   }
 
+  welcomeEmailTemplate(name: string): string {
+    return `
+      <p>Olá ${name},</p>
+      <p>Bem-vindo(a)! Agora você tem acesso a todas as nossas funcionalidades.</p>
+      <p>Estamos felizes em tê-lo(a) conosco!</p>
+      <p>Se precisar de ajuda, não hesite em nos contatar.</p>
+      <p>Atenciosamente, Equipe ONCO_nection.</p>
+    `;
+  }
+
   async sendConfirmationEmail(user: User) {
     const token = await this.generateEmailConfirmationToken(user);
-    const confirmationLink = "http://localhost:3333/confirm-email/${token};"
+    const confirmationLink = `http://localhost:3333/confirm-email/${token}`;
 
     const mailOptions = {
       from: "test@test.com",
       to: user.email,
       subject: "Confirmação de registro",
-      text: this.confirmationEmailTemplate(user.name, confirmationLink),
+      html: this.confirmationEmailTemplate(user.name, confirmationLink),
     };
 
     try {
@@ -85,6 +94,29 @@ export default class EmailService {
     }
   }
 
+  async sendWelcomeEmail(user: User) {
+    const mailOptions = {
+      from: "test@test.com",
+      to: user.email,
+      subject: "Bem-vindo(a) à ONCO_nection!",
+      html: this.welcomeEmailTemplate(user.name),
+    };
+
+    try {
+      await this.transporter.sendMail(mailOptions);
+      return {
+        success: true,
+        message: "Welcome email was sent successfully",
+      };
+    } catch (error) {
+      console.error("Failed to send welcome email:", error);
+      return {
+        success: false,
+        message: "Failed to send welcome email",
+      };
+    }
+  }
+
   async processEmailQueue() {
     const rabbitChannel = getRabbitChannel();
     if (!rabbitChannel) {
@@ -99,10 +131,10 @@ export default class EmailService {
         try {
           await this.transporter.sendMail(mailOptions);
           console.log("Confirmation email was sent successfully");
-          rabbitChannel.ack(msg); // Confirmação de processamento bem-sucedido
+          rabbitChannel.ack(msg);
         } catch (error) {
           console.error("Failed to send email, retrying...", error);
-          rabbitChannel.nack(msg); // Devolve a mensagem para a fila para reprocessamento
+          rabbitChannel.nack(msg);
         }
       }
     }, { noAck: false });
