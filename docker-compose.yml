@@ -2,11 +2,11 @@ services:
   app:
     build: .
     ports:
-      - "3333:3333"  
+      - "3333:3333"
     environment:
       DATABASE_URL: ${DATABASE_URL}
       RABBITMQ_URL: ${RABBITMQ_URL}
-      MAILHOG_URL: smtp://mailhog:1025 # URL de conexão com o MailHog
+      MAILHOG_URL: smtp://mailhog:1025
     depends_on:
       - db
       - rabbitmq
@@ -24,15 +24,21 @@ services:
     volumes:
       - db:/var/lib/postgresql/data
 
+
   rabbitmq:
-    image: "rabbitmq:management"
-    restart: unless-stopped
-    ports:
-      - "5672:5672"   
-      - "15672:15672" 
+    image: rabbitmq:3-management-alpine
+    container_name: 'rabbitmq'
     environment:
       RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
+    ports:
+      - 5672:5672
+      - 15672:15672
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:15672" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
 
@@ -40,13 +46,11 @@ services:
     image: "mailhog/mailhog"
     restart: unless-stopped
     ports:
-      - "1025:1025"  
-      - "8025:8025"  
+      - "1025:1025"
+      - "8025:8025"
 
 volumes:
   db:
     driver: local
   rabbitmq_data:
     driver: local
-
-

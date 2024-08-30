@@ -2,13 +2,13 @@ import { User } from "@prisma/client";
 import { IUserRepository } from "../repository/UserRepository";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import { IEmailService } from "./nodemailer";
 import { BadRequestError } from "../errors/BadRequestError";
 import { getBlockedUsers } from "../utils/getBlockedUsers";
 import { NotFoundError } from "../errors/NotFoundError";
 
 import { UnauthorizedError } from "../errors/UnauthorizedError";
 import { FindUserByIdParams, FindUserByNameParams, UserBodyData, UserProfile } from "../types/usersTypes";
+import { IEmailService } from "./EmailService";
 
 export interface IUserService {
   register(user: UserBodyData): Promise<{user: User, emailResult: any}>;
