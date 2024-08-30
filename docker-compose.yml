@@ -4,8 +4,8 @@ services:
     ports:
       - "3333:3333"
     environment:
-      DATABASE_URL: ${DATABASE_URL}
-      RABBITMQ_URL: ${RABBITMQ_URL}
+      DATABASE_URL: ${DATABASE_URL_PG}
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
       MAILHOG_URL: smtp://mailhog:1025
     depends_on:
       - db
@@ -24,21 +24,15 @@ services:
     volumes:
       - db:/var/lib/postgresql/data
 
-
   rabbitmq:
     image: rabbitmq:3-management-alpine
     container_name: 'rabbitmq'
     environment:
-      RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
-      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
+      RABBITMQ_DEFAULT_USER: "guest"
+      RABBITMQ_DEFAULT_PASS: "guest"
     ports:
-      - 5672:5672
-      - 15672:15672
-    healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:15672" ]
-      interval: 30s
-      timeout: 10s
-      retries: 5
+      - "5672:5672" # Port for RabbitMQ (AMQP protocol)
+      - "15672:15672" # Port for RabbitMQ Management UI
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
 
@@ -54,3 +48,4 @@ volumes:
     driver: local
   rabbitmq_data:
     driver: local
+

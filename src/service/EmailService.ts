@@ -13,7 +13,7 @@ export interface IEmailService {
 }
 
 export const transporter = nodemailer.createTransport({
-  host: "localhost",
+  host: "mailhog",
   port: 1025,
 });
 
