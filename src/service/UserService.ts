@@ -11,9 +11,11 @@ import { FindUserByIdParams, FindUserByNameParams, UserBodyData, UserProfile } f
 import { IEmailService } from "./EmailService";
 
 export interface IUserService {
-  register(user: UserBodyData): Promise<{user: User, emailResult: any}>;
+  generateToken(userId: string): string
+  registerWithEmail(user: UserBodyData, password: string): Promise<{ user: User; emailResult: any }>;
   findUserByName(name: string, userId: string): Promise<FindUserByNameParams[] | null>;
   findUserById(id: string): Promise<FindUserByIdParams | null>
+  findByEmail(email: string): Promise<User | null>
   authenticate(email: string, password: string): Promise<{ user: User, token: string }>;
   findProfileUser(name: string, userId: string): Promise<UserProfile[] | null>
   blockUser(blockerId: string, blockedId: string): Promise<void>;
@@ -32,28 +34,29 @@ export default class UserService implements IUserService {
     return bcrypt.hash(password, 10);
   }
 
-  private generateToken(userId: string): string {
+  generateToken(userId: string): string {
     return jwt.sign({ userId }, process.env.SECRET_KEY, { expiresIn: "1h" });
   }
 
-  private async validatePassword(
-    inputPassword: string,
-    storedPassword: string
-  ): Promise<boolean> {
+  /*private async validatePassword(inputPassword: string, storedPassword: string): Promise<boolean> {
     return bcrypt.compare(inputPassword, storedPassword);
-  }
+  }*/
 
-  async register(user: UserBodyData): Promise<{ user: User; emailResult: any }> {
-    user.password = await this.hashPassword(user.password);
-
-    const createdUser = await this.userRepository.createUserDatabase(user);
+  async registerWithEmail(user: UserBodyData, password: string): Promise<{ user: User; emailResult: any }> {
+    const hashedPassword = await this.hashPassword(password);
+    const createdUser = await this.userRepository.registerUserWithEmail(user, hashedPassword);
     const emailResult = await this.emailService.sendConfirmationEmail(createdUser);
 
     return { user: createdUser, emailResult };
   }
 
-  findUserById(id: string): Promise<FindUserByIdParams | null> {
+
+  async findUserById(id: string): Promise<FindUserByIdParams | null> {
     return this.userRepository.findUserById(id);
+  }
+
+  async findByEmail(email: string): Promise<User | null> {
+    return await this.userRepository.findByEmail(email);
   }
 
   async findUserByName(name: string, userId: string): Promise<FindUserByNameParams[] | null> {
@@ -70,18 +73,31 @@ export default class UserService implements IUserService {
     const user = await this.userRepository.findByEmail(email);
 
     if (!user) {
-      throw new NotFoundError("Email not found");
+        throw new NotFoundError("Email not found");
     }
 
-    const isValidPassword = await this.validatePassword(password, user.password);
+    const auth = await this.userRepository.findAuthenticationByUserIdAndProvider(user.id, 'email');
+
+    if (!auth || !auth.password) {
+        throw new UnauthorizedError("Invalid email or password");
+    }
+
+    console.log("Password provided:", password);
+    console.log("Hashed password from DB:", auth.password);
+
+    const isValidPassword = await bcrypt.compare(password, auth.password);
 
     if (!isValidPassword) {
-      throw new UnauthorizedError("Invalid email or password");
+        throw new UnauthorizedError("Invalid email or password");
     }
 
     const token = this.generateToken(user.id);
     return { user, token };
-  }
+}
+
+
+
+
 
   async blockUser(blockerId: string, blockedId: string): Promise<void> {
     if (blockerId === blockedId) {
@@ -101,4 +117,3 @@ export default class UserService implements IUserService {
     await this.userRepository.blockUser(blockerId, blockedId);
   }
 }
-

@@ -58,17 +58,22 @@ model Mural {
 }
 
 model User {
-  id                       String    @id @default(cuid())
-  imageProfile             String?
-  name                     String
-  email                    String    @unique
-  description              String?
-  password                 String
+  id          String  @id @default(cuid())
+  name        String
+  email       String  @unique
+  description String?
+  imageProfile String?
   token                    String?
   emailConfirmationToken   String?   @unique
   emailConfirmationExpires DateTime?
   emailConfirmed           Boolean   @default(false)
+  
+  createdAt   DateTime @default(now())
 
+  // Relacionamento com a entidade de autenticação
+  authentications Authentication[]
+
+  // Outras entidades relacionadas ao usuário
   sentRequests     Friendship[] @relation(name: "Requester")
   receivedRequests Friendship[] @relation(name: "Addressed")
 
@@ -84,6 +89,19 @@ model User {
   blockerUsers   UserBlocks[] @relation(name: "Blocker")
   blockedByUsers UserBlocks[] @relation(name: "Blocked")
 }
+
+model Authentication {
+  id           String @id @default(cuid())
+  userId       String
+  provider     String // "email", "google", etc.
+  password     String? // Presente apenas para login por email/senha
+  providerId   String? // Presente para login via OAuth (Google, Facebook, etc.)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  user         User   @relation(fields: [userId], references: [id])
+}
+
 
 model EmailQueue {
   id        Int      @id @default(autoincrement())

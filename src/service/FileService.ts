@@ -1,7 +1,7 @@
 import { FastifyRequest } from "fastify";
 import * as fs from "fs";
 import * as path from "path";
-import * as fileType from 'file-type'
+import * as fileType from 'file-type';
 import { Image } from "../types/meetingTypes";
 import { randomBytes } from "crypto";
 import { v4 as uuidv4 } from 'uuid';

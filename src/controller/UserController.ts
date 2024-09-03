@@ -13,17 +13,15 @@ import { handleImageUpload } from "../service/FileService";
 import { UnauthorizedError } from "../errors/UnauthorizedError";
 
 export interface IUserController {
-  register(request: FastifyRequest, reply: FastifyReply): Promise<void>;
+  registerWithEmail(request: FastifyRequest, reply: FastifyReply): Promise<void>;
   findUserByName(request: FastifyRequest, reply: FastifyReply): Promise<void>;
   findUserById(request: FastifyRequest, reply: FastifyReply): Promise<void>;
   findUserProfile(request: FastifyRequest, reply: FastifyReply): Promise<void>;
-  authenticate(
-    request: FastifyRequest<{ Body: User }>,
-    reply: FastifyReply
-  ): Promise<void>;
+  authenticate(request: FastifyRequest<{ Body: User }>, reply: FastifyReply): Promise<void>;
   confirmEmail(request: FastifyRequest, reply: FastifyReply): Promise<void>;
   blockUser(request: FastifyRequest, reply: FastifyReply): Promise<void>;
 }
+
 
 //class user controller
 export default class UserController implements IUserController {
@@ -35,23 +33,24 @@ export default class UserController implements IUserController {
     this.userService = userService;
   }
 
-  async register(request: FastifyRequest, reply: FastifyReply): Promise<void> {
+  async registerWithEmail(request: FastifyRequest, reply: FastifyReply): Promise<void> {
     try {
       await validateRequest(request, reply, userRegisterValidade);
       const { name, email, description, password } = request.body as UserBodyData;
-      /* const base64Image = await handleImageUpload(request); */
 
-      const subDir = "user_profile"
+      if (!password) {
+        throw new BadRequestError("Password is required for email registration");
+      }
 
+      const subDir = "user_profile";
       const filePath = await handleImageUpload(request, subDir);
 
-      const { emailResult } = await this.userService.register({
+      const { emailResult } = await this.userService.registerWithEmail({
         name,
         email,
         description,
-        password,
         imageProfile: filePath,
-      });
+      }, password);
 
       const message = emailResult.success
         ? "Registration successful, check your email"
@@ -68,6 +67,39 @@ export default class UserController implements IUserController {
       }
     }
   }
+
+  
+  async authenticate(request: FastifyRequest, reply: FastifyReply): Promise<void> {
+    try {
+      await validateRequest(request, reply, userAutenticateValidade);
+
+      const { email, password } = request.body as UserBodyData;
+
+      if (!password) {
+        throw new BadRequestError("Password is required for email registration");
+      }
+
+      const result = await this.userService.authenticate(email, password);
+
+      reply.status(200).send({
+        id: result.user.id,
+        token: result.token,
+        imageProfile: result.user.imageProfile,
+      });
+    } catch (error) {
+      if (error instanceof UnauthorizedError || error instanceof NotFoundError) {
+        reply.code(error.statusCode).send({
+          error: error.message,
+        });
+      } else {
+        reply.code(500).send({
+          error: error,
+        });
+      }
+    }
+  }
+
+
 
   async findUserById(
     request: FastifyRequest,
@@ -125,49 +157,6 @@ export default class UserController implements IUserController {
       reply.status(500).send({
         error: `an error has occurred: ${error}`,
       });
-    }
-  }
-
-  async authenticate(
-    request: FastifyRequest,
-    reply: FastifyReply
-  ): Promise<void> {
-    try {
-      await validateRequest(request, reply, userAutenticateValidade);
-
-      const { email, password } = request.body as UserBodyData;
-
-      const result = await this.userService.authenticate(email, password);
-
-      /* if (result.token) {
-        reply.setCookie("token", result.token, {
-          path: "/",
-          httpOnly: true,
-          sameSite: 'none',
-          secure: true
-        });
-      } else {
-        throw new Error("ocorreu um erro");
-      } */
-
-      reply.status(200).send({
-        id: result.user.id,
-        token: result.token,
-        imageProfile: result.user.imageProfile,
-      });
-    } catch (error) {
-      if (
-        error instanceof UnauthorizedError ||
-        error instanceof NotFoundError
-      ) {
-        reply.code(error.statusCode).send({
-          error: error.message,
-        });
-      } else {
-        reply.code(500).send({
-          error: error,
-        });
-      }
     }
   }
 

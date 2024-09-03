@@ -6,8 +6,9 @@ export interface UserBodyData {
     name: string;
     email: string;
     description: string | null;
-    password: string;
+    password?: string | null;
     imageProfile?: string | Image[] | undefined;
+    googleId?: string;
 }
 
 export interface AuthenticateUserData {

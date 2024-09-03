@@ -1,6 +1,8 @@
 import { FastifyInstance } from "fastify";
 import { authenticate } from "../plugins/authenticate";
 import { userController } from "../utils/providers";
+import { registerGoogleAuth } from "../config/authGoogleConfig";
+import { GoogleAuth } from "google-auth-library";
 
 //user router to register, login and test authentication router
 export default async function userRouter(fastify: FastifyInstance) {
@@ -10,7 +12,7 @@ export default async function userRouter(fastify: FastifyInstance) {
 
   fastify.post(
     "/user/register",
-    userController.register.bind(userController)
+    userController.registerWithEmail.bind(userController)
   );
 
   fastify.post("/user/login",
