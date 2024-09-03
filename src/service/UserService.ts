@@ -15,7 +15,6 @@ export interface IUserService {
   findUserByName(name: string, userId: string): Promise<FindUserByNameParams[] | null>;
   findUserById(id: string): Promise<FindUserByIdParams | null>
   findByEmail(email: string): Promise<User | null>
-  authenticate(email: string, password: string): Promise<{ user: User, token: string }>;
   findProfileUser(name: string, userId: string): Promise<UserProfile[] | null>
   blockUser(blockerId: string, blockedId: string): Promise<void>;
 }
@@ -29,14 +28,6 @@ export default class UserService implements IUserService {
 
   private async hashPassword(password: string): Promise<string> {
     return bcrypt.hash(password, 10);
-  }
-
-  private generateToken(userId: string): string {
-    return jwt.sign({ userId }, process.env.SECRET_KEY, { expiresIn: "1h" });
-  }
-
-  private async validatePassword(inputPassword: string, storedPassword: string): Promise<boolean> {
-    return bcrypt.compare(inputPassword, storedPassword);
   }
 
   async registerWithEmail(user: UserBodyData, password: string): Promise<{ user: User; emailResult: any }> {
@@ -66,28 +57,6 @@ export default class UserService implements IUserService {
     return this.userRepository.findProfileUser(name, blockedUsers);
   }
 
-  async authenticate(email: string, password: string): Promise<{ user: User; token: string }> {
-    const user = await this.userRepository.findByEmail(email);
-
-    if (!user) {
-      throw new NotFoundError("Email not found");
-    }
-
-    const auth = await this.userRepository.findAuthenticationByUserIdAndProvider(user.id, 'email');
-
-    if (!auth || !auth.password) {
-      throw new UnauthorizedError("Invalid email or password");
-    }
-
-    const isValidPassword = await this.validatePassword(password, auth.password);
-
-    if (!isValidPassword) {
-      throw new UnauthorizedError("Invalid email or password");
-    }
-
-    const token = this.generateToken(user.id);
-    return { user, token };
-  }
 
   async blockUser(blockerId: string, blockedId: string): Promise<void> {
     if (blockerId === blockedId) throw new BadRequestError("You cannot block yourself");

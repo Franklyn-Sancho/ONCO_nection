@@ -28,6 +28,8 @@ import UserRepository from "../repository/UserRepository";
 import EmailService, { transporter } from "../service/EmailService";
 import UserService from "../service/UserService";
 import UserController from "../controller/UserController";
+import EmailAuthService from "../auth/EmailAuthService";
+import EmailAuthController from "../auth/EmailAuthController";
 
 const httpServer = new Server();
 const io = new socketIo.Server(httpServer);
@@ -72,7 +74,8 @@ const messageRepository = new MessageRepository(prisma)
 const messageService = new MessageService(messageRepository, io)
 const messageController = new MessageController(messageService)
 
-
+const emailAuthService = new EmailAuthService(userRepository)
+const emailAuthController = new EmailAuthController(emailAuthService)
 
 export {
   io,
@@ -84,5 +87,6 @@ export {
   chatController,
   messageService,
   messageController,
-  userController
+  userController,
+  emailAuthController
 };
