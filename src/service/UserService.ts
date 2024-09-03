@@ -11,7 +11,6 @@ import { FindUserByIdParams, FindUserByNameParams, UserBodyData, UserProfile } f
 import { IEmailService } from "./EmailService";
 
 export interface IUserService {
-  generateToken(userId: string): string
   registerWithEmail(user: UserBodyData, password: string): Promise<{ user: User; emailResult: any }>;
   findUserByName(name: string, userId: string): Promise<FindUserByNameParams[] | null>;
   findUserById(id: string): Promise<FindUserByIdParams | null>
@@ -22,25 +21,23 @@ export interface IUserService {
 }
 
 export default class UserService implements IUserService {
-  private userRepository: IUserRepository;
-  private emailService: IEmailService;
 
-  constructor(userRepository: IUserRepository, emailService: IEmailService) {
-    this.userRepository = userRepository;
-    this.emailService = emailService;
-  }
+  constructor(
+    private userRepository: IUserRepository,
+    private emailService: IEmailService
+  ) { }
 
   private async hashPassword(password: string): Promise<string> {
     return bcrypt.hash(password, 10);
   }
 
-  generateToken(userId: string): string {
+  private generateToken(userId: string): string {
     return jwt.sign({ userId }, process.env.SECRET_KEY, { expiresIn: "1h" });
   }
 
-  /*private async validatePassword(inputPassword: string, storedPassword: string): Promise<boolean> {
+  private async validatePassword(inputPassword: string, storedPassword: string): Promise<boolean> {
     return bcrypt.compare(inputPassword, storedPassword);
-  }*/
+  }
 
   async registerWithEmail(user: UserBodyData, password: string): Promise<{ user: User; emailResult: any }> {
     const hashedPassword = await this.hashPassword(password);
@@ -73,46 +70,33 @@ export default class UserService implements IUserService {
     const user = await this.userRepository.findByEmail(email);
 
     if (!user) {
-        throw new NotFoundError("Email not found");
+      throw new NotFoundError("Email not found");
     }
 
     const auth = await this.userRepository.findAuthenticationByUserIdAndProvider(user.id, 'email');
 
     if (!auth || !auth.password) {
-        throw new UnauthorizedError("Invalid email or password");
+      throw new UnauthorizedError("Invalid email or password");
     }
 
-    console.log("Password provided:", password);
-    console.log("Hashed password from DB:", auth.password);
-
-    const isValidPassword = await bcrypt.compare(password, auth.password);
+    const isValidPassword = await this.validatePassword(password, auth.password);
 
     if (!isValidPassword) {
-        throw new UnauthorizedError("Invalid email or password");
+      throw new UnauthorizedError("Invalid email or password");
     }
 
     const token = this.generateToken(user.id);
     return { user, token };
-}
-
-
-
-
+  }
 
   async blockUser(blockerId: string, blockedId: string): Promise<void> {
-    if (blockerId === blockedId) {
-      throw new BadRequestError("You cannot block yourself");
-    }
+    if (blockerId === blockedId) throw new BadRequestError("You cannot block yourself");
 
     const user = await this.userRepository.findUserById(blockedId);
-    if (!user) {
-      throw new NotFoundError("User not found");
-    }
+    if (!user) throw new NotFoundError("User not found");
 
     const blockRecord = await this.userRepository.findUserBlockRecord(blockerId, blockedId);
-    if (blockRecord) {
-      throw new BadRequestError("User is already blocked");
-    }
+    if (blockRecord) throw new BadRequestError("User is already blocked");
 
     await this.userRepository.blockUser(blockerId, blockedId);
   }

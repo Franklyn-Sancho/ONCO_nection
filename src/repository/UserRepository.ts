@@ -5,7 +5,6 @@ import bcrypt from "bcryptjs";
 
 
 export interface IUserRepository {
-  createUserDatabase(user: UserBodyData): Promise<User>;
   registerUserWithEmail(user: UserBodyData, password: string): Promise<User>;
   findAuthenticationByUserIdAndProvider(userId: string, provider: string): Promise<Authentication | null>
   findByEmail(email: string): Promise<User | null>;
@@ -19,22 +18,9 @@ export interface IUserRepository {
 
 
 export default class UserRepository implements IUserRepository {
-  private readonly prisma: PrismaClient;
 
-  constructor(prisma: PrismaClient) {
-    this.prisma = prisma;
-  }
+  constructor(private prisma: PrismaClient) { }
 
-  async createUserDatabase(user: UserBodyData): Promise<User> {
-    const processedImage = processImage(user.imageProfile);
-
-    return this.prisma.user.create({
-      data: {
-        ...user,
-        imageProfile: processedImage,
-      },
-    });
-  }
 
   async registerUserWithEmail(user: UserBodyData, hashedPassword: string): Promise<User> {
     const processedImage = processImage(user.imageProfile);
@@ -54,15 +40,14 @@ export default class UserRepository implements IUserRepository {
     });
 
     return newUser;
-}
+  }
 
 
-  async findAuthenticationByUserIdAndProvider(userId: string, provider: string): Promise<Authentication | null> {
+  findAuthenticationByUserIdAndProvider(userId: string, provider: string): Promise<Authentication | null> {
     return this.prisma.authentication.findFirst({
       where: { userId, provider },
     });
   }
-  
 
   findProfileUser(name: string, blockedUserIds: string[]): Promise<UserProfile[] | null> {
     return this.prisma.user.findMany({
@@ -79,15 +64,11 @@ export default class UserRepository implements IUserRepository {
   }
 
   findByEmail(email: string): Promise<User | null> {
-    return this.prisma.user.findUnique({
-      where: { email },
-    });
+    return this.prisma.user.findUnique({ where: { email } });
   }
 
   findUserById(id: string): Promise<FindUserByIdParams | null> {
-    return this.prisma.user.findUnique({
-      where: { id },
-    });
+    return this.prisma.user.findUnique({ where: { id } });
   }
 
   findUserByName(name: string, blockedUserIds: string[]): Promise<FindUserByNameParams[] | null> {
@@ -96,9 +77,7 @@ export default class UserRepository implements IUserRepository {
         name: { contains: name },
         id: { notIn: blockedUserIds },
       },
-      select: {
-        name: true,
-      },
+      select: { name: true },
     });
   }
 
@@ -110,12 +89,7 @@ export default class UserRepository implements IUserRepository {
   }
 
   async blockUser(blockerId: string, blockedId: string): Promise<void> {
-    await this.prisma.userBlocks.create({
-      data: {
-        blockerId,
-        blockedId,
-      },
-    });
+    await this.prisma.userBlocks.create({ data: { blockerId, blockedId } });
   }
 
   findUserBlockRecord(blockerId: string, blockedId: string): Promise<UserBlocks | null> {

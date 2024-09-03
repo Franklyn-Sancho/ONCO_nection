@@ -25,13 +25,8 @@ export interface IUserController {
 
 //class user controller
 export default class UserController implements IUserController {
-  private prisma: PrismaClient;
-  private userService: IUserService;
 
-  constructor(prisma: PrismaClient, userService: IUserService) {
-    this.prisma = prisma;
-    this.userService = userService;
-  }
+  constructor(private prisma: PrismaClient, private userService: IUserService) { }
 
   async registerWithEmail(request: FastifyRequest, reply: FastifyReply): Promise<void> {
     try {
@@ -68,7 +63,6 @@ export default class UserController implements IUserController {
     }
   }
 
-  
   async authenticate(request: FastifyRequest, reply: FastifyReply): Promise<void> {
     try {
       await validateRequest(request, reply, userAutenticateValidade);
@@ -98,8 +92,6 @@ export default class UserController implements IUserController {
       }
     }
   }
-
-
 
   async findUserById(
     request: FastifyRequest,
@@ -168,7 +160,6 @@ export default class UserController implements IUserController {
       return;
     }
 
-    // Busca o usuário pelo token de confirmação de email
     const user = await this.prisma.user.findUnique({
       where: { emailConfirmationToken: token },
     });
