@@ -1,7 +1,8 @@
 import { Authentication, PrismaClient, User, UserBlocks } from "@prisma/client";
 import { processImage } from "../service/FileService";
 import { FindUserByIdParams, FindUserByNameParams, UserBodyData, UserProfile } from "../types/usersTypes";
-import bcrypt from "bcryptjs";
+import { getUserInfoFromGoogle } from "../auth/authGoogleConfig";
+
 
 
 export interface IUserRepository {
@@ -41,6 +42,57 @@ export default class UserRepository implements IUserRepository {
 
     return newUser;
   }
+
+  async registerOrLoginUserWithGoogle(token: string): Promise<User> {
+    // Obtém as informações do usuário do Google
+    const userInfo = await getUserInfoFromGoogle(token);
+  
+    // Verifica se o usuário já existe no banco de dados
+    let user = await this.prisma.user.findUnique({
+      where: { email: userInfo.email },
+    });
+  
+    if (!user) {
+      // Se o usuário não existir, cria um novo usuário
+      user = await this.prisma.user.create({
+        data: {
+          name: userInfo.name,
+          email: userInfo.email,
+          imageProfile: userInfo.picture,
+        },
+      });
+    } else {
+      // Se o usuário existir, atualize as informações do usuário (opcional)
+      await this.prisma.user.update({
+        where: { id: user.id },
+        data: {
+          name: userInfo.name,
+          imageProfile: userInfo.picture,
+        },
+      });
+    }
+  
+    // Insere ou atualiza as informações de autenticação
+    await this.prisma.authentication.upsert({
+      where: {
+        userId_provider: {
+          userId: user.id,
+          provider: 'google',
+        },
+      },
+      update: {
+        providerId: userInfo.sub,
+      },
+      create: {
+        userId: user.id,
+        provider: 'google',
+        providerId: userInfo.sub,
+      },
+    });
+  
+    return user;
+  }
+  
 
 
   findAuthenticationByUserIdAndProvider(userId: string, provider: string): Promise<Authentication | null> {

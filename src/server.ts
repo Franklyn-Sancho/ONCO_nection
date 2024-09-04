@@ -14,6 +14,7 @@ import path from "path";
 import dotenv from 'dotenv'
 import { setupSwagger } from "./swagger";
 import { initRabbitMQ } from "./config/rabbitmqConfig";
+import { googleRouterAuthentication} from "./auth/authGoogleConfig";
 
 dotenv.config()
 
@@ -34,6 +35,8 @@ async function main() {
     origin: true,
     credentials: true,
   });
+
+  
 
 
   fastify.register(fastifyStatic, {
@@ -58,6 +61,7 @@ async function main() {
   fastify.register(registerFriendshipRoutes);
   fastify.register(muralRouter);
   fastify.register(messageRouter);
+  fastify.register(googleRouterAuthentication)
 
   fastify.setNotFoundHandler((request, reply) => {
     reply.code(404).send({ error: "Page Not Found" });

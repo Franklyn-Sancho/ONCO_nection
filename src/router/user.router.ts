@@ -1,4 +1,4 @@
-import { FastifyInstance } from "fastify";
+import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import { authenticate } from "../plugins/authenticate";
 import { emailAuthController, userController } from "../utils/providers";
 
