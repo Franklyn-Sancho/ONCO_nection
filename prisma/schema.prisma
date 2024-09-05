@@ -104,6 +104,11 @@ model Authentication {
   @@unique([userId, provider])
 }
 
+model TokenBlacklist {
+  id           String @id @default(cuid())
+  token       String   @unique
+  blacklistedAt DateTime @default(now())
+}
 
 
 model EmailQueue {

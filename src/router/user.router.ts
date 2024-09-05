@@ -1,6 +1,7 @@
 import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import { authenticate } from "../plugins/authenticate";
-import { emailAuthController, userController } from "../utils/providers";
+import {userController } from "../utils/providers";
+import { handleAuthenticate, logout } from "../auth/EmailAuthConfig";
 
 
 //user router to register, login and test authentication router
@@ -15,7 +16,13 @@ export default async function userRouter(fastify: FastifyInstance) {
   );
 
   fastify.post("/user/login",
-    emailAuthController.authenticate.bind(emailAuthController)
+    handleAuthenticate
+  );
+
+  fastify.post(
+    "/user/logout",
+    { preHandler: [authenticate] },
+    logout
   );
 
   fastify.get(
