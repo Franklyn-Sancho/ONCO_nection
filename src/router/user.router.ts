@@ -1,6 +1,6 @@
 import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import { authenticate } from "../plugins/authenticate";
-import {userController } from "../utils/providers";
+import { userController } from "../utils/providers";
 import { handleAuthenticate, logout } from "../auth/EmailAuthConfig";
 
 
@@ -55,4 +55,16 @@ export default async function userRouter(fastify: FastifyInstance) {
     { preHandler: [authenticate] },
     userController.blockUser.bind(userController)
   );
+
+  fastify.put("/user/deactivate",
+    { preHandler: [authenticate] },
+    userController.deactivateUserHandler.bind(userController));
+
+  fastify.put("/user/mark-for-deletion",
+    { preHandler: [authenticate] },
+    userController.markUserForDeletionHandler.bind(userController));
+
+  fastify.post("/user/process-scheduled-deletions",
+    userController.permanentlyDeleteUserHandler.bind(userController)
+  ); // Pode ser agendado ou chamado manualmente
 }

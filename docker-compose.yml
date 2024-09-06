@@ -12,6 +12,20 @@ services:
       - rabbitmq
       - mailhog
 
+  cron:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: ["node", "dist/src/infrastructure/cronJobs.ts"]
+    environment:
+      DATABASE_URL: ${DATABASE_URL_PG}
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
+      MAILHOG_URL: smtp://mailhog:1025
+    depends_on:
+      - db
+      - rabbitmq
+      - mailhog
+
   db:
     image: "postgres:latest"
     restart: unless-stopped

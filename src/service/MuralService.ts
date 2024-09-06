@@ -79,6 +79,8 @@ export class MuralService implements IMuralService {
   
     return this.muralRepository.deleteMural(muralId);
   }
+
+  
   
   
 }

@@ -83,4 +83,5 @@ export {
   messageService,
   messageController,
   userController,
+  userService,
 };

@@ -15,19 +15,19 @@ model Meetings {
   type      String?
   title     String
   body      String
-  author    User?      @relation(fields: [userId], references: [id])
+  author    User?      @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt DateTime   @default(now())
   userId    String
   image     String?
-  Comments  Comments[]
-  Likes     Likes[]
+  Comments  Comments[] 
+  Likes     Likes[] 
 }
 
 model Comments {
   id        String    @id @default(cuid())
-  meeting   Meetings? @relation(fields: [meetingId], references: [id])
-  mural     Mural?    @relation(fields: [muralId], references: [id])
-  author    User      @relation(fields: [userId], references: [id])
+  meeting   Meetings? @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+  mural     Mural?    @relation(fields: [muralId], references: [id], onDelete: Cascade)
+  author    User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   content   String
   createdAt DateTime  @default(now())
   meetingId String?
@@ -37,9 +37,9 @@ model Comments {
 
 model Likes {
   id        String    @id @default(cuid())
-  meeting   Meetings? @relation(fields: [meetingId], references: [id])
-  mural     Mural?    @relation(fields: [muralId], references: [id])
-  userId    User      @relation(fields: [author], references: [id])
+  meeting   Meetings? @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+  mural     Mural?    @relation(fields: [muralId], references: [id], onDelete: Cascade)
+  userId    User      @relation(fields: [author], references: [id], onDelete: Cascade)
   createdAt DateTime  @default(now())
   meetingId String?
   author    String
@@ -49,7 +49,7 @@ model Likes {
 model Mural {
   id        String     @id @default(cuid())
   body      String
-  author    User       @relation(fields: [userId], references: [id])
+  author    User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt DateTime   @default(now())
   userId    String
   image     String?
@@ -69,7 +69,11 @@ model User {
   emailConfirmed           Boolean   @default(false)
   
   createdAt   DateTime @default(now())
-
+  
+  // Novos campos para gerenciamento de conta
+  isDeactivated     Boolean  @default(false)
+  deleteScheduledAt DateTime?
+  
   // Relacionamento com a entidade de autenticação
   authentications Authentication[]
 
@@ -99,7 +103,7 @@ model Authentication {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  user         User   @relation(fields: [userId], references: [id])
+  user         User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, provider])
 }
@@ -126,14 +130,14 @@ model UserBlocks {
   blockerId String
   blockedId String
 
-  blocker User @relation(name: "Blocker", fields: [blockerId], references: [id])
-  blocked User @relation(name: "Blocked", fields: [blockedId], references: [id])
+  blocker User @relation(name: "Blocker", fields: [blockerId], references: [id], onDelete: Cascade)
+  blocked User @relation(name: "Blocked", fields: [blockedId], references: [id], onDelete: Cascade)
 }
 
 model Friendship {
   id          String   @id @default(cuid())
-  requester   User     @relation(name: "Requester", fields: [requesterId], references: [id])
-  addressed   User     @relation(name: "Addressed", fields: [addressedId], references: [id])
+  requester   User     @relation(name: "Requester", fields: [requesterId], references: [id], onDelete: Cascade)
+  addressed   User     @relation(name: "Addressed", fields: [addressedId], references: [id], onDelete: Cascade)
   status      String
   createdAt   DateTime @default(now())
   requesterId String
@@ -150,19 +154,19 @@ model Message {
   id          String @id @default(cuid())
   content     String
   senderId    String
-  sender      User   @relation(fields: [senderId], references: [id], name: "Sender")
+  sender      User   @relation(fields: [senderId], references: [id], name: "Sender", onDelete: Cascade)
   recipientId String
-  recipient   User   @relation(fields: [recipientId], references: [id], name: "Recipient")
+  recipient   User   @relation(fields: [recipientId], references: [id], name: "Recipient", onDelete: Cascade)
   chatId      String
-  Chat        Chat   @relation(fields: [chatId], references: [id])
+  Chat        Chat   @relation(fields: [chatId], references: [id], onDelete: Cascade)
 }
 
 model Chat {
   id            String    @id @default(cuid())
   initiatorId   String
-  initiator     User      @relation(fields: [initiatorId], references: [id], name: "ChatToInitiator")
+  initiator     User      @relation(fields: [initiatorId], references: [id], name: "ChatToInitiator", onDelete: Cascade)
   participantId String
-  participant   User      @relation(fields: [participantId], references: [id], name: "ChatToParticipant")
+  participant   User      @relation(fields: [participantId], references: [id], name: "ChatToParticipant", onDelete: Cascade)
   messages      Message[]
 }
 
