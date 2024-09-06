@@ -1,6 +1,6 @@
 import { Meetings, PrismaClient } from "@prisma/client";
 import { CreateMeetingData } from "../types/meetingTypes";
-import { processImage } from "../service/FileService";
+import { processImage } from "../infrastructure/fileService";
 
 export interface UpdateMeetingData {
   type?: string;

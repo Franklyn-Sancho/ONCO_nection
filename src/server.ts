@@ -13,7 +13,7 @@ import fastifyStatic from "@fastify/static";
 import path from "path";
 import dotenv from 'dotenv'
 import { setupSwagger } from "./swagger";
-import { initRabbitMQ } from "./config/rabbitmqConfig";
+import { initRabbitMQ } from "./infrastructure/rabbitmqService";
 import { googleRouterAuthentication} from "./auth/authGoogleConfig";
 
 dotenv.config()

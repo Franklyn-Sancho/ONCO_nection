@@ -1,6 +1,6 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import { IMuralService } from "../service/MuralService";
-import { handleImageUpload } from "../service/FileService";
+import { handleImageUpload } from "../infrastructure/fileService";
 import { validateRequest } from "../utils/validateRequest";
 import { z } from "zod";
 import { ILikeController } from "./LikeController";

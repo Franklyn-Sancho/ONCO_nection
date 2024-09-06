@@ -2,7 +2,7 @@ import nodemailer, { Transporter } from 'nodemailer';
 import { randomBytes } from "crypto";
 import { User } from "@prisma/client";
 import UserRepository from "../repository/UserRepository";
-import { getRabbitChannel, initRabbitMQ, RABBITMQ_QUEUE_NAME } from '../config/rabbitmqConfig';
+import { getRabbitChannel, initRabbitMQ, RABBITMQ_QUEUE_NAME } from './rabbitmqService';
 
 export interface IEmailService {
   generateEmailConfirmationToken(user: User): Promise<string>;

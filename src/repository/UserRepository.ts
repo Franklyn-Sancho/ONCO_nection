@@ -1,5 +1,5 @@
 import { Authentication, PrismaClient, User, UserBlocks } from "@prisma/client";
-import { processImage } from "../service/FileService";
+import { processImage } from "../infrastructure/fileService";
 import { FindUserByIdParams, FindUserByNameParams, UserBodyData, UserProfile } from "../types/usersTypes";
 import { getUserInfoFromGoogle } from "../auth/authGoogleConfig";
 
@@ -15,6 +15,8 @@ export interface IUserRepository {
   updateUser(id: string, data: Partial<User>): Promise<User>;
   blockUser(blockerId: string, blockedId: string): Promise<void>;
   findUserBlockRecord(blockerId: string, blockedId: string): Promise<UserBlocks | null>;
+  deleteUser(id: string): Promise<void>;
+  deleteAccountUser(id: string, userId: string): Promise<void>;
 }
 
 
@@ -149,4 +151,11 @@ export default class UserRepository implements IUserRepository {
       where: { blockerId, blockedId },
     });
   }
+
+  async deleteUser(id: string): Promise<void> {
+    await this.prisma.user.delete({
+      where: { id },
+    });
+  }
+  
 }

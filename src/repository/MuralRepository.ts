@@ -1,6 +1,6 @@
 import { Comments, Likes, Mural, PrismaClient } from "@prisma/client";
 import { CreateMuralData } from "../types/muralTypes";
-import { processImage } from "../service/FileService";
+import { processImage } from "../infrastructure/fileService";
 
 export interface IMuralRepository {
   createMural(data: CreateMuralData): Promise<Mural>;

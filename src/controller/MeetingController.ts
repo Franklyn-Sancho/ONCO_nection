@@ -2,7 +2,7 @@ import { FastifyReply, FastifyRequest } from "fastify";
 import { IMeetingService } from "../service/MeetingService";
 import { z } from "zod";
 import { validateRequest } from "../utils/validateRequest";
-import { handleImageUpload } from "../service/FileService";
+import { handleImageUpload } from "../infrastructure/fileService";
 import { ILikeController } from "./LikeController";
 import { IMeetingRepository } from "../repository/MeetingRepository";
 import { ICommentController } from "./CommentsController";

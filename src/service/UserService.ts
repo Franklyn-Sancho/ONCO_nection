@@ -8,7 +8,7 @@ import { NotFoundError } from "../errors/NotFoundError";
 
 import { UnauthorizedError } from "../errors/UnauthorizedError";
 import { FindUserByIdParams, FindUserByNameParams, UserBodyData, UserProfile } from "../types/usersTypes";
-import { IEmailService } from "./EmailService";
+import { IEmailService } from "../infrastructure/EmailService";
 
 export interface IUserService {
   registerWithEmail(user: UserBodyData, password: string): Promise<{ user: User; emailResult: any }>;
@@ -17,6 +17,7 @@ export interface IUserService {
   findByEmail(email: string): Promise<User | null>
   findProfileUser(name: string, userId: string): Promise<UserProfile[] | null>
   blockUser(blockerId: string, blockedId: string): Promise<void>;
+  deleteUser(id: string): Promise<void>;
 }
 
 export default class UserService implements IUserService {
@@ -68,5 +69,14 @@ export default class UserService implements IUserService {
     if (blockRecord) throw new BadRequestError("User is already blocked");
 
     await this.userRepository.blockUser(blockerId, blockedId);
+  }
+
+  async deleteUser(id: string): Promise<void> {
+
+      const verifyIfUserExist = await this.userRepository.findUserById(id)
+
+      if(!verifyIfUserExist) throw new NotFoundError("User not found");
+
+      return this.userRepository.deleteUser(id)
   }
 }

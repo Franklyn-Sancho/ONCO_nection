@@ -25,7 +25,7 @@ import { MessageController } from "../controller/MessageController";
 import { Server } from "http";
 import * as socketIo from "socket.io";
 import UserRepository from "../repository/UserRepository";
-import EmailService, { transporter } from "../service/EmailService";
+import EmailService, { transporter } from "../infrastructure/EmailService";
 import UserService from "../service/UserService";
 import UserController from "../controller/UserController";
 

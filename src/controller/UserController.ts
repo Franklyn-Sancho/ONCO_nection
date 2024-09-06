@@ -9,7 +9,7 @@ import { validateRequest } from "../utils/validateRequest";
 import { FindUserByIdParams, FindUserByNameParams, UserBodyData, UserParams } from "../types/usersTypes";
 import { BadRequestError } from "../errors/BadRequestError";
 import { NotFoundError } from "../errors/NotFoundError";
-import { handleImageUpload } from "../service/FileService";
+import { handleImageUpload } from "../infrastructure/fileService";
 import { UnauthorizedError } from "../errors/UnauthorizedError";
 
 export interface IUserController {
@@ -19,6 +19,7 @@ export interface IUserController {
   findUserProfile(request: FastifyRequest, reply: FastifyReply): Promise<void>;
   confirmEmail(request: FastifyRequest, reply: FastifyReply): Promise<void>;
   blockUser(request: FastifyRequest, reply: FastifyReply): Promise<void>;
+  deleteUser(request: FastifyRequest, reply: FastifyReply): Promise<void>;
 }
 
 
@@ -164,6 +165,29 @@ export default class UserController implements IUserController {
         message: "User was blocked successfully",
       });
     } catch (error) {
+      if (error instanceof BadRequestError || error instanceof NotFoundError) {
+        reply.code(error.statusCode).send({
+          error: error.message,
+        });
+      } else {
+        reply.code(500).send({
+          error: error,
+        });
+      }
+    }
+  }
+
+  async deleteUser(request: FastifyRequest, reply: FastifyReply): Promise<void> {
+    try {
+      const { userId } = request.user = request.user as UserParams
+
+      await this.userService.deleteUser(userId)
+
+      reply.status(200).send({
+        message: "User was deleted successfully",
+      });
+    }
+    catch (error) {
       if (error instanceof BadRequestError || error instanceof NotFoundError) {
         reply.code(error.statusCode).send({
           error: error.message,
