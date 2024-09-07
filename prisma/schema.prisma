@@ -69,13 +69,14 @@ model User {
   emailConfirmed           Boolean   @default(false)
   
   createdAt   DateTime @default(now())
-  
-  // Novos campos para gerenciamento de conta
+
   isDeactivated     Boolean  @default(false)
   deleteScheduledAt DateTime?
   
-  // Relacionamento com a entidade de autenticação
   authentications Authentication[]
+
+  resetPasswordToken        String?   @unique
+  resetPasswordExpires      DateTime?
 
   // Outras entidades relacionadas ao usuário
   sentRequests     Friendship[] @relation(name: "Requester")

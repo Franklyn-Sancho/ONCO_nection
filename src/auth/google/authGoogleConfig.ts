@@ -3,7 +3,7 @@ import fastifyOauth2 from '@fastify/oauth2';
 import { FastifyInstance } from 'fastify';
 import axios from 'axios';
 import { PrismaClient } from '@prisma/client';
-import UserRepository from '../repository/UserRepository';
+import UserRepository from '../../repository/UserRepository';
 
 declare module 'fastify' {
     interface FastifyInstance {

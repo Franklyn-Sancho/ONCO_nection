@@ -14,8 +14,8 @@ import path from "path";
 import dotenv from 'dotenv'
 import { setupSwagger } from "./swagger";
 import { initRabbitMQ } from "./infrastructure/rabbitmqService";
-import { googleRouterAuthentication} from "./auth/authGoogleConfig";
-import '../src/infrastructure/cronJobs';
+import { googleRouterAuthentication} from "./auth/google/authGoogleConfig";
+import './infrastructure/cronServices';
 
 dotenv.config()
 

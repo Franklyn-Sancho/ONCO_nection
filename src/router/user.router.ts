@@ -1,8 +1,7 @@
-import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
+import { FastifyInstance } from "fastify";
 import { authenticate } from "../plugins/authenticate";
 import { userController } from "../utils/providers";
-import { handleAuthenticate, logout } from "../auth/EmailAuthConfig";
-
+import { handleAuthenticate, handleRequestPasswordReset, handleResetPassword } from "../auth/email/emailAuthController";
 
 //user router to register, login and test authentication router
 export default async function userRouter(fastify: FastifyInstance) {
@@ -22,7 +21,7 @@ export default async function userRouter(fastify: FastifyInstance) {
   fastify.post(
     "/user/logout",
     { preHandler: [authenticate] },
-    logout
+    handleAuthenticate
   );
 
   fastify.get(
@@ -67,4 +66,7 @@ export default async function userRouter(fastify: FastifyInstance) {
   fastify.post("/user/process-scheduled-deletions",
     userController.permanentlyDeleteUserHandler.bind(userController)
   ); // Pode ser agendado ou chamado manualmente
+
+  fastify.post('/request-password-reset', (request, reply) =>  handleRequestPasswordReset(request, reply));
+  fastify.post('/reset-password', { preHandler: [authenticate] }, (request, reply) => handleResetPassword(request, reply));
 }

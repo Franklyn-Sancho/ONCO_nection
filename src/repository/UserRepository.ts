@@ -1,13 +1,14 @@
 import { Authentication, PrismaClient, User, UserBlocks } from "@prisma/client";
 import { processImage } from "../infrastructure/fileService";
 import { FindUserByIdParams, FindUserByNameParams, UserBodyData, UserProfile } from "../types/usersTypes";
-import { getUserInfoFromGoogle } from "../auth/authGoogleConfig";
+import { getUserInfoFromGoogle } from "../auth/google/authGoogleConfig";
 
 
 
 export interface IUserRepository {
   registerUserWithEmail(user: UserBodyData, password: string): Promise<User>;
   findAuthenticationByUserIdAndProvider(userId: string, provider: string): Promise<Authentication | null>
+  findByResetToken(token: string): Promise<User | null>
   findByEmail(email: string): Promise<User | null>;
   findUserById(id: string): Promise<FindUserByIdParams | null>;
   findUserByName(name: string, blockedUserIds: string[]): Promise<FindUserByNameParams[] | null>;
@@ -19,7 +20,7 @@ export interface IUserRepository {
   markUserForDeletion(userId: string): Promise<void>
   deleteUser(id: string): Promise<void>;
   findUsersScheduledForDeletion(thresholdDate: Date): Promise<User[]>
-  reactivateUser(userId: string): Promise<void>
+  reactivateUser(userId: string): Promise<void>;
 }
 
 
@@ -107,6 +108,17 @@ export default class UserRepository implements IUserRepository {
   findAuthenticationByUserIdAndProvider(userId: string, provider: string): Promise<Authentication | null> {
     return this.prisma.authentication.findFirst({
       where: { userId, provider },
+    });
+  }
+
+  async findByResetToken(token: string): Promise<User | null> {
+    return await this.prisma.user.findFirst({
+      where: {
+        resetPasswordToken: token,
+        resetPasswordExpires: {
+          gte: new Date(), // Verifica se o token ainda não expirou
+        },
+      },
     });
   }
 

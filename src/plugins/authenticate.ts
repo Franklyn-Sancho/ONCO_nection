@@ -1,6 +1,5 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import { UnauthorizedError } from "../errors/UnauthorizedError";
-import {verify} from 'jsonwebtoken'
 
 
 //plugin to authenticate

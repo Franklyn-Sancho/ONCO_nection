@@ -47,6 +47,29 @@ export default class EmailService {
     return token;
   }
 
+  async generateResetToken(user: User): Promise<string> {
+    // Gere um token aleatório
+    const token = randomBytes(20).toString("hex");
+  
+    // Defina a data de expiração para 1 hora a partir de agora
+    const expires = new Date();
+    expires.setHours(expires.getHours() + 1);
+  
+    try {
+      // Atualize o usuário com o token e a data de expiração
+      await this.userRepository.updateUser(user.id, {
+        resetPasswordToken: token,
+        resetPasswordExpires: expires,
+      });
+    } catch (error) {
+      // Adicione tratamento de erros apropriado
+      throw new Error(`Failed to update user with reset token: ${error}`);
+    }
+  
+    // Retorne o token gerado
+    return token;
+  }
+  
   confirmationEmailTemplate(name: string, confirmationLink: string): string {
     return `
       <p>Olá ${name},</p>
@@ -61,6 +84,17 @@ export default class EmailService {
       <p>Bem-vindo(a)! Agora você tem acesso a todas as nossas funcionalidades.</p>
       <p>Estamos felizes em tê-lo(a) conosco!</p>
       <p>Se precisar de ajuda, não hesite em nos contatar.</p>
+      <p>Atenciosamente, Equipe ONCO_nection.</p>
+    `;
+  }
+
+  resetPasswordEmailTemplate(name: string, resetLink: string): string {
+    return `
+      <p>Olá ${name},</p>
+      <p>Recebemos uma solicitação para redefinir sua senha. Se você não fez essa solicitação, por favor ignore este e-mail.</p>
+      <p>Para redefinir sua senha, clique no link abaixo:</p>
+      <a href="${resetLink}">Redefinir Senha</a>
+      <p>Este link é válido por 1 hora.</p>
       <p>Atenciosamente, Equipe ONCO_nection.</p>
     `;
   }
@@ -93,6 +127,37 @@ export default class EmailService {
       };
     }
   }
+
+  async sendResetPasswordEmail(user: User) {
+    // Gere o token de redefinição de senha
+    const token = await this.generateResetToken(user);
+    const resetLink = `http://localhost:3333/reset-password/${token}`;
+
+    const mailOptions = {
+      from: "test@test.com",
+      to: user.email,
+      subject: "Redefinição de Senha",
+      html: this.resetPasswordEmailTemplate(user.name, resetLink),
+    };
+
+    try {
+      await this.transporter.sendMail(mailOptions);
+      return {
+        success: true,
+        message: "Reset password email was sent successfully",
+      };
+    } catch (error) {
+      const rabbitChannel = getRabbitChannel();
+      if (rabbitChannel) {
+        rabbitChannel.sendToQueue(RABBITMQ_QUEUE_NAME, Buffer.from(JSON.stringify(mailOptions)), { persistent: true });
+      }
+      return {
+        success: false,
+        message: "Failed to send reset password email",
+      };
+    }
+  }
+
 
   async sendWelcomeEmail(user: User) {
     const mailOptions = {

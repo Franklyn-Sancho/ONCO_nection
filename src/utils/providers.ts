@@ -29,59 +29,45 @@ import EmailService, { transporter } from "../infrastructure/EmailService";
 import UserService from "../service/UserService";
 import UserController from "../controller/UserController";
 
-const httpServer = new Server();
-const io = new socketIo.Server(httpServer);
+export const httpServer = new Server();
+export const io = new socketIo.Server(httpServer);
 
 
-const prisma = new PrismaClient();
-const userRepository = new UserRepository(prisma);
-const emailService = new EmailService(transporter, userRepository);
-const userService = new UserService(userRepository, emailService);
-const userController = new UserController(prisma, userService)
+export const prisma = new PrismaClient();
+export const userRepository = new UserRepository(prisma);
+export const emailService = new EmailService(transporter, userRepository);
+export const userService = new UserService(userRepository, emailService);
+export const userController = new UserController(prisma, userService)
 
-const likeRepository = new LikeRepository(prisma);
-const likeService = new LikeService(likeRepository);
-const likeController = new LikeController(likeService);
+export const likeRepository = new LikeRepository(prisma);
+export const likeService = new LikeService(likeRepository);
+export const likeController = new LikeController(likeService);
 
-const commentRepository = new CommentsRepository(prisma)
-const commentService = new CommentsService(commentRepository)
-const commentController = new CommentController(commentService)
+export const commentRepository = new CommentsRepository(prisma)
+export const commentService = new CommentsService(commentRepository)
+export const commentController = new CommentController(commentService)
 
-const meetingRepository = new MeetingRepository(prisma);
-const meetingService = new MeetingService(meetingRepository);
-const meetingController = new MeetingController(
+export const meetingRepository = new MeetingRepository(prisma);
+export const meetingService = new MeetingService(meetingRepository);
+export const meetingController = new MeetingController(
   meetingService,
   likeController,
   meetingRepository,
   commentController
 );
 
-const chatRepository = new ChatRepository(prisma)
-const chatService = new ChatService(chatRepository)
-const chatController = new ChatController(chatService)
+export const chatRepository = new ChatRepository(prisma)
+export const chatService = new ChatService(chatRepository)
+export const chatController = new ChatController(chatService)
 
-const muralRepository = new MuralRepository(prisma);
-const muralService = new MuralService(muralRepository);
-const muralController = new MuralController(muralService, likeController, commentController);
+export const muralRepository = new MuralRepository(prisma);
+export const muralService = new MuralService(muralRepository);
+export const muralController = new MuralController(muralService, likeController, commentController);
 
-const friendshipRepository = new FriendshipRepository(prisma);
-const friendshipService = new FriendshipService(friendshipRepository, chatService);
-const friendshipController = new FriendshipController(friendshipService);
+export const friendshipRepository = new FriendshipRepository(prisma);
+export const friendshipService = new FriendshipService(friendshipRepository, chatService);
+export const friendshipController = new FriendshipController(friendshipService);
 
-const messageRepository = new MessageRepository(prisma)
-const messageService = new MessageService(messageRepository, io)
-const messageController = new MessageController(messageService)
-
-export {
-  io,
-  likeController,
-  meetingController,
-  muralController,
-  friendshipController,
-  chatService,
-  chatController,
-  messageService,
-  messageController,
-  userController,
-  userService,
-};
+export const messageRepository = new MessageRepository(prisma)
+export const messageService = new MessageService(messageRepository, io)
+export const messageController = new MessageController(messageService)
