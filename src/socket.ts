@@ -1,45 +1,31 @@
-import * as socketIo from "socket.io";
-import { MessageService } from "./service/MessageService";
-import { ChatService } from "./service/ChatService";
 
-interface IMessage {
-  content: string;
-  senderId: string;
-  recipientId: string;
-  chatId: string;
-}
+import { Server as SocketIOServer } from 'socket.io';
+import { IMessageService } from './service/MessageService';
 
-interface IChat {
-  initiatorId: string;
-  participantId: string;
-}
+// Função para configurar o Socket.IO
+export function setupSocket(io: SocketIOServer, messageService: IMessageService) {
+  io.on('connection', (socket) => {
+    console.log('A user connected');
 
-export function setupSocket(
-  io: socketIo.Server,
-  messageService: MessageService,
-  chatService: ChatService
-) {
-  io.on("connection", (socket) => {
-    console.log("The User Has Been Connected");
+    // Escuta por eventos de envio de mensagens
+    socket.on('sendMessage', async (messageData) => {
+      try {
+        // Mensagem deve ser um objeto com as propriedades necessárias
+        const { content, senderId, recipientId, chatId } = messageData;
+        const newMessage = await messageService.createMessage(content, senderId, recipientId, chatId);
 
-    socket.on("new message", async (message: IMessage) => {
-      const newMessage = await messageService.createMessage(
-        message.content,
-        message.senderId,
-        message.recipientId,
-        message.chatId
-      );
-
-      io.emit("message", newMessage);
+        // Emite a nova mensagem para todos os clientes conectados
+        io.emit('message', newMessage);
+      } catch (error) {
+        console.error('Error creating message:', error);
+        socket.emit('error', { message: 'Failed to send message' });
+      }
     });
 
-    socket.on("new chat", async (chat: IChat) => {
-      const newChat = await chatService.createChat(
-        chat.initiatorId,
-        chat.participantId
-      );
-
-      io.emit("chat", newChat);
+    // Escuta por eventos de desconexão
+    socket.on('disconnect', () => {
+      console.log('User disconnected');
     });
   });
 }
+

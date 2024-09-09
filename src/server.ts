@@ -1,11 +1,12 @@
 import Fastify, { FastifyReply, FastifyRequest } from "fastify";
+import { Server as SocketIOServer } from 'socket.io';
 import cors from "@fastify/cors";
 import jwt from "@fastify/jwt";
 import userRouter from "./router/user.router";
 import fastifyMultipart from "@fastify/multipart";
 import { messageRouter } from "./router/chat.router";
 import { setupSocket } from "./socket";
-import { chatService, io, messageService } from "./utils/providers";
+import { messageService } from "./utils/providers";
 import { meetingRouter } from "./router/meeting.router";
 import { muralRouter } from "./router/mural.router";
 import { registerFriendshipRoutes } from "./router/friendship.router";
@@ -14,7 +15,7 @@ import path from "path";
 import dotenv from 'dotenv'
 import { setupSwagger } from "./swagger";
 import { initRabbitMQ } from "./infrastructure/rabbitmqService";
-import { googleRouterAuthentication} from "./auth/google/authGoogleConfig";
+import { googleRouterAuthentication } from "./auth/google/authGoogleConfig";
 import './infrastructure/cronServices';
 
 dotenv.config()
@@ -28,17 +29,16 @@ async function main() {
 
   await initRabbitMQ();
 
+  const io = new SocketIOServer(fastify.server);
+
   setupSwagger(fastify)
 
-  setupSocket(io, messageService, chatService);
+  setupSocket(io, messageService);
 
   await fastify.register(cors, {
     origin: true,
     credentials: true,
   });
-
-  
-
 
   fastify.register(fastifyStatic, {
     root: path.join(__dirname, "upload"),
@@ -52,13 +52,13 @@ async function main() {
   });
 
   fastify.register(fastifyMultipart, {
-    addToBody: true, // Isso permite adicionar os campos ao objeto `request.body`
+    addToBody: true, 
   });
 
 
 
-  fastify.register(userRouter); //register to userRouter
-  fastify.register(meetingRouter); //register to meetingRouter
+  fastify.register(userRouter); 
+  fastify.register(meetingRouter); 
   fastify.register(registerFriendshipRoutes);
   fastify.register(muralRouter);
   fastify.register(messageRouter);
