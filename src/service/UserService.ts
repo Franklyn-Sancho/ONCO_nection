@@ -5,7 +5,7 @@ import { BadRequestError } from "../errors/BadRequestError";
 import { getBlockedUsers } from "../utils/getBlockedUsers";
 import { NotFoundError } from "../errors/NotFoundError";
 import { FindUserByIdParams, FindUserByNameParams, UserBodyData, UserProfile } from "../types/usersTypes";
-import { IEmailService } from "../infrastructure/EmailService";
+import { sendConfirmationEmail } from "../infrastructure/emailService";
 
 export interface IUserService {
   registerWithEmail(user: UserBodyData, password: string): Promise<{ user: User; emailResult: any }>;
@@ -24,7 +24,6 @@ export default class UserService implements IUserService {
 
   constructor(
     private userRepository: IUserRepository,
-    private emailService: IEmailService
   ) { }
 
   // Hashes the user's password before storing it
@@ -36,7 +35,7 @@ export default class UserService implements IUserService {
   async registerWithEmail(user: UserBodyData, password: string): Promise<{ user: User; emailResult: any }> {
     const hashedPassword = await this.hashPassword(password);
     const createdUser = await this.userRepository.registerUserWithEmail(user, hashedPassword);
-    const emailResult = await this.emailService.sendConfirmationEmail(createdUser);
+    const emailResult = await sendConfirmationEmail(createdUser);
 
     return { user: createdUser, emailResult };
   }

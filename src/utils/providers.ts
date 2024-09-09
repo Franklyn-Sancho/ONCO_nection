@@ -25,7 +25,6 @@ import { MessageController } from "../controller/MessageController";
 import { Server } from "http";
 import * as socketIo from "socket.io";
 import UserRepository from "../repository/UserRepository";
-import EmailService, { transporter } from "../infrastructure/EmailService";
 import UserService from "../service/UserService";
 import UserController from "../controller/UserController";
 
@@ -35,8 +34,7 @@ export const io = new socketIo.Server(httpServer);
 
 export const prisma = new PrismaClient();
 export const userRepository = new UserRepository(prisma);
-export const emailService = new EmailService(transporter, userRepository);
-export const userService = new UserService(userRepository, emailService);
+export const userService = new UserService(userRepository);
 export const userController = new UserController(prisma, userService)
 
 export const likeRepository = new LikeRepository(prisma);

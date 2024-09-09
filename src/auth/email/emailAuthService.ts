@@ -1,9 +1,10 @@
 import { User } from "@prisma/client";
-import { emailService, prisma, userRepository } from "../../utils/providers";
+import { prisma, userRepository } from "../../utils/providers";
 import { generateToken, updateUserPassword, validatePassword } from "./emailAuth";
 import bcrypt from 'bcryptjs'
 import { UnauthorizedError } from "../../errors/UnauthorizedError";
 import { NotFoundError } from "../../errors/NotFoundError";
+import { generateResetToken, sendResetPasswordEmail } from "../../infrastructure/emailService";
 
 
 export async function authenticate(email: string, password: string): Promise<{ user: User; token: string }> {
@@ -36,8 +37,8 @@ export async function requestPasswordReset(email: string): Promise<string> {
     const user = await prisma.user.findUnique({ where: { email } });
     if (!user) throw new Error("Email not found");
 
-    await emailService.generateResetToken(user);
-    const result = await emailService.sendResetPasswordEmail(user);
+    await generateResetToken(user);
+    const result = await sendResetPasswordEmail(user);
 
     return result.success ? "Password reset email sent" : "Failed to send password reset email";
 }

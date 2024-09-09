@@ -26,8 +26,13 @@ export default async function userRouter(fastify: FastifyInstance) {
 
   fastify.get(
     "/confirm-email/:token",
-    userController.confirmEmail.bind(userController)
+    userController.handleConfirmEmail.bind(userController)
   );
+
+  fastify.get(
+    "/auth/reset-password/:token",
+    userController.handleResetPasswordEmail.bind(userController)
+);
 
   fastify.get(
     "/user/finduser/:name",

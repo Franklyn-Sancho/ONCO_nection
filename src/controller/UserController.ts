@@ -10,13 +10,14 @@ import { FindUserByIdParams, FindUserByNameParams, UserBodyData, UserParams } fr
 import { BadRequestError } from "../errors/BadRequestError";
 import { NotFoundError } from "../errors/NotFoundError";
 import { handleImageUpload } from "../infrastructure/fileService";
+import { sendWelcomeEmail } from "../infrastructure/emailService";
 
 export interface IUserController {
   registerWithEmail(request: FastifyRequest, reply: FastifyReply): Promise<void>;
   findUserByName(request: FastifyRequest, reply: FastifyReply): Promise<void>;
   findUserById(request: FastifyRequest, reply: FastifyReply): Promise<void>;
   findUserProfile(request: FastifyRequest, reply: FastifyReply): Promise<void>;
-  confirmEmail(request: FastifyRequest, reply: FastifyReply): Promise<void>;
+  handleConfirmEmail(request: FastifyRequest, reply: FastifyReply): Promise<void>;
   blockUser(request: FastifyRequest, reply: FastifyReply): Promise<void>;
   deleteUser(request: FastifyRequest, reply: FastifyReply): Promise<void>;
   deactivateUserHandler(request: FastifyRequest, reply: FastifyReply): Promise<void>
@@ -136,7 +137,7 @@ export default class UserController implements IUserController {
   }
 
   // Confirms the user's email using a confirmation token
-  async confirmEmail(request: FastifyRequest, reply: FastifyReply) {
+  async handleConfirmEmail(request: FastifyRequest, reply: FastifyReply) {
     const token = (request.params as any).token;
 
     if (typeof token !== "string") {
@@ -144,7 +145,7 @@ export default class UserController implements IUserController {
       return;
     }
 
-    // Find the user by email confirmation token
+    // Encontrar o usuário pelo token de confirmação de email
     const user = await this.prisma.user.findUnique({
       where: { emailConfirmationToken: token },
     });
@@ -154,7 +155,7 @@ export default class UserController implements IUserController {
       user.emailConfirmationExpires &&
       user.emailConfirmationExpires > new Date()
     ) {
-      // Update user's email confirmation status
+      // Atualizar o status de confirmação de email do usuário
       await this.prisma.user.update({
         where: {
           id: user.id,
@@ -164,9 +165,43 @@ export default class UserController implements IUserController {
         },
       });
 
-      reply.send("Email confirmed successfully");
-    } else {
+      const emailResult = await sendWelcomeEmail(user);
+
+      if (emailResult.success) {
+        reply.send("Email confirmed successfully and welcome email sent.");
+      } else {
+        reply.send("Email confirmed successfully, but failed to send welcome email.");
+      }
       reply.send("Invalid or expired confirmation link");
+    }
+  }
+
+
+  async handleResetPasswordEmail(request: FastifyRequest, reply: FastifyReply) {
+    const token = (request.params as any).token;
+
+    if (typeof token !== "string") {
+      reply.send("Invalid or expired confirmation link");
+      return;
+    }
+
+    // Find the user by email confirmation token
+    const user = await this.prisma.user.findUnique({
+      where: { resetPasswordToken: token },
+    });
+
+    if (
+      user &&
+      user.resetPasswordExpires &&
+      user.resetPasswordExpires > new Date()
+    ) {
+
+      reply.code(201).send({
+        message: "token created sucessfully",
+        token: request.params
+      })
+    } else {
+      reply.send("Invalid or expired reset password link");
     }
   }
 
@@ -224,36 +259,36 @@ export default class UserController implements IUserController {
   async deactivateUserHandler(request: FastifyRequest, reply: FastifyReply): Promise<void> {
     try {
       const { userId } = request.user as UserParams
-  
+
       // Deactivate the user account using the service
       await this.userService.deactivateUser(userId);
-  
+
       reply.status(200).send({ message: "User account deactivated successfully." });
     } catch (error) {
       reply.status(500).send({ error: "Failed to deactivate user account." });
     }
   }
-  
+
   // Marks a user account for deletion
   async markUserForDeletionHandler(request: FastifyRequest, reply: FastifyReply): Promise<void> {
     try {
       const { userId } = request.user as UserParams
-  
+
       // Mark the user account for deletion using the service
       await this.userService.markUserForDeletion(userId);
-  
+
       reply.status(200).send({ message: "User account marked for deletion successfully." });
     } catch (error) {
       reply.status(500).send({ error: "Failed to mark user account for deletion." });
     }
   }
-  
+
   // Processes scheduled user deletions
   async permanentlyDeleteUserHandler(request: FastifyRequest, reply: FastifyReply): Promise<void> {
     try {
       // Process scheduled deletions
       await this.userService.processScheduledDeletions();
-  
+
       reply.status(200).send({ message: "User accounts that were scheduled for deletion have been processed." });
     } catch (error) {
       reply.status(500).send({ error: "Failed to process scheduled deletions." });
