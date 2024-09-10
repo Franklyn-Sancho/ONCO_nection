@@ -1,6 +1,4 @@
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import { prisma } from "../config/providers";
 
 export async function getBlockedUsers(userId: string): Promise<string[]> {
   const blockedUsers = await prisma.userBlocks.findMany({

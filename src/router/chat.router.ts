@@ -1,6 +1,6 @@
 import { FastifyInstance } from "fastify";
 import { authenticate } from "../middleware/authenticate";
-import { chatController, messageController } from "../utils/providers";
+import { chatController, messageController } from "../config/providers";
 
 export function messageRouter(
   fastify: FastifyInstance,

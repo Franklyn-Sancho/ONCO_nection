@@ -29,6 +29,10 @@ export interface FindUserByNameParams {
 // Interface para parâmetros de busca de usuário por ID
 export interface FindUserByIdParams {
     id: string;
+    name: string;
+    email: string;
+    emailConfirmed: boolean;
+    imageProfile: string | null,
 }
 
 // Interface para parâmetros de busca de usuário por email
@@ -40,4 +44,5 @@ export interface UserProfile {
     name: string;
     description: string | null;
     imageProfile: string | null;
-  }
+
+}

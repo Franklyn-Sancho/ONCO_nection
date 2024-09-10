@@ -6,6 +6,7 @@ import {
 import { NotFoundError } from "../errors/NotFoundError";
 import { ForbiddenError } from "../errors/ForbiddenError";
 import { CreateMeetingData } from "../types/meetingTypes";
+import { IUserService } from "./UserService";
 
 export interface IMeetingService {
   createMeeting(data: CreateMeetingData): Promise<Meetings>;
@@ -18,10 +19,22 @@ export interface IMeetingService {
 }
 
 export class MeetingService implements IMeetingService {
-  constructor(private meetingRepository: IMeetingRepository) {}
+  constructor(private meetingRepository: IMeetingRepository, private userService: IUserService) {}
 
   async createMeeting(data: CreateMeetingData): Promise<Meetings> {
-    return await this.meetingRepository.createMeeting(data);
+    const { type, title, body, userId, image } = data;
+
+    // Verifica se o usuário tem e-mail confirmado
+    const userInfo = await this.userService.findUserById(userId);
+
+    if (!userInfo || !userInfo.emailConfirmed) {
+      throw new Error("Only users with a confirmed email can create a meeting.");
+    }
+
+    // Cria o mural após a verificação
+    return this.meetingRepository.createMeeting({
+      type, title, body, userId, image
+    });
   }
 
   async updateMeeting(

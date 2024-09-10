@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken'
 import bcrypt from 'bcryptjs'
-import { prisma } from '../../utils/providers';
+import { prisma } from '../../config/providers';
 
 
 export function generateToken(userId: string): string {

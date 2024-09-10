@@ -1,5 +1,5 @@
 import cron from 'node-cron';
-import { userService } from '../utils/providers';
+import { userService } from '../config/providers';
 
 
 cron.schedule('0 0 * * *', async () => { // Executa diariamente à meia-noite

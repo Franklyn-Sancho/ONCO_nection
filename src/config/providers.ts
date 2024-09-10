@@ -38,15 +38,15 @@ export const userService = new UserService(userRepository);
 export const userController = new UserController(prisma, userService)
 
 export const likeRepository = new LikeRepository(prisma);
-export const likeService = new LikeService(likeRepository);
+export const likeService = new LikeService(likeRepository, userService);
 export const likeController = new LikeController(likeService);
 
 export const commentRepository = new CommentsRepository(prisma)
-export const commentService = new CommentsService(commentRepository)
+export const commentService = new CommentsService(commentRepository, userService)
 export const commentController = new CommentController(commentService)
 
 export const meetingRepository = new MeetingRepository(prisma);
-export const meetingService = new MeetingService(meetingRepository);
+export const meetingService = new MeetingService(meetingRepository, userService);
 export const meetingController = new MeetingController(
   meetingService,
   likeController,
@@ -59,7 +59,7 @@ export const chatService = new ChatService(chatRepository)
 export const chatController = new ChatController(chatService)
 
 export const muralRepository = new MuralRepository(prisma);
-export const muralService = new MuralService(muralRepository);
+export const muralService = new MuralService(muralRepository, userService);
 export const muralController = new MuralController(muralService, likeController, commentController);
 
 export const friendshipRepository = new FriendshipRepository(prisma);

@@ -4,6 +4,7 @@ import { NotFoundError } from "../errors/NotFoundError";
 import { ForbiddenError } from "../errors/ForbiddenError";
 import { CreateMuralData } from "../types/muralTypes";
 import { IMuralRepository } from "../repository/MuralRepository";
+import { IUserService } from "./UserService";
 
 export interface IMuralService {
   createMural(data: CreateMuralData): Promise<Mural>;
@@ -18,10 +19,24 @@ export interface IMuralService {
 }
 
 export class MuralService implements IMuralService {
-  constructor(private muralRepository: IMuralRepository) {}
+  constructor(private muralRepository: IMuralRepository, private userService: IUserService) {}
 
-  createMural(data: CreateMuralData): Promise<Mural> {
-    return this.muralRepository.createMural(data);
+  async createMural(data: CreateMuralData): Promise<Mural> {
+    const { userId, body, image } = data;
+
+    // Verifica se o usuário tem e-mail confirmado
+    const userInfo = await this.userService.findUserById(userId);
+
+    if (!userInfo || !userInfo.emailConfirmed) {
+      throw new Error("Only users with a confirmed email can create a mural.");
+    }
+
+    // Cria o mural após a verificação
+    return this.muralRepository.createMural({
+      userId,
+      body,
+      image,
+    });
   }
   
   getMuralByIdIfFriends(muralId: string, userId: string): Promise<Mural | null> {

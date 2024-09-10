@@ -3,6 +3,7 @@ import { ForbiddenError } from "../errors/ForbiddenError";
 import { NotFoundError } from "../errors/NotFoundError";
 import { ILikeRepository } from "../repository/LikeRepository";
 import { LikesTypes } from "../types/likesTypes";
+import { IUserService } from "./UserService";
 
 //interface de métodos da classe LikesService
 export interface ILikeService {
@@ -12,9 +13,17 @@ export interface ILikeService {
 
 //a classe da camada de serviços do sistema de likes implementa a interface de métodos
 export class LikeService implements ILikeService {
-  constructor(private likeRepository: ILikeRepository) {}
+  constructor(private likeRepository: ILikeRepository, private userService: IUserService) {}
 
   async createLike(data: LikesTypes): Promise<Likes | null> {
+    const {author} = data
+
+   const user = await this.userService.findUserById(author)
+
+    if(!user || !user.emailConfirmed) {
+      throw new Error("Only users with a confirmed email can like a content");
+    }
+
     const existingLike = await this.likeRepository.getLikeByUserAndContent(data);
 
     if (existingLike) {

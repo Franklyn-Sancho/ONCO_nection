@@ -1,6 +1,6 @@
 import { FastifyInstance } from "fastify";
 import { authenticate } from "../middleware/authenticate";
-import { userController } from "../utils/providers";
+import { userController } from "../config/providers";
 import { handleAuthenticate, handleRequestPasswordReset, handleResetPassword } from "../auth/email/emailAuthController";
 
 //user router to register, login and test authentication router

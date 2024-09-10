@@ -1,7 +1,6 @@
 import { Chat } from "@prisma/client";
 import { BadRequestError } from "../errors/BadRequestError";
 import { IChatRepository } from "../repository/ChatRepository";
-import { NotFoundError } from "../errors/NotFoundError";
 
 export interface IChatService {
   createChat(initiatorId: string, participantId: string): Promise<Chat>;

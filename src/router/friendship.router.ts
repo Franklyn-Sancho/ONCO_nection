@@ -1,6 +1,6 @@
 import { FastifyInstance } from "fastify";
 import { authenticate } from "../middleware/authenticate";
-import { friendshipController } from "../utils/providers";
+import { friendshipController } from "../config/providers";
 
 export function registerFriendshipRoutes(
   fastify: FastifyInstance,

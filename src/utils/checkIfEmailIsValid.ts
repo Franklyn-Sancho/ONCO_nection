@@ -1,7 +1,5 @@
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "../config/providers";
 
-//prisma object instance
-const prisma = new PrismaClient();
 
 export async function checkIfEmailIsValid(email: string) {
   const user = await prisma.user.findUnique({

@@ -6,6 +6,7 @@ import {
 import { IChatService } from "./ChatService";
 import { BadRequestError } from "../errors/BadRequestError";
 import { ForbiddenError } from "../errors/ForbiddenError";
+import { IUserService } from "./UserService";
 
 export interface IFriendshipService {
   sendFriendRequest(
@@ -48,6 +49,7 @@ export class FriendshipService implements IFriendshipService {
     requesterId: string,
     addressedId: string
   ): Promise<Friendship> {
+
     const existingFriendship =
       await this.friendshipRepository.getFriendshipSolicitations(
         requesterId,
@@ -69,6 +71,9 @@ export class FriendshipService implements IFriendshipService {
         "O usuário não pode enviar solicitação para si mesmo"
       );
     }
+
+    
+
 
     //se não existe, o método do repositório é chamado
     return this.friendshipRepository.createFriendship(requesterId, addressedId);

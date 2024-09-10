@@ -3,8 +3,6 @@ import { processImage } from "../infrastructure/fileService";
 import { FindUserByIdParams, FindUserByNameParams, UserBodyData, UserProfile } from "../types/usersTypes";
 import { getUserInfoFromGoogle } from "../auth/google/authGoogleConfig";
 
-
-
 export interface IUserRepository {
   registerUserWithEmail(user: UserBodyData, password: string): Promise<User>;
   findAuthenticationByUserIdAndProvider(userId: string, provider: string): Promise<Authentication | null>
@@ -32,7 +30,7 @@ export default class UserRepository implements IUserRepository {
   async registerUserWithEmail(user: UserBodyData, hashedPassword: string): Promise<User> {
     // Process the user's profile image
     const processedImage = processImage(user.imageProfile);
-    
+
     // Create a new user record
     const newUser = await this.prisma.user.create({
       data: {
@@ -57,12 +55,12 @@ export default class UserRepository implements IUserRepository {
   async registerOrLoginUserWithGoogle(token: string): Promise<User> {
     // Obtain user information from Google
     const userInfo = await getUserInfoFromGoogle(token);
-  
+
     // Check if the user already exists in the database
     let user = await this.prisma.user.findUnique({
       where: { email: userInfo.email },
     });
-  
+
     if (!user) {
       // If user does not exist, create a new user record
       user = await this.prisma.user.create({
@@ -82,7 +80,7 @@ export default class UserRepository implements IUserRepository {
         },
       });
     }
-  
+
     // Insert or update authentication information
     await this.prisma.authentication.upsert({
       where: {
@@ -100,7 +98,7 @@ export default class UserRepository implements IUserRepository {
         providerId: userInfo.sub,
       },
     });
-  
+
     return user;
   }
 
@@ -143,8 +141,17 @@ export default class UserRepository implements IUserRepository {
   }
 
   // Finds a user by their ID
-  findUserById(id: string): Promise<FindUserByIdParams | null> {
-    return this.prisma.user.findUnique({ where: { id } });
+  async findUserById(id: string): Promise<FindUserByIdParams | null> {
+    return this.prisma.user.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        emailConfirmed: true,
+        imageProfile: true,
+      },
+    });
   }
 
   // Finds users by name, excluding blocked users
@@ -199,7 +206,7 @@ export default class UserRepository implements IUserRepository {
     await this.prisma.authentication.deleteMany({
       where: { userId }
     });
-  
+
     await this.prisma.user.delete({
       where: { id: userId },
     });

@@ -1,6 +1,6 @@
 import { FastifyInstance } from "fastify";
 import { authenticate } from "../middleware/authenticate";
-import { meetingController } from "../utils/providers";
+import { meetingController } from "../config/providers";
 import { UserRequest } from "../types/userTypes";
 import { commentMeetingCreate, createMeetingSchema, updateMeetingSchema } from "../schema/meeting.schema";
 import { errorResponse, successResponse } from "../schema/commonResponse";

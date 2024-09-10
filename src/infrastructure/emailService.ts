@@ -3,7 +3,7 @@ import { randomBytes } from "crypto";
 import { User } from "@prisma/client";
 import UserRepository from "../repository/UserRepository";
 import { getRabbitChannel, initRabbitMQ, RABBITMQ_QUEUE_NAME } from './rabbitmqService';
-import { userRepository } from '../utils/providers';
+import { userRepository } from '../config/providers';
 
 export interface IEmailService {
   generateEmailConfirmationToken(user: User): Promise<string>;

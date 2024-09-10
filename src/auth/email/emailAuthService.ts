@@ -1,5 +1,5 @@
 import { User } from "@prisma/client";
-import { prisma, userRepository } from "../../utils/providers";
+import { prisma, userRepository } from "../../config/providers";
 import { generateToken, updateUserPassword, validatePassword } from "./emailAuth";
 import bcrypt from 'bcryptjs'
 import { UnauthorizedError } from "../../errors/UnauthorizedError";
