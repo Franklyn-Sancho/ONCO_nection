@@ -1,5 +1,5 @@
 import { FastifyInstance } from "fastify";
-import { authenticate } from "../plugins/authenticate";
+import { authenticate } from "../middleware/authenticate";
 import { userController } from "../utils/providers";
 import { handleAuthenticate, handleRequestPasswordReset, handleResetPassword } from "../auth/email/emailAuthController";
 

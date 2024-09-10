@@ -50,6 +50,7 @@ export class ChatController implements IChatController {
       } catch (error) {
         reply.status(500).send({
           message: "An error occurred, try again later",
+          error: error
         });
       }
     }
@@ -69,6 +70,7 @@ export class ChatController implements IChatController {
     } catch (error) {
       reply.status(500).send({
         message: "An error occurred, try again later",
+        error: error,
       });
     }
   }

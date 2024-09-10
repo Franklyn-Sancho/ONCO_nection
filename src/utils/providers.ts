@@ -67,5 +67,5 @@ export const friendshipService = new FriendshipService(friendshipRepository, cha
 export const friendshipController = new FriendshipController(friendshipService);
 
 export const messageRepository = new MessageRepository(prisma)
-export const messageService = new MessageService(messageRepository, io)
-export const messageController = new MessageController(messageService)
+export const messageService = new MessageService(messageRepository, chatService)
+export const messageController = new MessageController(messageService, io);

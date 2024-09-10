@@ -1,5 +1,5 @@
 import { FastifyInstance, preValidationHookHandler } from "fastify";
-import { authenticate } from "../plugins/authenticate";
+import { authenticate } from "../middleware/authenticate";
 import { muralController } from "../utils/providers";
 
 export function muralRouter(

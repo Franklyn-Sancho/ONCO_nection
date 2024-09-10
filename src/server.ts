@@ -5,7 +5,7 @@ import jwt from "@fastify/jwt";
 import userRouter from "./router/user.router";
 import fastifyMultipart from "@fastify/multipart";
 import { messageRouter } from "./router/chat.router";
-import { setupSocket } from "./socket";
+import { setupSocket } from "./socket/socket";
 import { messageService } from "./utils/providers";
 import { meetingRouter } from "./router/meeting.router";
 import { muralRouter } from "./router/mural.router";
@@ -29,11 +29,17 @@ async function main() {
 
   await initRabbitMQ();
 
-  const io = new SocketIOServer(fastify.server);
+  const io = new SocketIOServer(fastify.server, {
+    cors: {
+      origin: "*", // Defina corretamente a origem conforme necessário
+      methods: ["GET", "POST"],
+    },
+  });
+
+  // Configura o socket
+  setupSocket(io, messageService);
 
   setupSwagger(fastify)
-
-  setupSocket(io, messageService);
 
   await fastify.register(cors, {
     origin: true,
