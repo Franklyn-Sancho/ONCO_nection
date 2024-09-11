@@ -17,6 +17,7 @@ import { setupSwagger } from "./swagger";
 import { initRabbitMQ } from "./infrastructure/rabbitmqService";
 import { googleRouterAuthentication } from "./auth/google/authGoogleConfig";
 import './infrastructure/cronServices';
+import { processEmailQueue } from "./infrastructure/emailService";
 
 dotenv.config()
 
@@ -28,6 +29,7 @@ async function main() {
   });
 
   await initRabbitMQ();
+  processEmailQueue()
 
   const io = new SocketIOServer(fastify.server, {
     cors: {

@@ -44,14 +44,14 @@ export default class UserController implements IUserController {
 
       // Handle image upload and get the file path
       const subDir = "user_profile";
-      const filePath = await handleImageUpload(request, subDir);
+      const filePath = handleImageUpload(request, subDir);
 
       // Register the user with the provided email and hashed password
       const { emailResult } = await this.userService.registerWithEmail({
         name,
         email,
         description,
-        imageProfile: filePath,
+        imageProfile: await filePath,
       }, password);
 
       // Prepare a response message based on the result of email registration

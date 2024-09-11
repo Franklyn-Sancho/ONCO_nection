@@ -1,8 +1,7 @@
-import nodemailer, { Transporter } from 'nodemailer';
+import nodemailer from 'nodemailer';
 import { randomBytes } from "crypto";
 import { User } from "@prisma/client";
-import UserRepository from "../repository/UserRepository";
-import { getRabbitChannel, initRabbitMQ, RABBITMQ_QUEUE_NAME } from './rabbitmqService';
+import { getRabbitChannel, RABBITMQ_QUEUE_NAME } from './rabbitmqService';
 import { userRepository } from '../config/providers';
 
 export interface IEmailService {
@@ -77,7 +76,7 @@ export function resetPasswordEmailTemplate(name: string, resetLink: string): str
   `;
 }
 
-export async function sendConfirmationEmail(user: User) {
+export async function sendConfirmationEmail(user: User): Promise<{ success: boolean; message: string }> {
   const confirmationTokenEmail = await generateEmailConfirmationToken(user);
   const confirmationLink = `http://localhost:3333/confirm-email/${confirmationTokenEmail}`;
 
@@ -89,22 +88,30 @@ export async function sendConfirmationEmail(user: User) {
   };
 
   try {
-    await transporter.sendMail(mailOptions);
-    return {
-      success: true,
-      message: "Confirmation email was sent successfully",
-    };
-  } catch (error) {
     const rabbitChannel = getRabbitChannel();
     if (rabbitChannel) {
+      // Envia o email para a fila do RabbitMQ
       rabbitChannel.sendToQueue(RABBITMQ_QUEUE_NAME, Buffer.from(JSON.stringify(mailOptions)), { persistent: true });
+      return {
+        success: true,
+        message: "User registered successfully and email queued for sending",
+      };
+    } else {
+      console.error('RabbitMQ channel is not available');
+      return {
+        success: false,
+        message: "Failed to queue confirmation email",
+      };
     }
+  } catch (error) {
+    console.error("Failed to queue confirmation email:", error);
     return {
       success: false,
-      message: "User registered successfully, but confirmation email could not be sent",
+      message: "User registered successfully, but confirmation email could not be queued",
     };
   }
 }
+
 
 export async function sendResetPasswordEmail(user: User) {
   // Gere o token de redefinição de senha

@@ -16,7 +16,7 @@ export async function initRabbitMQ(): Promise<Channel> {
     } catch (error) {
       console.error('Failed to connect to RabbitMQ:', error);
       console.log(`Retrying in ${RETRY_INTERVAL_MS / 1000} seconds...`);
-      await new Promise(resolve => setTimeout(resolve, RETRY_INTERVAL_MS)); // Wait before retrying
+      await new Promise(resolve => setTimeout(resolve, RETRY_INTERVAL_MS));
     }
   }
 
@@ -28,5 +28,6 @@ export function getRabbitChannel(): Channel | null {
 }
 
 export const RABBITMQ_QUEUE_NAME = QUEUE_NAME;
+
 
 

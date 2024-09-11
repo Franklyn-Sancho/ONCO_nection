@@ -34,11 +34,16 @@ export default class UserService implements IUserService {
   // Registers a new user with an email and password, and sends a confirmation email
   async registerWithEmail(user: UserBodyData, password: string): Promise<{ user: User; emailResult: any }> {
     const hashedPassword = await this.hashPassword(password);
-    const createdUser = await this.userRepository.registerUserWithEmail(user, hashedPassword);
-    const emailResult = await sendConfirmationEmail(createdUser);
 
-    return { user: createdUser, emailResult };
+
+    const createdUser = await this.userRepository.registerUserWithEmail(user, hashedPassword);
+    const emailResultPromise = sendConfirmationEmail(createdUser);
+    emailResultPromise.then((result) => console.log(result)).catch((error) => console.error(error));
+
+    return { user: createdUser, emailResult: "Email queued for sending" };
   }
+
+
 
   // Finds a user by their ID
   async findUserById(id: string): Promise<FindUserByIdParams | null> {
